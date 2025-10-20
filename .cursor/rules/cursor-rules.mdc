@@ -1,0 +1,414 @@
+---
+description: Guidelines and best practices for building Convex projects, including database schema design, queries, mutations, and real-world examples
+globs: **/*.ts,**/*.tsx,**/*.js,**/*.jsx
+---
+
+# BetterCone - Cursor AI Rules
+
+You are helping build a B2B SaaS application using BetterCone starter.
+
+## Core Technologies
+
+- **Backend:** Convex (TypeScript functions, no SQL)
+- **Frontend:** Next.js 15 (App Router, React Server Components)
+- **Auth:** Better Auth (already configured, DON'T add NextAuth)
+- **Database:** Convex (TypeScript schema, DON'T add Prisma/Drizzle)
+- **Billing:** Stripe (already integrated, DON'T rebuild)
+- **UI:** shadcn/ui + Tailwind CSS (DON'T add new component library)
+- **Email:** Resend + React Email (already configured)
+
+## Critical Rules
+
+### DON'T Do These (Common Mistakes)
+
+1. ❌ **DON'T add NextAuth** - We use Better Auth (`@/lib/auth-client`)
+2. ❌ **DON'T add Prisma/Drizzle** - We use Convex (no SQL needed)
+3. ❌ **DON'T write SQL queries** - Use Convex TypeScript functions
+4. ❌ **DON'T add new auth logic** - Use existing Better Auth integration
+5. ❌ **DON'T hardcode organization IDs** - Use `useOrganization()` hook
+6. ❌ **DON'T rebuild billing** - Extend existing Stripe integration
+7. ❌ **DON'T add shadcn/ui manually** - Components already installed
+8. ❌ **DON'T create new UI library** - Use existing shadcn/ui components
+
+### DO These (Best Practices)
+
+1. ✅ **DO use existing authentication** - `useSession()` from `@/lib/auth-client`
+2. ✅ **DO scope by organization** - Always filter queries by `organizationId`
+3. ✅ **DO check permissions** - Verify user role before mutations
+4. ✅ **DO use TypeScript** - Everything is strongly typed
+5. ✅ **DO use shadcn/ui** - Import from `@/components/ui/`
+6. ✅ **DO follow file conventions** - Backend in `packages/convex/`, frontend in `apps/web/src/`
+7. ✅ **DO use Convex patterns** - `query()`, `mutation()`, `action()`
+8. ✅ **DO add indexes** - For organization-scoped queries
+
+## File Structure
+
+```
+packages/convex/convex/
+├── schema.ts              # ADD new tables here
+├── yourFeature.ts         # ADD backend logic here
+└── betterAuth/            # DON'T MODIFY
+
+apps/web/src/
+├── app/demo/              # ADD pages here
+├── components/            # ADD components here
+└── lib/auth-client.ts     # DON'T MODIFY
+```
+
+## Code Patterns
+
+### Authentication
+
+```typescript
+// Client-side
+import { useSession } from "@/lib/auth-client";
+
+const { data: session } = useSession();
+if (!session) return <div>Not authenticated</div>;
+```
+
+### Organizations (Multi-tenancy)
+
+```typescript
+// Always use current organization
+import { useOrganization } from "@/hooks/use-organization";
+
+const { currentOrganization } = useOrganization();
+
+// Pass to all queries
+const data = useQuery(
+  api.yourFeature.list,
+  currentOrganization?.id 
+    ? { organizationId: currentOrganization.id }
+    : "skip"
+);
+```
+
+### Convex Schema
+
+```typescript
+// In packages/convex/convex/schema.ts
+yourTable: defineTable({
+  organizationId: v.id("organizations"),
+  name: v.string(),
+  createdAt: v.number(),
+  createdBy: v.id("users"),
+})
+.index("by_organization", ["organizationId"])
+.index("by_user", ["createdBy"])
+```
+
+### Convex Queries
+
+```typescript
+// In packages/convex/convex/yourFeature.ts
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
+
+export const list = query({
+  args: { organizationId: v.id("organizations") },
+  handler: async (ctx, args) => {
+    // 1. Get user ID
+    const userId = await getUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+    
+    // 2. Check membership
+    const member = await ctx.db
+      .query("organizationMembers")
+      .withIndex("by_organization_user", (q) =>
+        q.eq("organizationId", args.organizationId)
+         .eq("userId", userId)
+      )
+      .first();
+    
+    if (!member) throw new Error("Not a member");
+    
+    // 3. Query data
+    return await ctx.db
+      .query("yourTable")
+      .withIndex("by_organization", (q) => 
+        q.eq("organizationId", args.organizationId)
+      )
+      .collect();
+  },
+});
+```
+
+### Convex Mutations
+
+```typescript
+export const create = mutation({
+  args: { 
+    organizationId: v.id("organizations"),
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // 1. Get user ID
+    const userId = await getUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+    
+    // 2. Check permissions (owner/admin only)
+    const member = await ctx.db
+      .query("organizationMembers")
+      .withIndex("by_organization_user", (q) =>
+        q.eq("organizationId", args.organizationId)
+         .eq("userId", userId)
+      )
+      .first();
+    
+    if (!member) throw new Error("Not a member");
+    if (member.role !== "owner" && member.role !== "admin") {
+      throw new Error("No permission");
+    }
+    
+    // 3. Create
+    return await ctx.db.insert("yourTable", {
+      organizationId: args.organizationId,
+      name: args.name,
+      createdAt: Date.now(),
+      createdBy: userId,
+    });
+  },
+});
+```
+
+### Frontend Pages
+
+```typescript
+// apps/web/src/app/demo/your-feature/page.tsx
+"use client";
+
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@repo/convex";
+import { useOrganization } from "@/hooks/use-organization";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+export default function YourFeaturePage() {
+  const { currentOrganization } = useOrganization();
+  
+  const items = useQuery(
+    api.yourFeature.list,
+    currentOrganization?.id 
+      ? { organizationId: currentOrganization.id }
+      : "skip"
+  );
+  
+  const createItem = useMutation(api.yourFeature.create);
+  
+  if (!currentOrganization) return <div>Select organization</div>;
+  if (!items) return <div>Loading...</div>;
+  
+  return (
+    <div className="space-y-4">
+      <h1 className="text-3xl font-bold">Your Feature</h1>
+      {items.map((item) => (
+        <Card key={item._id}>{item.name}</Card>
+      ))}
+      <Button onClick={() => createItem({ 
+        organizationId: currentOrganization.id,
+        name: "New Item" 
+      })}>
+        Add Item
+      </Button>
+    </div>
+  );
+}
+```
+
+### Forms
+
+```typescript
+// Use react-hook-form + zod
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const schema = z.object({
+  name: z.string().min(1, "Name required"),
+  description: z.string().optional(),
+});
+
+export function YourForm() {
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: { name: "", description: "" },
+  });
+  
+  const createItem = useMutation(api.yourFeature.create);
+  
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    await createItem({ ...values, organizationId: currentOrganization.id });
+  };
+  
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Create</Button>
+      </form>
+    </Form>
+  );
+}
+```
+
+## UI Components (shadcn/ui)
+
+Always import from `@/components/ui/`:
+
+```typescript
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+```
+
+## Checklist for New Features
+
+When adding a new feature, follow these steps:
+
+1. **Schema** - Add table to `packages/convex/convex/schema.ts`
+   - Include `organizationId` field
+   - Add `by_organization` index
+   - Add timestamps: `createdAt`, `updatedAt`
+   - Add `createdBy` if needed
+
+2. **Backend** - Create `packages/convex/convex/yourFeature.ts`
+   - Export `list` query (with org filter)
+   - Export `get` query (with permission check)
+   - Export `create` mutation (with permission check)
+   - Export `update` mutation (with permission check)
+   - Export `remove` mutation (with permission check)
+
+3. **Frontend** - Create `apps/web/src/app/demo/your-feature/page.tsx`
+   - Use `"use client"` directive
+   - Import `useQuery`, `useMutation` from `convex/react`
+   - Use `useOrganization()` hook
+   - Use shadcn/ui components
+   - Add loading states
+   - Add error handling
+
+4. **Components** - Create components in `apps/web/src/components/your-feature/`
+   - Forms, lists, dialogs
+   - Use shadcn/ui primitives
+   - Add proper TypeScript types
+
+5. **Navigation** - Add link in `apps/web/src/components/demo-layout.tsx`
+
+## Common Queries
+
+### Get user's organizations
+
+```typescript
+const organizations = useQuery(
+  api.organizations.listUserOrganizations,
+  session?.user?.id ? { userId: session.user.id } : "skip"
+);
+```
+
+### Get organization members
+
+```typescript
+const members = useQuery(
+  api.organizationMembers.list,
+  currentOrganization?.id 
+    ? { organizationId: currentOrganization.id }
+    : "skip"
+);
+```
+
+### Check if user is admin
+
+```typescript
+const member = await ctx.db
+  .query("organizationMembers")
+  .withIndex("by_organization_user", (q) =>
+    q.eq("organizationId", args.organizationId)
+     .eq("userId", userId)
+  )
+  .first();
+
+const isAdmin = member?.role === "owner" || member?.role === "admin";
+```
+
+## Rate Limiting
+
+```typescript
+// In Convex mutations/actions
+import { checkRateLimit } from "./rateLimit";
+
+await checkRateLimit(ctx, userId, "api_calls");
+```
+
+## Sending Emails
+
+```typescript
+// Use existing email service
+import { sendWelcomeEmail, sendTeamInvitationEmail } from "@/lib/email";
+
+await sendWelcomeEmail(user.email, user.name);
+```
+
+## Environment Variables
+
+Never hardcode these - use from `.env.local`:
+
+```bash
+CONVEX_DEPLOYMENT=
+NEXT_PUBLIC_CONVEX_URL=
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=
+STRIPE_SECRET_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+```
+
+## Useful Commands
+
+```bash
+pnpm install          # Install dependencies
+pnpm dev              # Start dev server
+pnpm convex dev       # Start Convex (in packages/convex)
+pnpm email            # Preview emails
+pnpm type-check       # Check types
+pnpm lint             # Lint code
+```
+
+## When in Doubt
+
+1. Look at existing features: `demo/user`, `demo/organization`, `demo/billing`
+2. Check `docs/AI_DEVELOPMENT_GUIDE.md`
+3. Read `QUICK_REFERENCE.md`
+4. Follow patterns in `packages/convex/convex/` files
+
+## Response Format
+
+When I ask you to add a feature:
+
+1. First, tell me what files you'll create/modify
+2. Show me the code changes
+3. Explain any important decisions
+4. Remind me of any manual steps (like running commands)
+
+Always prefer TypeScript, proper types, and following existing patterns.

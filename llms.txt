@@ -1,0 +1,399 @@
+# BetterCone - AI-Ready B2B SaaS Foundation
+
+> The production-ready foundation for B2B SaaS development with AI coding tools
+
+## Project Overview
+
+BetterCone is a complete B2B SaaS starter optimized for AI-powered development. Use with Cursor, v0, Lovable, Bolt, Claude, ChatGPT, or any AI coding assistant.
+
+**Stack:** Next.js 15, Convex, Better Auth, Stripe, TypeScript, Tailwind CSS, shadcn/ui
+
+**Repository:** https://github.com/vncsleal/bettercone
+**License:** MIT
+
+## Quick Context for AI Tools
+
+### What's Already Built (Don't Rebuild These)
+
+✅ **Authentication System** (Better Auth)
+- Email/password with verification
+- OAuth providers (GitHub, Google ready)
+- Two-factor authentication (TOTP)
+- Passkeys (WebAuthn)
+- Session management with device tracking
+- Password reset flows
+
+✅ **Billing & Subscriptions** (Stripe)
+- Three-tier pricing (Free, Pro, Team)
+- Subscription management
+- Webhook handling
+- Customer portal
+- Usage-based billing ready
+
+✅ **Team Management** (Multi-tenant)
+- Organizations with data isolation
+- Role-based access (Owner, Admin, Member)
+- Team invitations
+- Member management
+
+✅ **Email Service** (Resend + React Email)
+- 5 production-ready templates
+- Transactional email sending
+- Type-safe email functions
+
+✅ **API Infrastructure**
+- API key management
+- Rate limiting (plan-based)
+- Usage tracking
+- Secure hashing
+
+✅ **UI Components** (shadcn/ui)
+- 50+ pre-built components
+- Dark mode support
+- Responsive design
+- Accessible (WCAG 2.1)
+
+## Architecture Overview
+
+### Backend (Convex)
+
+**Location:** `packages/convex/convex/`
+
+**Key Files:**
+- `schema.ts` - Database schema (TypeScript, no SQL!)
+- `auth.ts` - Better Auth integration
+- `subscriptionPlans.ts` - Billing configuration
+- `betterAuth/` - Auth adapter
+
+**Pattern:** All backend logic is TypeScript functions (queries, mutations, actions)
+- No SQL queries to write
+- Type-safe by default
+- Real-time by default
+
+### Frontend (Next.js 15)
+
+**Location:** `apps/web/src/`
+
+**Key Directories:**
+- `app/` - Next.js App Router pages
+- `components/` - React components
+- `lib/` - Utilities and configs
+- `emails/` - Email templates
+
+**Patterns:**
+- Server Components by default
+- Client Components: `"use client"` directive
+- Route handlers in `app/api/`
+
+### Key Patterns to Follow
+
+#### 1. Authentication
+
+```typescript
+// Already configured - just use the context
+import { useSession } from "@/lib/auth-client";
+
+function MyComponent() {
+  const { data: session } = useSession();
+  if (!session) return <div>Not authenticated</div>;
+  // user is authenticated
+}
+```
+
+#### 2. Organizations (Multi-tenancy)
+
+```typescript
+// Use existing organization context
+import { useOrganization } from "@/hooks/use-organization";
+
+function MyFeature() {
+  const { currentOrganization } = useOrganization();
+  // All queries should filter by currentOrganization.id
+}
+```
+
+#### 3. Convex Queries
+
+```typescript
+// In packages/convex/convex/yourFeature.ts
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
+
+export const list = query({
+  args: { organizationId: v.id("organizations") },
+  handler: async (ctx, args) => {
+    // Check auth
+    const userId = await getUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+    
+    // Query data
+    return await ctx.db
+      .query("yourTable")
+      .withIndex("by_organization", (q) => 
+        q.eq("organizationId", args.organizationId)
+      )
+      .collect();
+  },
+});
+```
+
+#### 4. UI Components
+
+```typescript
+// Use shadcn/ui components from @/components/ui/
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+
+// They're already styled with Tailwind
+```
+
+## Adding New Features
+
+### Step 1: Define Schema
+
+Add to `packages/convex/convex/schema.ts`:
+
+```typescript
+yourTable: defineTable({
+  organizationId: v.id("organizations"),
+  name: v.string(),
+  // ... your fields
+  createdAt: v.number(),
+  createdBy: v.id("users"),
+})
+.index("by_organization", ["organizationId"])
+```
+
+### Step 2: Create Backend Functions
+
+Create `packages/convex/convex/yourFeature.ts`:
+
+```typescript
+export const list = query({...})
+export const get = query({...})
+export const create = mutation({...})
+export const update = mutation({...})
+export const remove = mutation({...})
+```
+
+### Step 3: Create Frontend Page
+
+Create `apps/web/src/app/demo/your-feature/page.tsx`:
+
+```typescript
+"use client";
+
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@repo/convex";
+
+export default function YourFeaturePage() {
+  const { currentOrganization } = useOrganization();
+  const items = useQuery(
+    api.yourFeature.list,
+    currentOrganization?.id 
+      ? { organizationId: currentOrganization.id }
+      : "skip"
+  );
+  // ... render with shadcn/ui components
+}
+```
+
+## Common Patterns
+
+### Check Permissions
+
+```typescript
+// In Convex mutations
+const member = await ctx.db
+  .query("organizationMembers")
+  .withIndex("by_organization_user", (q) =>
+    q.eq("organizationId", args.organizationId)
+     .eq("userId", userId)
+  )
+  .first();
+
+if (!member) throw new Error("Not a member");
+if (member.role !== "owner" && member.role !== "admin") {
+  throw new Error("No permission");
+}
+```
+
+### Rate Limiting
+
+```typescript
+// Use existing rate limiter
+import { checkRateLimit } from "./rateLimit";
+
+await checkRateLimit(ctx, userId, "api_calls");
+```
+
+### Send Emails
+
+```typescript
+// Use existing email service
+import { sendWelcomeEmail } from "@/lib/email";
+
+await sendWelcomeEmail(user.email, user.name);
+```
+
+### Form Validation
+
+```typescript
+// Use react-hook-form + zod
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(1),
+});
+
+const form = useForm({
+  resolver: zodResolver(schema),
+});
+```
+
+## File Structure Reference
+
+```
+packages/convex/convex/
+├── schema.ts              # Database schema - ADD YOUR TABLES HERE
+├── auth.ts                # Auth integration - DON'T MODIFY
+├── subscriptionPlans.ts   # Billing config - MODIFY FOR PRICING
+├── yourFeature.ts         # ADD YOUR BACKEND LOGIC HERE
+└── betterAuth/            # Auth adapter - DON'T MODIFY
+
+apps/web/src/
+├── app/
+│   ├── api/auth/          # Auth API routes - DON'T MODIFY
+│   ├── demo/              # Feature pages - ADD YOUR PAGES HERE
+│   └── providers.tsx      # Root providers - DON'T MODIFY
+├── components/
+│   ├── ui/                # shadcn/ui - USE THESE COMPONENTS
+│   └── your-feature/      # ADD YOUR COMPONENTS HERE
+├── lib/
+│   ├── auth-client.ts     # Auth client - DON'T MODIFY
+│   ├── email.ts           # Email service - USE FOR EMAILS
+│   └── utils.ts           # Utilities - ADD HELPERS HERE
+└── emails/                # Email templates - ADD NEW TEMPLATES HERE
+```
+
+## Environment Variables
+
+Required for development:
+
+```bash
+# Convex
+CONVEX_DEPLOYMENT=dev:your-deployment
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+
+# Better Auth
+BETTER_AUTH_SECRET=generate-random-string
+BETTER_AUTH_URL=http://localhost:3000
+
+# Stripe (for billing)
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+# Resend (for emails)
+RESEND_API_KEY=re_...
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+```
+
+## Don't Do These (Common AI Mistakes)
+
+❌ Don't add NextAuth (we use Better Auth)
+❌ Don't add Prisma/Drizzle (we use Convex)
+❌ Don't add new auth logic (use existing)
+❌ Don't hardcode organization IDs (use context)
+❌ Don't create new UI library (use shadcn/ui)
+❌ Don't add SQL queries (use Convex TypeScript)
+❌ Don't rebuild billing (extend existing)
+
+## Useful Commands
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start Convex backend
+cd packages/convex && pnpm convex dev
+
+# Start Next.js frontend
+pnpm dev
+
+# Preview email templates
+cd apps/web && pnpm email
+
+# Type check
+pnpm type-check
+
+# Lint
+pnpm lint
+```
+
+## Documentation
+
+**AI Resources:** (in `.ai/` folder)
+- **AI Quick Start:** `.ai/AI_QUICK_START.md` - 60-second setup
+- **AI Development Guide:** `.ai/AI_DEVELOPMENT_GUIDE.md` - Complete guide
+- **AI Prompts Library:** `.ai/AI_PROMPTS.md` - 300+ prompts
+- **Feature Templates:** `.ai/feature-templates.md` - Code scaffolds
+- **AI Context:** `.ai/context.md` - Quick reference
+
+**Project Documentation:**
+- **Project Structure:** `docs/PROJECT_STRUCTURE.md`
+- **Email Service:** `docs/EMAIL_SERVICE.md`
+- **Environment Variables:** `docs/ENVIRONMENT_VARIABLES.md`
+- **Quick Reference:** `QUICK_REFERENCE.md`
+
+## Example Prompts
+
+### Add New Feature
+
+```
+I'm using BetterCone with Convex and Better Auth.
+
+Add a "projects" feature:
+1. Add projects table to packages/convex/convex/schema.ts
+2. Create packages/convex/convex/projects.ts with CRUD functions
+3. Create apps/web/src/app/demo/projects/page.tsx
+4. Link to organizations, check permissions
+5. Use shadcn/ui components
+
+Follow existing patterns in the codebase.
+```
+
+### Customize Billing
+
+```
+Modify BetterCone's Stripe integration:
+- Update packages/convex/convex/subscriptionPlans.ts
+- Change Free plan to 5 projects limit
+- Change Pro plan to $49/mo with 50 projects
+- Keep existing webhook logic
+```
+
+### Add Email Template
+
+```
+Create a new email template in apps/web/src/emails/:
+- Name: project-invitation-email.tsx
+- Use React Email components
+- Follow pattern from team-invitation-email.tsx
+- Add send function to apps/web/src/lib/email.ts
+```
+
+## Support
+
+- GitHub: https://github.com/vncsleal/bettercone
+- Issues: https://github.com/vncsleal/bettercone/issues
+- Discussions: https://github.com/vncsleal/bettercone/discussions
+- Docs: `docs/` directory
+
+---
+
+Last Updated: 2025-01-20
+Version: 1.0.0
+License: MIT
