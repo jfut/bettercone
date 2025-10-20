@@ -329,7 +329,6 @@ bettercone/
     ├── ENVIRONMENT_VARIABLES.md
     └── PROJECT_STRUCTURE.md
 ```
-```
 
 ## Configuration
 
@@ -468,34 +467,6 @@ Built with:
 **Made with 🍦 by BetterCone**
 
 *The sweetest way to ship B2B SaaS*
-│   ├── convex/
-│   │   ├── _generated/           # Auto-generated Convex types
-│   │   ├── auth.config.ts        # Better Auth configuration
-│   │   ├── auth.ts               # Auth setup and handlers
-│   │   ├── betterAuth/           # Better Auth integration
-│   │   │   ├── _generated/
-│   │   │   ├── adapter.ts
-│   │   │   ├── auth.ts
-│   │   │   ├── convex.config.ts
-│   │   │   └── schema.ts
-│   │   ├── convex.config.ts
-│   │   ├── http.ts
-│   │   ├── schema.ts             # Database schema
-│   │   ├── tsconfig.json
-│   │   └── README.md
-│   ├── next-env.d.ts
-│   ├── package.json
-│   └── tsconfig.json
-├── .env.example                 # Environment variables template
-├── .env.local                   # Local environment variables (gitignored)
-├── package.json                 # Root package.json with workspace config
-├── pnpm-lock.yaml               # pnpm lockfile
-├── pnpm-workspace.yaml          # pnpm workspace configuration
-├── turbo.json                   # Turborepo configuration
-└── README.md                    # This file
-```
-
-## Available Routes
 
 - `/` - Home page with demo navigation and Better Auth UI showcase
 - `/auth/sign-in` - Sign in page
