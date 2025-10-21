@@ -219,7 +219,7 @@ Features:
 Use:
 - useQuery(api.clients.list)
 - useMutation(api.clients.create, update, remove)
-- useOrganization() hook
+- authClient.useActiveOrganization() hook for current organization
 - shadcn/ui components only
 ```
 

@@ -18,6 +18,11 @@ export function ApiUsageCard({
   warningThreshold = 80,
   onUpgrade,
 }: Omit<UsageCardProps, "title" | "icon" | "description" | "unit">) {
+  // Handle undefined states following Better Auth UI pattern
+  if (current === undefined || limit === undefined) {
+    return <ApiUsageCardSkeleton />;
+  }
+
   const usagePercentage = (current / limit) * 100;
   const isWarning = usagePercentage >= warningThreshold;
   const isNearLimit = usagePercentage >= 90;

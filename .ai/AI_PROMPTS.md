@@ -50,7 +50,7 @@ Add a "projects" feature to BetterCone:
    - ProjectCard
 
 Follow existing patterns from demo/user or demo/billing pages.
-Use useOrganization() hook for current org.
+Use authClient.useActiveOrganization() hook for active organization.
 Check permissions before mutations.
 Use shadcn/ui components only.
 ```

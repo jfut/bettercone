@@ -248,22 +248,28 @@ export const createProject = mutation({
 
 ```typescript
 // AI should follow this structure:
+"use client";
+
+import { useQuery } from "convex/react";
+import { api } from "@repo/convex";
+import { authClient } from "@/lib/auth-client";
+
 export default function ProjectsPage() {
-  // 1. Get current organization (existing pattern)
-  const { currentOrganization } = useOrganization();
+  // 1. Get active organization from Better Auth
+  const { data: activeOrg } = authClient.useActiveOrganization();
   
   // 2. Fetch organization data (Convex query)
   const projects = useQuery(
     api.projects.listByOrganization,
-    currentOrganization?.id 
-      ? { organizationId: currentOrganization.id }
+    activeOrg?.id 
+      ? { organizationId: activeOrg.id }
       : "skip"
   );
   
   // 3. Use existing UI components
   return (
     <div>
-      <h1>{currentOrganization?.name} - Projects</h1>
+      <h1>{activeOrg?.name} - Projects</h1>
       {projects?.map(project => (
         <Card key={project._id}>
           {/* shadcn/ui components */}
@@ -367,7 +373,7 @@ that shows the new projects feature"
 **Fix:** "Auth is handled by Better Auth. Just use the session context."
 
 ### ❌ AI hardcodes organization ID
-**Fix:** "Use the useOrganization() hook from our context, not hardcoded IDs."
+**Fix:** "Use authClient.useActiveOrganization() from Better Auth, not hardcoded IDs. Example: `const { data: activeOrg } = authClient.useActiveOrganization();`"
 
 ### ❌ AI creates new component library
 **Fix:** "Use shadcn/ui components from @/components/ui/, already installed."
@@ -429,9 +435,16 @@ export const update = mutation({...})
 export const remove = mutation({...})
 
 // 3. Page (apps/web/src/app/demo/your-feature/page.tsx)
+"use client";
+import { authClient } from "@/lib/auth-client";
+import { useQuery } from "convex/react";
+import { api } from "@repo/convex";
+
 export default function YourFeaturePage() {
-  const { currentOrganization } = useOrganization();
-  const items = useQuery(api.yourFeature.list, {...});
+  const { data: activeOrg } = authClient.useActiveOrganization();
+  const items = useQuery(api.yourFeature.list, 
+    activeOrg?.id ? { organizationId: activeOrg.id } : "skip"
+  );
   // ... use shadcn/ui components
 }
 ```
@@ -532,7 +545,8 @@ Follow existing Convex patterns in this directory.
 ```
 Create apps/web/src/app/demo/projects/page.tsx:
 
-- Use useOrganization() hook for current org
+- Import authClient from "@/lib/auth-client"
+- Use authClient.useActiveOrganization() to get active organization
 - Use useQuery to get projects from api.projects.listByOrganization
 - Show projects in a grid using shadcn/ui Card components
 - Add "New Project" button

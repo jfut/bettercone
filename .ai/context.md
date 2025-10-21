@@ -73,33 +73,51 @@ apps/web/src/
 ### 1. Authentication
 
 ```typescript
-// Client-side - Get current session
+// Client-side - Get current session (Better Auth hook)
 import { useSession } from "@/lib/auth-client";
 
-const { data: session, isPending } = useSession();
+const { data: session, isPending, error } = useSession();
 if (isPending) return <div>Loading...</div>;
 if (!session) return <div>Not authenticated</div>;
+
+// Access user data
+console.log(session.user.name, session.user.email);
 
 // Server-side (Convex) - Get user ID
 import { getUserId } from "./betterAuth/getUserId";
 
 const userId = await getUserId(ctx);
 if (!userId) throw new Error("Unauthorized");
+
+// Server-side (Next.js API/RSC) - Get session
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
+const session = await auth.api.getSession({
+  headers: await headers()
+});
 ```
 
 ### 2. Organization Context
 
 ```typescript
-// Always scope by organization
-import { useOrganization } from "@/hooks/use-organization";
+// IMPORTANT: There is NO useOrganization hook in Better Auth!
+// Organization context is handled internally by Better Auth UI components
 
-const { currentOrganization } = useOrganization();
+// Option 1: Use Better Auth UI components (recommended)
+import { OrganizationSwitcher } from '@daveyplate/better-auth-ui';
+// Component handles organization context automatically
 
-// Pass to ALL queries
+// Option 2: Use Better Auth hooks directly
+import { authClient } from "@/lib/auth-client";
+const { data: activeOrg } = authClient.useActiveOrganization();
+const { data: organizations } = authClient.useListOrganizations();
+
+// Pass organization ID to queries
 const data = useQuery(
   api.yourFeature.list,
-  currentOrganization?.id 
-    ? { organizationId: currentOrganization.id }
+  activeOrg?.id 
+    ? { organizationId: activeOrg.id }
     : "skip"  // Don't run query if no org selected
 );
 ```
@@ -206,15 +224,16 @@ export const create = mutation({
 1. ❌ Add NextAuth - we use Better Auth
 2. ❌ Add Prisma/Drizzle - we use Convex
 3. ❌ Write SQL queries - use Convex TypeScript
-4. ❌ Hardcode organization IDs - use `useOrganization()` hook
+4. ❌ Use `useOrganization()` hook - **IT DOESN'T EXIST!** Use `authClient.useActiveOrganization()` or Better Auth UI components
 5. ❌ Skip permission checks - always verify roles
 6. ❌ Forget indexes - add to schema for query patterns
 7. ❌ Add new UI library - use shadcn/ui
 8. ❌ Rebuild auth/billing - extend existing
+9. ❌ Manually manage organization context - use Better Auth UI components (they handle it internally)
 
 ### DO These
 
-1. ✅ Use `useSession()` for authentication
+1. ✅ Use `useSession()` from `@/lib/auth-client` for authentication
 2. ✅ Scope all queries by `organizationId`
 3. ✅ Check permissions before mutations
 4. ✅ Add indexes for query patterns
@@ -222,9 +241,12 @@ export const create = mutation({
 6. ✅ Follow existing code patterns
 7. ✅ Use TypeScript strictly
 8. ✅ Handle loading/error states
+9. ✅ Use Better Auth UI components (`<OrganizationSwitcher />`, `<SettingsCards />`, `<UserButton />`)
+10. ✅ Let Better Auth UI components handle organization context automatically
 
 ## 🎨 UI Component Usage
 
+### shadcn/ui Components
 ```typescript
 // Always import from @/components/ui/
 import { Button } from "@/components/ui/button";
@@ -237,6 +259,65 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+```
+
+### Better Auth UI Components (Pre-built Auth Features)
+```typescript
+// Import from '@daveyplate/better-auth-ui'
+import { 
+  OrganizationSwitcher,  // Switch between organizations and personal account
+  UserButton,            // User menu with avatar, settings, sign out
+  SettingsCards,         // Complete settings UI (account, security, organizations)
+  SignedIn,              // Render children only if authenticated
+  SignedOut,             // Render children only if NOT authenticated
+  RedirectToSignIn,      // Redirect to sign-in if not authenticated
+  AuthLoading            // Show loading state during auth check
+} from '@daveyplate/better-auth-ui';
+
+// Example: Protected page with organization switcher
+function Dashboard() {
+  return (
+    <>
+      <RedirectToSignIn />
+      <SignedIn>
+        <OrganizationSwitcher />
+        <h1>Dashboard</h1>
+      </SignedIn>
+    </>
+  );
+}
+
+// Example: User profile button
+function Header() {
+  return (
+    <nav>
+      <SignedOut>
+        <Button>Sign In</Button>
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
+    </nav>
+  );
+}
+```
+
+### Custom Billing Components (BetterCone)
+```typescript
+// These handle organization context internally - no props needed!
+import { BillingDashboard } from '@/components/billing/billing-dashboard';
+import { PricingDashboard } from '@/components/billing/pricing-dashboard';
+
+// BillingDashboard - NO props needed, auto-detects current organization
+<BillingDashboard />
+
+// PricingDashboard - accepts optional config
+<PricingDashboard 
+  successUrl="/billing"
+  cancelUrl="/pricing"
+  defaultInterval="monthly"
+  showFooter={false}
+/>
 ```
 
 ## 📊 Schema Conventions

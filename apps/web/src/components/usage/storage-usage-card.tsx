@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Database, AlertTriangle } from "lucide-react";
 
 interface StorageUsageCardProps {
-  currentBytes: number;
-  limitBytes: number;
+  currentBytes: number | undefined;
+  limitBytes: number | undefined;
   warningThreshold?: number;
   onUpgrade?: () => void;
 }
@@ -24,6 +24,11 @@ export function StorageUsageCard({
   warningThreshold = 80,
   onUpgrade,
 }: StorageUsageCardProps) {
+  // Handle undefined states following Better Auth UI pattern
+  if (currentBytes === undefined || limitBytes === undefined) {
+    return <StorageUsageCardSkeleton />;
+  }
+
   const usagePercentage = (currentBytes / limitBytes) * 100;
   const isWarning = usagePercentage >= warningThreshold;
   const isNearLimit = usagePercentage >= 90;

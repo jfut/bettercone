@@ -172,7 +172,7 @@ export const remove = mutation({
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@repo/convex";
-import { useOrganization } from "@/hooks/use-organization";
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -183,7 +183,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 
 export default function FeatureNamePage() {
-  const { currentOrganization } = useOrganization();
+  // Get active organization from Better Auth
+  const { data: activeOrg } = authClient.useActiveOrganization();
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [name, setName] = useState("");
@@ -192,8 +193,8 @@ export default function FeatureNamePage() {
   // Queries
   const items = useQuery(
     api.FEATURE_NAME.list,
-    currentOrganization?.id 
-      ? { organizationId: currentOrganization.id }
+    activeOrg?.id 
+      ? { organizationId: activeOrg.id }
       : "skip"
   );
   

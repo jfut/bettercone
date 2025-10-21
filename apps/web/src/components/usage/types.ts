@@ -37,8 +37,8 @@ export interface ApiCallLog {
 export interface UsageCardProps {
   title: string;
   icon: React.ComponentType<{ className?: string }>;
-  current: number;
-  limit: number;
+  current: number | undefined;
+  limit: number | undefined;
   unit?: string;
   description?: string;
   warningThreshold?: number; // Show warning when usage exceeds this percentage (default: 80%)

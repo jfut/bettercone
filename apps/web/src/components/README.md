@@ -1,67 +1,165 @@
-# Components Architecture
+# BetterCone Components
 
-This project follows **better-auth-ui component patterns** combined with domain-based organization. Components are organized by feature domain with consistent props patterns and TypeScript interfaces.
+Production-ready B2B SaaS components following **Better Auth UI patterns** with domain-based organization. All components are fully typed, support localization, and include skeleton loading states.
+
+## 🚀 Quick Start
+
+### Single Import Pattern (Recommended)
+
+Import all BetterCone components from the main index:
+
+```tsx
+import {
+  // Billing
+  BillingDashboard,
+  SubscriptionCard,
+  PaymentMethodCard,
+  InvoiceHistoryCard,
+  
+  // Pricing
+  PricingDashboard,
+  PricingCard,
+  
+  // Team
+  TeamDashboard,
+  SeatAllocationCard,
+  TeamBillingCard,
+  
+  // Usage
+  UsageDashboard,
+  ApiUsageCard,
+  StorageUsageCard,
+  FeatureAccessCard,
+} from "@/components";
+```
+
+### Category-Specific Imports
+
+Or import from specific categories:
+
+```tsx
+import { BillingDashboard, SubscriptionCard } from "@/components/billing";
+import { PricingDashboard, PricingCard } from "@/components/pricing";
+import { TeamDashboard, SeatAllocationCard } from "@/components/team";
+import { UsageDashboard, ApiUsageCard } from "@/components/usage";
+```
 
 ## 📁 Folder Structure
 
 ```
 src/components/
+├── index.ts         # Main export file (import everything from here)
 ├── ui/              # shadcn/ui components (base components)
-├── billing/         # Billing & subscription display components
-│   ├── usage-card.tsx
+├── billing/         # Billing & subscription components
+│   ├── cards/
+│   ├── shared/
+│   ├── billing-dashboard.tsx
 │   ├── localization.ts
 │   └── index.ts
-├── subscription/    # Subscription management components
+├── pricing/         # Pricing plans & checkout components
+│   ├── pricing-dashboard.tsx
+│   ├── pricing-card.tsx
+│   ├── localization.ts
+│   └── index.ts
+├── team/            # Team management & seat allocation
+│   ├── team-dashboard.tsx
+│   ├── seat-allocation-card.tsx
+│   ├── team-billing-card.tsx
+│   └── index.ts
+├── usage/           # Usage tracking & limits
+│   ├── usage-dashboard.tsx
+│   ├── api-usage-card.tsx
+│   ├── storage-usage-card.tsx
 │   ├── feature-access-card.tsx
-│   ├── localization.ts
-│   └── index.ts
-├── analytics/       # Analytics & reporting components
-│   ├── usage-analytics.tsx
-│   ├── localization.ts
+│   ├── types.ts
 │   └── index.ts
 ├── layouts/         # Page templates and layouts
-│   ├── demo-layout.tsx
-│   ├── demo-page-template.tsx
-│   ├── admin-dashboard-template.tsx
-│   └── index.ts
-├── molecules/       # Legacy - being phased out
-├── organisms/       # Legacy - being phased out
-└── templates/       # Legacy - migrated to layouts/
+└── header.tsx       # Global header component
 ```
 
-## 🏗️ Component Organization
+## 🏗️ Component Categories
 
-### Domain-Based Structure
-Components are organized by feature domain, following better-auth-ui patterns:
+### 💳 Billing Components (`billing/`)
 
-### Billing Components (`billing/`)
-Components for displaying billing information and usage metrics:
-- `UsageCard` - Individual usage metric display with progress bar
-- Localization support for all billing text
-- Consistent props patterns (className, classNames, localization)
+Complete billing management with Stripe integration:
 
-### Subscription Components (`subscription/`)
-Components for subscription management features:
-- `FeatureAccessCard` - Feature access status with upgrade prompts
-- Localization support for subscription-related text
-- Type-safe props with optional event handlers
+- **`BillingDashboard`** - Full billing overview with subscription, payment methods, and invoices
+- **`SubscriptionCard`** - Current subscription details with upgrade/cancel options
+- **`PaymentMethodCard`** - Payment method management with Stripe
+- **`InvoiceHistoryCard`** - Invoice list with download functionality
+- **`PlanBadge`** - Plan status badge
+- **`SubscriptionStatusBadge`** - Subscription status indicator
+- **`PriceDisplay`** - Formatted price display
 
-### Analytics Components (`analytics/`)
-Components for usage tracking and analytics:
-- `UsageAnalytics` - Complete analytics dashboard composition
-- Reuses billing and subscription components
-- Customizable styling via classNames prop
+```tsx
+import { BillingDashboard } from "@/components";
 
-### Layout Components (`layouts/`)
-Page-level layouts and templates:
-- `DemoLayout` - Feature demo page layout with category badge
-- `DemoPageTemplate` - Simple centered page layout
-- `AdminDashboardTemplate` - Admin dashboard with header content
+export default function BillingPage() {
+  return <BillingDashboard />;
+}
+```
 
-## 📋 Component Standards (Following better-auth-ui Patterns)
+### 💰 Pricing Components (`pricing/`)
 
-### TypeScript Interfaces
-All components must have properly typed interfaces:
+Pricing tables and plan selection with Stripe Checkout:
+
+- **`PricingDashboard`** - Complete pricing table with plan comparison
+- **`PricingCard`** - Individual pricing plan card with features
+- **`PricingHeader`** - Pricing page header with billing toggle
+- **`OrganizationSelector`** - Organization selector for team plans
+
+```tsx
+import { PricingDashboard } from "@/components";
+
+export default function PricingPage() {
+  return (
+    <PricingDashboard
+      successUrl="/dashboard"
+      cancelUrl="/pricing"
+    />
+  );
+}
+```
+
+### 👥 Team Components (`team/`)
+
+Team management with member roles and seat allocation:
+
+- **`TeamDashboard`** - Complete team management interface
+- **`SeatAllocationCard`** - Seat usage and limit management
+- **`TeamBillingCard`** - Team billing summary with plan details
+
+```tsx
+import { TeamDashboard } from "@/components";
+
+export default function TeamPage() {
+  return <TeamDashboard />;
+}
+```
+
+### 📊 Usage Components (`usage/`)
+
+Real-time usage tracking with Convex:
+
+- **`UsageDashboard`** - Complete usage overview dashboard
+- **`ApiUsageCard`** - API call tracking with limits
+- **`StorageUsageCard`** - Storage usage monitoring
+- **`FeatureAccessCard`** - Feature availability by plan
+
+```tsx
+import { UsageDashboard } from "@/components";
+
+export default function UsagePage() {
+  return <UsageDashboard />;
+}
+```
+
+## 📋 Better Auth UI Pattern Compliance
+
+All BetterCone components follow the same patterns as Better Auth UI:
+
+### 1. TypeScript Props Interface
+
 ```typescript
 export interface ComponentProps {
   className?: string;           // Root element styling
@@ -70,37 +168,174 @@ export interface ComponentProps {
     header?: string;
     title?: string;
     content?: string;
+    footer?: string;
   };
   localization?: Partial<LocalizationType>; // Text customization
-  // ... other props
+  // ... component-specific props
 }
 ```
 
-### Props Pattern
-Every component should accept:
-- `className`: Override root element styling
-- `classNames`: Granular styling control for nested elements
-- `localization`: Text customization for internationalization
-- Event handlers as needed (onClick, onUpgrade, etc.)
+### 2. Skeleton Loading States
 
-### Localization Support
-All text content should be externalized:
-```typescript
-// localization.ts
-export interface BillingLocalization {
-  currentPlan: string;
-  upgradeButton: string;
-  // ... all text strings
+Every component has a matching skeleton for loading states:
+
+```tsx
+import { SubscriptionCard, SubscriptionCardSkeleton } from "@/components";
+
+export function BillingPage() {
+  const { data, isPending } = useSubscription();
+  
+  if (isPending) {
+    return <SubscriptionCardSkeleton />;
+  }
+  
+  return <SubscriptionCard />;
 }
+```
 
-export const defaultBillingLocalization: BillingLocalization = {
-  currentPlan: "Current Plan",
-  upgradeButton: "Upgrade",
-  // ...
+### 3. Undefined State Handling
+
+Components gracefully handle undefined data:
+
+```tsx
+export function ApiUsageCard({ current, limit }: Props) {
+  // Return skeleton when data is undefined
+  if (current === undefined || limit === undefined) {
+    return <ApiUsageCardSkeleton />;
+  }
+  
+  // Safe to use data here
+  return <Card>...</Card>;
+}
+```
+
+### 4. Localization Support
+
+All text is customizable via localization props:
+
+```tsx
+import { BillingDashboard, defaultBillingLocalization } from "@/components";
+
+const customLocalization = {
+  ...defaultBillingLocalization,
+  currentPlan: "Plan Actual",
+  upgradeButton: "Actualizar Plan",
 };
+
+<BillingDashboard localization={customLocalization} />
 ```
 
-### Styling with classNames
+### 5. Granular Styling
+
+Components support detailed styling through `classNames`:
+
+```tsx
+<SubscriptionCard
+  className="custom-card-wrapper"
+  classNames={{
+    header: "bg-primary text-white",
+    title: "text-2xl font-bold",
+    content: "p-6",
+    footer: "border-t",
+  }}
+/>
+```
+
+## 🔄 Comparison with Better Auth UI
+
+| Feature | Better Auth UI | BetterCone |
+|---------|---------------|------------|
+| **Purpose** | Authentication & user management | Billing, pricing, teams, usage |
+| **Import Pattern** | `@daveyplate/better-auth-ui` | `@/components` |
+| **Component Pattern** | Dashboard + Individual Cards | Dashboard + Individual Cards |
+| **Props Pattern** | `className`, `classNames`, `localization` | ✅ Same |
+| **Loading States** | Skeleton components | ✅ Same |
+| **TypeScript** | Fully typed | ✅ Same |
+| **Undefined Handling** | Graceful fallbacks | ✅ Same |
+| **Convex Integration** | Built-in | ✅ Built-in |
+
+## 📦 What's Exported
+
+### From `@/components` (Main Index)
+
+**Billing:**
+- `BillingDashboard`, `SubscriptionCard`, `PaymentMethodCard`, `InvoiceHistoryCard`
+- `PlanBadge`, `SubscriptionStatusBadge`, `PriceDisplay`
+- Skeletons: `SubscriptionCardSkeleton`, `PaymentMethodCardSkeleton`, `InvoiceHistoryCardSkeleton`
+
+**Pricing:**
+- `PricingDashboard`, `PricingCard`, `PricingHeader`, `OrganizationSelector`
+- `pricingPlans`, `defaultPricingLocalization`
+- Skeletons: `PricingDashboardSkeleton`, `PricingCardSkeleton`, etc.
+
+**Team:**
+- `TeamDashboard`, `SeatAllocationCard`, `TeamBillingCard`
+- Skeletons: `SeatAllocationCardSkeleton`, `TeamBillingCardSkeleton`
+
+**Usage:**
+- `UsageDashboard`, `ApiUsageCard`, `StorageUsageCard`, `FeatureAccessCard`
+- Skeletons: All usage card skeletons
+
+**UI Components (Re-exported):**
+- `Button`, `Card`, `Badge`, `Input`, `Label`, `Skeleton`, `Progress`
+
+**Utilities:**
+- `ThemeProvider`, `ModeToggle`
+
+## 🎯 Best Practices
+
+### 1. Use the Main Index
+
+```tsx
+// ✅ Good - Single import
+import { BillingDashboard, PricingDashboard } from "@/components";
+
+// ❌ Avoid - Multiple imports
+import { BillingDashboard } from "@/components/billing";
+import { PricingDashboard } from "@/components/pricing";
+```
+
+### 2. Handle Loading States
+
+```tsx
+// ✅ Good - Use skeletons
+if (isPending) return <SubscriptionCardSkeleton />;
+
+// ❌ Avoid - Generic loading
+if (isPending) return <div>Loading...</div>;
+```
+
+### 3. Customize with Localization
+
+```tsx
+// ✅ Good - Use localization for text
+<BillingDashboard localization={{ upgradeButton: "Upgrade Now" }} />
+
+// ❌ Avoid - Hardcoding text changes
+// (Component text is already configurable)
+```
+
+### 4. Style with classNames
+
+```tsx
+// ✅ Good - Granular styling
+<SubscriptionCard classNames={{ header: "bg-primary" }} />
+
+// ⚠️ OK but less flexible - Root only
+<SubscriptionCard className="custom-styles" />
+```
+
+## 🚀 Migration from Old Patterns
+
+If you have old imports, update them:
+
+```tsx
+// Old
+import { BillingDashboard } from "@/components/billing/billing-dashboard";
+
+// New
+import { BillingDashboard } from "@/components";
+```
 Support granular customization:
 ```typescript
 <Card className={cn("w-full", className, classNames?.base)}>

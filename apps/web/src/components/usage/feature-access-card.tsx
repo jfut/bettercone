@@ -12,7 +12,7 @@ import { Zap, Check, Lock } from "lucide-react";
 import type { FeatureAccess } from "./types";
 
 interface FeatureAccessCardProps {
-  features: FeatureAccess;
+  features: FeatureAccess | undefined;
   onUpgrade?: () => void;
 }
 
@@ -40,6 +40,11 @@ const featureConfig = [
 ];
 
 export function FeatureAccessCard({ features, onUpgrade }: FeatureAccessCardProps) {
+  // Handle undefined states following Better Auth UI pattern
+  if (!features) {
+    return <FeatureAccessCardSkeleton />;
+  }
+
   const enabledFeatures = featureConfig.filter(f => features[f.key] === true);
   const disabledFeatures = featureConfig.filter(f => features[f.key] === false);
 

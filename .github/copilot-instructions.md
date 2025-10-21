@@ -22,7 +22,8 @@ BetterCone is a production-ready B2B SaaS starter built for AI-powered developme
 ✅ **Suggest permission checks** before mutations
 ✅ **Suggest TypeScript types** from Convex schema
 ✅ **Suggest React Server Components** by default
-✅ **Suggest existing hooks** (`useSession`, `useOrganization`)
+✅ **Suggest Better Auth hooks** (`useSession` from `@/lib/auth-client`, `authClient.useActiveOrganization()`)
+✅ **Suggest Better Auth UI components** (`<OrganizationSwitcher />`, `<SettingsCards />`, `<UserButton />`)
 
 ## Code Suggestions - DON'T These
 
@@ -52,13 +53,15 @@ if (!session) return <div>Not authenticated</div>;
 // Suggest Convex query pattern
 import { useQuery } from "convex/react";
 import { api } from "@repo/convex";
-import { useOrganization } from "@/hooks/use-organization";
+import { authClient } from "@/lib/auth-client";
 
-const { currentOrganization } = useOrganization();
+// Get active organization from Better Auth
+const { data: activeOrg } = authClient.useActiveOrganization();
+
 const items = useQuery(
   api.yourFeature.list,
-  currentOrganization?.id 
-    ? { organizationId: currentOrganization.id }
+  activeOrg?.id 
+    ? { organizationId: activeOrg.id }
     : "skip"
 );
 ```
@@ -144,8 +147,12 @@ When user types these imports, suggest:
 ```typescript
 // "import { use" → suggest
 import { useSession } from "@/lib/auth-client";
-import { useOrganization } from "@/hooks/use-organization";
+import { authClient } from "@/lib/auth-client";
 import { useQuery, useMutation } from "convex/react";
+
+// Better Auth hooks (from authClient)
+const { data: activeOrg } = authClient.useActiveOrganization();
+const { data: organizations } = authClient.useListOrganizations();
 
 // "import { api" → suggest
 import { api } from "@repo/convex";
@@ -154,7 +161,9 @@ import { api } from "@repo/convex";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-// ... etc
+
+// "from '@daveyplate/better-auth-ui" → suggest Better Auth UI components
+import { OrganizationSwitcher, UserButton, SettingsCards, SignedIn, SignedOut } from '@daveyplate/better-auth-ui';
 ```
 
 ## Schema Auto-Complete
@@ -200,10 +209,17 @@ When user creates new file in `apps/web/src/app/demo/`:
 
 import { useQuery } from "convex/react";
 import { api } from "@repo/convex";
-import { useOrganization } from "@/hooks/use-organization";
+import { authClient } from "@/lib/auth-client";
 
 export default function YourFeaturePage() {
-  const { currentOrganization } = useOrganization();
+  // Get active organization from Better Auth
+  const { data: activeOrg } = authClient.useActiveOrganization();
+  
+  // Query with organization scope
+  const items = useQuery(
+    api.yourFeature.list,
+    activeOrg?.id ? { organizationId: activeOrg.id } : "skip"
+  );
   
   // ... implementation
 }
