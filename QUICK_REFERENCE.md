@@ -244,22 +244,57 @@ pnpm turbo run build --force
 
 ## Documentation
 
-- `README.md` - Project overview
+### Project Documentation
+- `README.md` - Project overview and features
 - `CONTRIBUTING.md` - How to contribute
 - `docs/PROJECT_STRUCTURE.md` - Detailed structure
 - `docs/ENVIRONMENT_VARIABLES.md` - Env vars guide
 - `docs/DEPLOYMENT.md` - Deployment instructions
 
+### Documentation Site (docs.bettercone.dev)
+BetterCone includes comprehensive documentation built with Fumadocs:
+
+**Setup Guides:**
+- `FUMADOCS_SETUP_GUIDE.md` - Complete setup guide (800+ lines)
+- `FUMADOCS_CHECKLIST.md` - Step-by-step checklist (200+ tasks)
+- `DOCUMENTATION_OUTLINE.md` - Content structure and templates
+- `DOCS_IMPLEMENTATION_SUMMARY.md` - Decision rationale
+- `DOCS_QUICK_REFERENCE.md` - Quick access guide
+
+**Create the docs site:**
+```bash
+mkdir docs-bettercone && cd docs-bettercone
+pnpm create fumadocs-app
+pnpm dev
+```
+
+The docs site will include:
+- ✅ Component documentation with examples
+- ✅ Installation and quick start guides
+- ✅ Authentication, billing, and deployment guides
+- ✅ API reference with TypeScript types
+- ✅ Real-world examples and use cases
+- ✅ Built-in search with FlexSearch
+- ✅ Dark mode and mobile responsive
+
 ---
 
 ## Useful Links
 
+### BetterCone
+- [Documentation Site](https://docs.bettercone.dev) (coming soon)
+- [GitHub Repository](https://github.com/vncsleal/bettercone)
+
+### Technologies
+- [Fumadocs](https://fumadocs.dev) - Documentation framework
 - [Turborepo Docs](https://turbo.build/repo/docs)
 - [Next.js Docs](https://nextjs.org/docs)
 - [Convex Docs](https://docs.convex.dev)
 - [Better Auth Docs](https://www.better-auth.com/docs)
+- [Better Auth UI](https://better-auth-ui.com)
+- [shadcn/ui](https://ui.shadcn.com)
 - [pnpm Docs](https://pnpm.io)
 
 ---
 
-**Last Updated**: October 18, 2025
+**Last Updated**: October 23, 2025
