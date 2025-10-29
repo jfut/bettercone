@@ -51,6 +51,10 @@ convex/_generated/
 # Vercel
 .vercel
 
+# Sentry
+.env.sentry-build-plugin
+.sentryclirc
+
 # Misc
 *.pem
 

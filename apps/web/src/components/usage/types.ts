@@ -1,7 +1,27 @@
 /**
  * Usage Component Types
  * Shared types for usage tracking components
+ * Following Better Auth UI pattern
  */
+
+/**
+ * ClassNames for granular styling control
+ * Following Better Auth UI SettingsCardClassNames pattern
+ */
+export type UsageCardClassNames = {
+  base?: string;
+  header?: string;
+  title?: string;
+  description?: string;
+  content?: string;
+  footer?: string;
+  button?: string;
+  badge?: string;
+  progress?: string;
+  skeleton?: string;
+  icon?: string;
+  warning?: string;
+};
 
 export interface UsageData {
   apiCalls: number;
@@ -43,4 +63,7 @@ export interface UsageCardProps {
   description?: string;
   warningThreshold?: number; // Show warning when usage exceeds this percentage (default: 80%)
   onUpgrade?: () => void;
+  className?: string;
+  classNames?: UsageCardClassNames;
 }
+

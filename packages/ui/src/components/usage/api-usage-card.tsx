@@ -1,29 +1,75 @@
 /**
  * API Usage Card Component
- * Real-time API call tracking with Convex
- * Following Better Auth UI component pattern
+ * Real-time API call tracking
+ * Backend-agnostic - accepts usage data as props
  */
 
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, AlertTriangle } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { UsageCardClassNames } from "./types";
-import { UsageLocalization, defaultUsageLocalization } from "./localization";
+import { cn } from "../../lib/utils";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../card";
+import { Progress } from "../progress";
+import { Badge } from "../badge";
+import { Button } from "../button";
+import { Skeleton } from "../skeleton";
+
+export interface ApiUsageCardClassNames {
+  base?: string;
+  header?: string;
+  title?: string;
+  description?: string;
+  content?: string;
+  icon?: string;
+  badge?: string;
+  warning?: string;
+  progress?: string;
+  footer?: string;
+  button?: string;
+  skeleton?: string;
+}
+
+export interface ApiUsageCardLocalization {
+  API_CALLS: string;
+  API_CALLS_DESCRIPTION: string;
+  CALLS: string;
+  HIGH_USAGE: string;
+  APPROACHING_LIMIT: string;
+  ABOVE_THRESHOLD: string;
+  UPGRADE_PLAN: string;
+}
+
+const defaultLocalization: ApiUsageCardLocalization = {
+  API_CALLS: "API Calls",
+  API_CALLS_DESCRIPTION: "Monitor your API usage and limits",
+  CALLS: "calls",
+  HIGH_USAGE: "High usage",
+  APPROACHING_LIMIT: "You're approaching your API call limit. Consider upgrading your plan.",
+  ABOVE_THRESHOLD: "Your usage is above normal levels. Monitor closely to avoid hitting limits.",
+  UPGRADE_PLAN: "Upgrade Plan",
+};
 
 export interface ApiUsageCardProps {
+  /** Current usage count */
   current: number | undefined;
+  
+  /** Maximum allowed usage */
   limit: number | undefined;
+  
+  /** Percentage threshold to show warning (default: 80) */
   warningThreshold?: number;
+  
+  /** Callback when upgrade button is clicked */
   onUpgrade?: () => void;
+  
+  /** Optional CSS class name */
   className?: string;
-  classNames?: UsageCardClassNames;
-  localization?: Partial<UsageLocalization>;
+  
+  /** CSS class names for specific parts */
+  classNames?: ApiUsageCardClassNames;
+  
+  /** Localization strings */
+  localization?: Partial<ApiUsageCardLocalization>;
 }
 
 export function ApiUsageCard({
@@ -35,9 +81,9 @@ export function ApiUsageCard({
   classNames,
   localization: localizationProp,
 }: ApiUsageCardProps) {
-  const localization = { ...defaultUsageLocalization, ...localizationProp };
+  const localization = { ...defaultLocalization, ...localizationProp };
 
-  // Handle undefined states following Better Auth UI pattern
+  // Handle undefined states
   if (current === undefined || limit === undefined) {
     return <ApiUsageCardSkeleton classNames={classNames} />;
   }
@@ -122,11 +168,10 @@ export function ApiUsageCard({
   );
 }
 
-// Loading skeleton following Better Auth UI pattern
 export function ApiUsageCardSkeleton({ 
   classNames 
 }: { 
-  classNames?: UsageCardClassNames 
+  classNames?: ApiUsageCardClassNames 
 }) {
   return (
     <Card className={cn("w-full", classNames?.base)}>
@@ -147,4 +192,3 @@ export function ApiUsageCardSkeleton({
     </Card>
   );
 }
-

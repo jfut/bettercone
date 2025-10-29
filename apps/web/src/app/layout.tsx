@@ -6,6 +6,8 @@ import { Providers } from "./providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import { Toaster } from "@/components/ui/sonner";
+import { PostHogProvider } from "@/lib/posthog";
+import { PageViewTracker } from "@/lib/posthog-pageview";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,17 +40,20 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Providers>
-            <ConvexClientProvider>
-              <div className="flex min-h-screen flex-col">
-                <Header />
-                <main className="flex-1 pt-20">
-                  {children}
-                </main>
-              </div>
-              <Toaster />
-            </ConvexClientProvider>
-          </Providers>
+          <PostHogProvider>
+            <Providers>
+              <ConvexClientProvider>
+                <PageViewTracker />
+                <div className="flex min-h-screen flex-col">
+                  <Header />
+                  <main className="flex-1 pt-20">
+                    {children}
+                  </main>
+                </div>
+                <Toaster />
+              </ConvexClientProvider>
+            </Providers>
+          </PostHogProvider>
         </ThemeProvider>
       </body>
     </html>
