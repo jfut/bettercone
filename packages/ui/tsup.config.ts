@@ -5,12 +5,35 @@ export default defineConfig({
     index: "src/index.ts",
   },
   format: ["cjs", "esm"],
-  dts: true,
+  dts: {
+    resolve: true,
+    compilerOptions: {
+      skipLibCheck: true,
+      strict: false,
+      noImplicitAny: false,
+      strictNullChecks: false,
+      strictFunctionTypes: false,
+      strictPropertyInitialization: false,
+    },
+  },
   sourcemap: true,
   clean: true,
-  external: ["react", "react-dom", "better-auth"],
+  external: [
+    "react", 
+    "react-dom", 
+    "better-auth",
+  ],
+  noExternal: [
+    // Bundle all internal imports
+    /.*/
+  ],
   treeshake: true,
   minify: false,
   splitting: false,
   bundle: true,
+  tsconfig: "./tsconfig.json",
+  esbuildOptions(options) {
+    // Help esbuild find relative imports
+    options.resolveExtensions = ['.tsx', '.ts', '.jsx', '.js', '.json'];
+  },
 });

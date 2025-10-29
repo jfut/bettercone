@@ -5,6 +5,7 @@
     "rootDir": "src",
     "baseUrl": ".",
     "jsx": "react-jsx",
+    "skipLibCheck": true,
     "paths": {
       "@/*": ["./src/*"]
     }

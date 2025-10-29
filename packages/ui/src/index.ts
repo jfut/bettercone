@@ -11,11 +11,12 @@ export type {
 export type { BillingLocalization } from "./types/localization";
 
 // UI Primitives
-export { Button, buttonVariants } from "./components/button";
-export { Badge, badgeVariants } from "./components/badge";
-export { Skeleton } from "./components/skeleton";
-export { Progress } from "./components/progress";
-export { Separator } from "./components/separator";
+export { Button, buttonVariants } from "./components/ui/button";
+export { Badge, badgeVariants } from "./components/ui/badge";
+export { Skeleton } from "./components/ui/skeleton";
+export { Progress } from "./components/ui/progress";
+export { Separator } from "./components/ui/separator";
+export { UserView, type UserViewProps, type UserViewClassNames } from "./components/ui/user-view";
 
 export {
   Card,
@@ -24,8 +25,7 @@ export {
   CardTitle,
   CardDescription,
   CardContent,
-  CardAction,
-} from "./components/card";
+} from "./components/ui/card";
 
 // ============================================================================
 // Billing Components
@@ -119,3 +119,100 @@ export {
   TeamDashboardSkeleton
 } from "./components/team/team-dashboard";
 export type { TeamDashboardProps } from "./components/team/team-dashboard";
+
+// ============================================================================
+// Authentication Components
+// ============================================================================
+export { AuthView } from "./components/auth/auth-view";
+export { AuthForm } from "./components/auth/auth-form";
+export { AuthCallback } from "./components/auth/auth-callback";
+export { PasskeyButton } from "./components/auth/passkey-button";
+export { ProviderButton } from "./components/auth/provider-button";
+export { MagicLinkButton } from "./components/auth/magic-link-button";
+export { EmailOTPButton } from "./components/auth/email-otp-button";
+export { OneTap } from "./components/auth/one-tap";
+export { SignOut } from "./components/auth/sign-out";
+
+// ============================================================================
+// Security Components
+// ============================================================================
+export { PasskeyCell } from "./components/security/passkey-cell";
+export { PasskeysCard } from "./components/security/passkeys-card";
+export { TwoFactorCard } from "./components/security/two-factor-card";
+export { TwoFactorPasswordDialog } from "./components/security/two-factor-password-dialog";
+export { BackupCodesDialog } from "./components/security/backup-codes-dialog";
+export { ChangePasswordCard } from "./components/security/change-password-card";
+export { SessionsCard } from "./components/security/sessions-card";
+export { SessionCell } from "./components/security/session-cell";
+
+// ============================================================================
+// Organization Components
+// ============================================================================
+export { OrganizationSwitcher } from "./components/organization/organization-switcher";
+export { CreateOrganizationDialog } from "./components/organization/create-organization-dialog";
+export { DeleteOrganizationCard } from "./components/organization/delete-organization-card";
+export { OrganizationMembersCard } from "./components/organization/organization-members-card";
+export { RemoveMemberDialog } from "./components/organization/remove-member-dialog";
+export { UpdateMemberRoleDialog } from "./components/organization/update-member-role-dialog";
+export { OrganizationInvitationsCard } from "./components/organization/organization-invitations-card";
+export { InviteMemberDialog } from "./components/organization/invite-member-dialog";
+export { AcceptInvitationCard } from "./components/organization/accept-invitation-card";
+export { UserInvitationsCard } from "./components/organization/user-invitations-card";
+export { OrganizationNameCard } from "./components/organization/organization-name-card";
+export { OrganizationSlugCard } from "./components/organization/organization-slug-card";
+export { OrganizationLogoCard } from "./components/organization/organization-logo-card";
+export { LeaveOrganizationDialog } from "./components/organization/leave-organization-dialog";
+
+// ============================================================================
+// Account Components
+// ============================================================================
+export { AccountView } from "./components/account/account-view";
+export { DeleteAccountCard } from "./components/account/delete-account-card";
+export { DeleteAccountDialog } from "./components/account/delete-account-dialog";
+
+// ============================================================================
+// Developer Components
+// ============================================================================
+export { ApiKeysCard } from "./components/developer/api-keys-card";
+export { ApiKeyCell } from "./components/developer/api-key-cell";
+export { CreateApiKeyDialog } from "./components/developer/create-api-key-dialog";
+
+// ============================================================================
+// User Components
+// ============================================================================
+export { UserButton } from "./components/user/user-button";
+export { UserAvatar } from "./components/user/user-avatar";
+
+// ============================================================================
+// Utility Components
+// ============================================================================
+export { SignedIn } from "./components/utility/signed-in";
+export { SignedOut } from "./components/utility/signed-out";
+export { AuthLoading } from "./components/utility/auth-loading";
+export { RedirectToSignIn } from "./components/utility/redirect-to-sign-in";
+export { RedirectToSignUp } from "./components/utility/redirect-to-sign-up";
+export { PasswordInput } from "./components/utility/password-input";
+export { FormError } from "./components/utility/form-error";
+export type { ProviderIcon } from "./components/utility/provider-icons";
+
+// ============================================================================
+// Hooks
+// ============================================================================
+export { useIsHydrated } from "./hooks/use-hydrated";
+export { useLang } from "./hooks/use-lang";
+export { useOnSuccessTransition } from "./hooks/use-success-transition";
+export { useCurrentOrganization } from "./hooks/use-current-organization";
+export { useAuthData } from "./hooks/use-auth-data";
+export { useAuthenticate } from "./hooks/use-authenticate";
+export { useTheme } from "./hooks/use-theme";
+
+// ============================================================================
+// Context Providers
+// ============================================================================
+export { AuthUIProvider, AuthUIContext } from "./lib/auth-ui-provider";
+
+// ============================================================================
+// Utilities
+// ============================================================================
+export { socialProviders } from "./lib/social-providers";
+export { getViewByPath } from "./lib/utils";

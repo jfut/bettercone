@@ -8,10 +8,10 @@
 
 import { Zap, Check, Lock } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../card";
-import { Badge } from "../badge";
-import { Button } from "../button";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
 
 export interface FeatureAccess {
   planId?: string;

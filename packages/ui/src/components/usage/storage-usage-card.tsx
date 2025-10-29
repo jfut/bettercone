@@ -8,11 +8,11 @@
 
 import { Database, AlertTriangle } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../card";
-import { Progress } from "../progress";
-import { Badge } from "../badge";
-import { Button } from "../button";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Progress } from "../ui/progress";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
 
 export interface StorageUsageCardProps {
   /** Current storage usage in bytes */

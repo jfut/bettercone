@@ -8,11 +8,11 @@
 
 import { CreditCard, Calendar, DollarSign } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../card";
-import { Button } from "../button";
-import { Badge } from "../badge";
-import { Skeleton } from "../skeleton";
-import { Separator } from "../separator";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Skeleton } from "../ui/skeleton";
+import { Separator } from "../ui/separator";
 import type { BetterAuthSubscription, BetterAuthOrganization } from "../../types/auth";
 
 export interface TeamBillingCardProps {

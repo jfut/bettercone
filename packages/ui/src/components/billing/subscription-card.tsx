@@ -9,10 +9,10 @@
 import { useState, useEffect } from "react";
 import { CreditCard, ExternalLink, Settings, Loader2 } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../card";
-import { Button } from "../button";
-import { Badge } from "../badge";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Skeleton } from "../ui/skeleton";
 import type { BetterAuthClient, BetterAuthSubscription, BetterAuthOrganization } from "../../types/auth";
 import type { BillingLocalization } from "../../types/localization";
 

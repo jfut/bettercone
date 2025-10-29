@@ -1,16 +1,29 @@
 # @bettercone/ui
 
-Production-ready billing, pricing, and team management components for React + Better Auth.
+**Comprehensive Better Auth UI component library** with 76+ production-ready components for authentication, billing, teams, and more.
 
 [![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## What's New in v0.2.0 🎉
+
+**76 Components** - Complete authentication, security, organizations, and more:
+
+- ✅ **Authentication**: Sign-in, sign-up, password reset, magic link, email OTP, 2FA, passkeys
+- ✅ **Security**: Sessions management, password changes, two-factor auth, backup codes
+- ✅ **Organizations**: Full org management with members, invitations, roles, settings
+- ✅ **Account**: User profile, avatar, email management, account deletion
+- ✅ **Developer Tools**: API key management, creation, deletion
+- ✅ **Billing**: Subscription cards, payment methods, invoices (existing)
+- ✅ **Usage Tracking**: API usage, storage, feature access (existing)
+- ✅ **Teams**: Seat allocation, team billing (existing)
+
 ## Features
 
-- 🎨 **12 Production-Ready Components** - Billing, usage tracking, team management, and pricing
+- 🎨 **76 Production-Ready Components** - Complete auth + billing solution
 - ⚛️ **Framework Agnostic** - Works with Next.js, Vite, Remix, or any React framework
-- 🔌 **Backend Agnostic** - Works with any auth provider and backend (Convex, Prisma, Supabase, Drizzle)
+- 🔌 **Backend Agnostic** - Works with Convex, Prisma, Supabase, Drizzle, or any Better Auth backend
 - 🎨 **Fully Customizable** - Built with Tailwind CSS and shadcn/ui primitives
 - 🌍 **i18n Ready** - Full localization support
 - ♿ **Accessible** - WCAG 2.1 compliant components
@@ -48,7 +61,35 @@ Set up Better Auth in your project. See the [Better Auth documentation](https://
 
 ## Quick Start
 
-### Next.js (App Router)
+### Authentication Components
+
+```tsx
+"use client";
+
+import { AuthView } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+export default function SignInPage() {
+  return <AuthView authClient={authClient} />;
+}
+```
+
+### Organization Management
+
+```tsx
+import { OrganizationSwitcher, OrganizationMembersCard } from "@bettercone/ui";
+
+export default function OrganizationPage() {
+  return (
+    <div className="container mx-auto py-8">
+      <OrganizationSwitcher authClient={authClient} />
+      <OrganizationMembersCard authClient={authClient} />
+    </div>
+  );
+}
+```
+
+### Billing Dashboard
 
 ```tsx
 "use client";
@@ -75,43 +116,155 @@ export default function BillingPage() {
 }
 ```
 
-### Vite + React
+## Components Overview
+
+### 🔐 Authentication (9 components)
+
+- `AuthView` - Complete authentication view with routing
+- `AuthForm` - Reusable form wrapper
+- `AuthCallback` - OAuth callback handler
+- `PasskeyButton` - Passkey authentication
+- `ProviderButton` - Social OAuth provider button
+- `MagicLinkButton` - Magic link authentication
+- `EmailOTPButton` - Email OTP trigger
+- `OneTap` - Google One Tap
+- `SignOut` - Sign out component
+
+### 🔒 Security (8 components)
+
+- `PasskeyCell` - Individual passkey display
+- `PasskeysCard` - Passkey management
+- `TwoFactorCard` - Two-factor authentication settings
+- `TwoFactorPasswordDialog` - Password verification for 2FA
+- `BackupCodesDialog` - Backup codes display
+- `ChangePasswordCard` - Password change form
+- `SessionsCard` - Active sessions list
+- `SessionCell` - Individual session display
+
+### 🏢 Organizations (14 components)
+
+- `OrganizationSwitcher` - Switch between organizations
+- `CreateOrganizationDialog` - Create new organization
+- `DeleteOrganizationCard` - Delete organization
+- `OrganizationMembersCard` - Members list
+- `RemoveMemberDialog` - Remove member
+- `UpdateMemberRoleDialog` - Change member role
+- `OrganizationInvitationsCard` - Pending invitations
+- `InviteMemberDialog` - Send invitation
+- `AcceptInvitationCard` - Accept invitation
+- `UserInvitationsCard` - User's pending invitations
+- `OrganizationNameCard` - Edit organization name
+- `OrganizationSlugCard` - Edit organization slug
+- `OrganizationLogoCard` - Upload organization logo
+- `LeaveOrganizationDialog` - Leave organization
+
+### 👤 Account (3 components)
+
+- `AccountView` - Account settings view
+- `DeleteAccountCard` - Account deletion
+- `DeleteAccountDialog` - Confirm deletion
+
+### 🛠️ Developer Tools (3 components)
+
+- `ApiKeysCard` - API keys list
+- `ApiKeyCell` - Individual API key
+- `CreateApiKeyDialog` - Create new API key
+
+### 👥 User Components (2 components)
+
+- `UserButton` - User menu dropdown
+- `UserAvatar` - User avatar display
+
+### 🔧 Utility Components (8 components)
+
+- `SignedIn` - Conditional render when signed in
+- `SignedOut` - Conditional render when signed out
+- `AuthLoading` - Loading state handler
+- `RedirectToSignIn` - Auto redirect to sign in
+- `RedirectToSignUp` - Auto redirect to sign up
+- `PasswordInput` - Password field with toggle visibility
+- `FormError` - Form error display
+- Provider icons for social authentication
+
+### Billing Components (4 components)
+
+### Billing Components (4 components)
+
+- `SubscriptionCard` - Current subscription display
+- `PaymentMethodCard` - Payment methods management
+- `InvoiceHistoryCard` - Invoice list
+- `BillingDashboard` - Complete billing page
+
+### Usage Tracking (4 components)
+
+- `ApiUsageCard` - API usage with charts
+- `StorageUsageCard` - Storage usage
+- `FeatureAccessCard` - Feature access by plan
+- `UsageDashboard` - Complete usage page
+
+### Team Management (3 components)
+
+- `SeatAllocationCard` - Team seat management
+- `TeamBillingCard` - Team billing overview
+- `TeamDashboard` - Complete team page
+
+### Pricing (1 component)
+
+- `PricingCard` - Plan selection with monthly/yearly toggle
+
+## Detailed Component Examples
+
+### Authentication
+
+#### Complete Auth Flow
 
 ```tsx
-import { BillingDashboard } from "@bettercone/ui";
-import { authClient } from "./lib/auth-client";
+import { AuthView, AuthUIProvider } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
 
-function BillingPage() {
+export default function AuthPage() {
   return (
-    <div className="container mx-auto py-8">
-      <BillingDashboard authClient={authClient} />
-    </div>
+    <AuthUIProvider
+      authClient={authClient}
+      credentials={true}
+      signUp={true}
+      social={{ 
+        providers: ["google", "github"] 
+      }}
+    >
+      <AuthView />
+    </AuthUIProvider>
   );
 }
-
-export default BillingPage;
 ```
 
-### Remix
+#### Organization Switcher
 
 ```tsx
-import { BillingDashboard } from "@bettercone/ui";
-import { authClient } from "~/lib/auth-client";
+import { OrganizationSwitcher } from "@bettercone/ui";
 
-export default function BillingRoute() {
-  return (
-    <div className="container mx-auto py-8">
-      <BillingDashboard authClient={authClient} />
-    </div>
-  );
-}
+<OrganizationSwitcher
+  authClient={authClient}
+  onCreate={() => {
+    // Handle organization creation
+  }}
+/>
 ```
 
-## Components
+#### Two-Factor Authentication
 
-### Billing Components
+```tsx
+import { TwoFactorCard } from "@bettercone/ui";
 
-#### SubscriptionCard
+<TwoFactorCard
+  authClient={authClient}
+  onEnable={(secret) => {
+    // Handle 2FA enablement
+  }}
+/>
+```
+
+### Billing
 Displays current subscription with management actions.
 
 ```tsx

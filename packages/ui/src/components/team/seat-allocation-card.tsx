@@ -8,11 +8,11 @@
 
 import { Users, Plus, AlertTriangle } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../card";
-import { Progress } from "../progress";
-import { Button } from "../button";
-import { Badge } from "../badge";
-import { Skeleton } from "../skeleton";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Progress } from "../ui/progress";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Skeleton } from "../ui/skeleton";
 
 export interface TeamMember {
   id: string;
