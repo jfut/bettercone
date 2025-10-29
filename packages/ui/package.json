@@ -1,6 +1,6 @@
 {
   "name": "@bettercone/ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Production-ready billing, pricing, and team management components for React + Better Auth",
   "keywords": [
     "better-auth",
@@ -33,12 +33,12 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./css": "./dist/styles.css",
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
-    },
-    "./styles.css": "./dist/styles.css"
+    }
   },
   "files": [
     "dist",
@@ -46,7 +46,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && cp src/styles.css dist/styles.css",
     "dev": "tsup --watch",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit",

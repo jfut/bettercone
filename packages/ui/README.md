@@ -28,6 +28,24 @@ pnpm add @bettercone/ui better-auth
 yarn add @bettercone/ui better-auth
 ```
 
+## Setup
+
+### 1. Install the package
+
+Follow the installation steps above.
+
+### 2. Import the CSS
+
+Add the following import to your global CSS file (e.g., `app/globals.css` or `src/index.css`):
+
+```css
+@import "@bettercone/ui/css";
+```
+
+### 3. Configure Better Auth
+
+Set up Better Auth in your project. See the [Better Auth documentation](https://better-auth.com) for details.
+
 ## Quick Start
 
 ### Next.js (App Router)
