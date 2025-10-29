@@ -1,6 +1,22 @@
 # @bettercone/ui
 
-Comprehensive, backend-agnostic component library for Better Auth.
+Production-ready billing, pricing, and team management components for React + Better Auth.
+
+[![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
+[![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Features
+
+- 🎨 **12 Production-Ready Components** - Billing, usage tracking, team management, and pricing
+- ⚛️ **Framework Agnostic** - Works with Next.js, Vite, Remix, or any React framework
+- 🔌 **Backend Agnostic** - Works with any auth provider and backend (Convex, Prisma, Supabase, Drizzle)
+- 🎨 **Fully Customizable** - Built with Tailwind CSS and shadcn/ui primitives
+- 🌍 **i18n Ready** - Full localization support
+- ♿ **Accessible** - WCAG 2.1 compliant components
+- 📱 **Responsive** - Mobile-first design
+- 🔒 **Type Safe** - Written in TypeScript with full type definitions
+- ⚡ **Loading States** - Skeleton components included
 
 ## Installation
 
@@ -12,35 +28,62 @@ pnpm add @bettercone/ui better-auth
 yarn add @bettercone/ui better-auth
 ```
 
-## Features
-
-- 🎨 **8 Production-Ready Components** - Billing, usage tracking, team management, and pricing
-- 🔌 **Backend Agnostic** - Works with any Better Auth backend (Convex, Prisma, Supabase, Drizzle, etc.)
-- 🎨 **Fully Customizable** - Built with Tailwind CSS and shadcn/ui primitives
-- 🌍 **i18n Ready** - Full localization support
-- ♿ **Accessible** - WCAG 2.1 compliant components
-- 📱 **Responsive** - Mobile-first design
-- 🔒 **Type Safe** - Written in TypeScript with full type definitions
-- ⚡ **Loading States** - Skeleton components for all cards
-
 ## Quick Start
 
+### Next.js (App Router)
+
 ```tsx
-import { SubscriptionCard } from "@bettercone/ui";
+"use client";
+
+import { BillingDashboard } from "@bettercone/ui";
 import { authClient } from "@/lib/auth-client"; // Your Better Auth client
 
 export default function BillingPage() {
   return (
     <div className="container mx-auto py-8">
-      <SubscriptionCard
+      <BillingDashboard
         authClient={authClient}
-        onManageSubscription={async (subscription) => {
-          // Open Stripe billing portal
-          const response = await fetch("/api/billing/portal");
-          const { url } = await response.json();
-          window.location.href = url;
+        subscriptionCardProps={{
+          onManageSubscription: async (subscription) => {
+            // Open Stripe billing portal or your payment provider
+            const response = await fetch("/api/billing/portal");
+            const { url } = await response.json();
+            window.location.href = url;
+          }
         }}
       />
+    </div>
+  );
+}
+```
+
+### Vite + React
+
+```tsx
+import { BillingDashboard } from "@bettercone/ui";
+import { authClient } from "./lib/auth-client";
+
+function BillingPage() {
+  return (
+    <div className="container mx-auto py-8">
+      <BillingDashboard authClient={authClient} />
+    </div>
+  );
+}
+
+export default BillingPage;
+```
+
+### Remix
+
+```tsx
+import { BillingDashboard } from "@bettercone/ui";
+import { authClient } from "~/lib/auth-client";
+
+export default function BillingRoute() {
+  return (
+    <div className="container mx-auto py-8">
+      <BillingDashboard authClient={authClient} />
     </div>
   );
 }

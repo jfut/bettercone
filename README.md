@@ -2,6 +2,26 @@
 
 A production-ready B2B SaaS starter template built with Better Auth, Convex, and Next.js.
 
+## @bettercone/ui Component Library
+
+**Now published on npm!** Use our production-ready components in any React + Better Auth project:
+
+```bash
+npm install @bettercone/ui better-auth
+```
+
+[![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
+[![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
+
+**Features:**
+- ⚛️ Framework-agnostic (Next.js, Vite, Remix, any React framework)
+- 🔌 Backend-agnostic (Convex, Prisma, Supabase, Drizzle)
+- 🎨 12 production-ready components (billing, pricing, usage, team management)
+- 🔒 Fully typed with TypeScript
+- 🎨 Customizable with Tailwind CSS
+
+[View Documentation](https://docs.bettercone.dev) • [npm Package](https://www.npmjs.com/package/@bettercone/ui)
+
 ## What's Included
 
 - 🔐 **Authentication**: Better Auth with email/password, OAuth (Google, GitHub), passkeys
