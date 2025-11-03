@@ -133,6 +133,10 @@ export { EmailOTPButton } from "./components/auth/email-otp-button";
 export { OneTap } from "./components/auth/one-tap";
 export { SignOut } from "./components/auth/sign-out";
 
+// Phone Authentication
+export { PhoneSignInForm } from "./components/auth/forms/phone-sign-in-form";
+export { PhoneSignUpForm } from "./components/auth/forms/phone-sign-up-form";
+
 // ============================================================================
 // Security Components
 // ============================================================================
@@ -144,6 +148,11 @@ export { BackupCodesDialog } from "./components/security/backup-codes-dialog";
 export { ChangePasswordCard } from "./components/security/change-password-card";
 export { SessionsCard } from "./components/security/sessions-card";
 export { SessionCell } from "./components/security/session-cell";
+
+// Phone Number Management
+export { PhoneNumberCard } from "./components/security/phone-number-card";
+
+
 
 // ============================================================================
 // Organization Components

@@ -5,6 +5,27 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-11-03
+
+### Added
+
+#### Phone Authentication Components (3 new)
+- `PhoneSignInForm` - Sign in with phone number and password using Better Auth phoneNumber plugin
+- `PhoneSignUpForm` - Sign up with phone number and OTP verification, includes resend functionality with countdown timer
+- `PhoneNumberCard` - Manage phone number in user settings with verification status and update flow
+
+### Features
+- International phone number format validation (E.164 format)
+- Two-step OTP verification process for sign up
+- Rate limiting protection for OTP verification
+- Resend OTP code with 60-second countdown timer
+- Phone number verification status badge
+- Secure phone number update flow with OTP confirmation
+
+### Technical Updates
+- Added `phoneNumber` property to `AnyAuthClient` type interface
+- Exported phone authentication components from main package entry point
+
 ## [0.2.0] - 2025-10-29
 
 ### 🎉 Major Release - 76 Components

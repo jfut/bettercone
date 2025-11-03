@@ -22,10 +22,7 @@ export default defineConfig({
     "react", 
     "react-dom", 
     "better-auth",
-  ],
-  noExternal: [
-    // Bundle all internal imports
-    /.*/
+    "react/jsx-runtime",
   ],
   treeshake: true,
   minify: false,

@@ -6,7 +6,15 @@
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## What's New in v0.2.0 🎉
+## What's New in v0.2.1 🎉
+
+**Phone Authentication Components** - Three new components for phone number authentication:
+
+- ✅ **PhoneSignInForm** - Sign in with phone number and password
+- ✅ **PhoneSignUpForm** - Sign up with phone number and OTP verification
+- ✅ **PhoneNumberCard** - Manage phone number in user settings
+
+### What's in v0.2.0
 
 **76 Components** - Complete authentication, security, organizations, and more:
 
@@ -118,7 +126,7 @@ export default function BillingPage() {
 
 ## Components Overview
 
-### 🔐 Authentication (9 components)
+### 🔐 Authentication (11 components)
 
 - `AuthView` - Complete authentication view with routing
 - `AuthForm` - Reusable form wrapper
@@ -129,8 +137,10 @@ export default function BillingPage() {
 - `EmailOTPButton` - Email OTP trigger
 - `OneTap` - Google One Tap
 - `SignOut` - Sign out component
+- `PhoneSignInForm` - **NEW** Sign in with phone number and password
+- `PhoneSignUpForm` - **NEW** Sign up with phone number and OTP verification
 
-### 🔒 Security (8 components)
+### 🔒 Security (9 components)
 
 - `PasskeyCell` - Individual passkey display
 - `PasskeysCard` - Passkey management
@@ -140,6 +150,7 @@ export default function BillingPage() {
 - `ChangePasswordCard` - Password change form
 - `SessionsCard` - Active sessions list
 - `SessionCell` - Individual session display
+- `PhoneNumberCard` - **NEW** Manage phone number with OTP verification
 
 ### 🏢 Organizations (14 components)
 
@@ -249,6 +260,73 @@ import { OrganizationSwitcher } from "@bettercone/ui";
     // Handle organization creation
   }}
 />
+```
+
+#### Phone Authentication
+
+Phone number authentication with OTP verification.
+
+```tsx
+import { PhoneSignInForm, PhoneSignUpForm, PhoneNumberCard, AuthUIProvider } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+// Sign in with phone number and password
+export function PhoneSignIn() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <PhoneSignInForm
+        redirectTo="/dashboard"
+        localization={{}}
+      />
+    </AuthUIProvider>
+  );
+}
+
+// Sign up with phone number and OTP
+export function PhoneSignUp() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <PhoneSignUpForm
+        redirectTo="/dashboard"
+        localization={{}}
+      />
+    </AuthUIProvider>
+  );
+}
+
+// Manage phone number in settings
+export function PhoneSettings() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <PhoneNumberCard />
+    </AuthUIProvider>
+  );
+}
+```
+
+**Requirements:**
+- Better Auth `phoneNumber` plugin configured
+- SMS provider configured (Twilio, etc.)
+
+```ts
+// Better Auth configuration
+import { betterAuth } from "better-auth";
+import { phoneNumber } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    phoneNumber({
+      sendOtp: async (phoneNumber, code) => {
+        // Send SMS with your provider
+        await twilioClient.messages.create({
+          to: phoneNumber,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          body: `Your verification code is: ${code}`
+        });
+      }
+    })
+  ]
+});
 ```
 
 #### Two-Factor Authentication

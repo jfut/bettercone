@@ -35,4 +35,5 @@ export interface AnyAuthClient {
     emailOtp: any;
     resetPassword: any;
     signUp: any;
+    phoneNumber: any;
 }
