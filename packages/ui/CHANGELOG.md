@@ -211,7 +211,7 @@ export default function App({ children }) {
 
 ## Links
 
-- [Documentation](https://docs.bettercone.com)
+- [Documentation](https://docs.bettercone.dev)
 - [GitHub Repository](https://github.com/vncsleal/bettercone)
 - [npm Package](https://www.npmjs.com/package/@bettercone/ui)
 - [Better Auth](https://better-auth.com)

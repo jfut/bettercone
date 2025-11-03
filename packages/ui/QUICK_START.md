@@ -478,7 +478,7 @@ export function BillingPage() {
 
 ## Next Steps
 
-- 📖 [Full Documentation](https://docs.bettercone.com)
+- 📖 [Full Documentation](https://docs.bettercone.dev)
 - 💬 [Discord Community](https://discord.gg/bettercone)
 - 🐛 [Report Issues](https://github.com/bettercone/bettercone/issues)
 - ⭐ [Star on GitHub](https://github.com/bettercone/bettercone)
