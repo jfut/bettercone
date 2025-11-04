@@ -2,23 +2,20 @@
   "name": "bettercone",
   "version": "1.0.0",
   "private": true,
-  "description": "🍦 The sweetest way to ship B2B SaaS - Complete starter with Better Auth, Convex, Next.js & Stripe",
+  "description": "The complete React component library for Better Auth applications - UI components for authentication, billing, teams, and more",
   "keywords": [
-    "b2b-saas",
-    "saas-starter",
-    "saas-boilerplate",
-    "nextjs",
-    "better-auth",
-    "convex",
-    "stripe",
-    "typescript",
     "react",
-    "tailwindcss",
-    "subscription",
+    "ui-components",
+    "better-auth",
+    "component-library",
+    "typescript",
     "authentication",
     "billing",
     "teams",
-    "organizations"
+    "nextjs",
+    "tailwindcss",
+    "ui-library",
+    "design-system"
   ],
   "author": {
     "name": "Vinicius Leal",
@@ -29,7 +26,7 @@
     "type": "git",
     "url": "https://github.com/vncsleal/bettercone.git"
   },
-  "homepage": "https://github.com/vncsleal/bettercone",
+  "homepage": "https://bettercone.com",
   "bugs": {
     "url": "https://github.com/vncsleal/bettercone/issues"
   },
