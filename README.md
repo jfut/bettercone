@@ -20,7 +20,7 @@ npm install @bettercone/ui better-auth
 - 🔒 Fully typed with TypeScript
 - 🎨 Customizable with Tailwind CSS
 
-[View Documentation](https://docs.bettercone.dev) • [npm Package](https://www.npmjs.com/package/@bettercone/ui)
+[View Documentation](https://docs.bettercone.com) • [npm Package](https://www.npmjs.com/package/@bettercone/ui)
 
 ## What's Included
 
@@ -113,13 +113,13 @@ Configure callback URLs in your OAuth apps:
 
 ## Documentation
 
-Full documentation available at: [docs.bettercone.dev](https://docs.bettercone.dev)
+Full documentation available at: [docs.bettercone.com](https://docs.bettercone.com)
 
-- [Authentication Guide](https://docs.bettercone.dev/docs/guides/authentication)
-- [Billing & Stripe](https://docs.bettercone.dev/docs/guides/stripe)
-- [Teams & Organizations](https://docs.bettercone.dev/docs/guides/teams)
-- [Deployment](https://docs.bettercone.dev/docs/guides/deployment)
-- [Customization](https://docs.bettercone.dev/docs/guides/customization)
+- [Authentication Guide](https://docs.bettercone.com/docs/guides/authentication)
+- [Billing & Stripe](https://docs.bettercone.com/docs/guides/stripe)
+- [Teams & Organizations](https://docs.bettercone.com/docs/guides/teams)
+- [Deployment](https://docs.bettercone.com/docs/guides/deployment)
+- [Customization](https://docs.bettercone.com/docs/guides/customization)
 
 ## Tech Stack
 
@@ -142,7 +142,7 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ## Support
 
-- 📚 [Documentation](https://docs.bettercone.dev)
+- 📚 [Documentation](https://docs.bettercone.com)
 - 🐛 [Report Issues](https://github.com/vncsleal/bettercone/issues)
 - 💬 [Discussions](https://github.com/vncsleal/bettercone/discussions)
 

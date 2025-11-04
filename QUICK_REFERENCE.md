@@ -251,7 +251,7 @@ pnpm turbo run build --force
 - `docs/ENVIRONMENT_VARIABLES.md` - Env vars guide
 - `docs/DEPLOYMENT.md` - Deployment instructions
 
-### Documentation Site (docs.bettercone.dev)
+### Documentation Site (docs.bettercone.com)
 BetterCone includes comprehensive documentation built with Fumadocs:
 
 **Setup Guides:**
@@ -282,7 +282,7 @@ The docs site will include:
 ## Useful Links
 
 ### BetterCone
-- [Documentation Site](https://docs.bettercone.dev) (coming soon)
+- [Documentation Site](https://docs.bettercone.com) (coming soon)
 - [GitHub Repository](https://github.com/vncsleal/bettercone)
 
 ### Technologies

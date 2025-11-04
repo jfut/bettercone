@@ -34,7 +34,7 @@ export default function Home() {
 							<p>✓ Billing is ready for Stripe</p>
 							<p>✓ Teams & organizations enabled</p>
 							<Button variant="link" className="p-0 h-auto" asChild>
-								<Link href="https://docs.bettercone.dev" target="_blank">
+								<Link href="https://docs.bettercone.com" target="_blank">
 									Read the docs <ArrowRight className="ml-1 h-3 w-3" />
 								</Link>
 							</Button>
@@ -125,7 +125,7 @@ export default function Home() {
 
 						<div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
 							<Button asChild>
-								<Link href="https://docs.bettercone.dev" target="_blank">
+								<Link href="https://docs.bettercone.com" target="_blank">
 									<BookOpen className="mr-2 h-4 w-4" />
 									View Documentation
 								</Link>

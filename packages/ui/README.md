@@ -603,7 +603,7 @@ MIT © BetterCone
 
 ## Links
 
-- [Documentation](https://docs.bettercone.dev)
+- [Documentation](https://docs.bettercone.com)
 - [GitHub](https://github.com/bettercone/bettercone)
 - [Discord](https://discord.gg/bettercone)
 - [Better Auth](https://better-auth.com)

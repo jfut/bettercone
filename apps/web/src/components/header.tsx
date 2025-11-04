@@ -26,7 +26,7 @@ export function Header() {
 					{/* Navigation */}
 					<nav className="hidden md:flex items-center gap-6">
 						<Link
-							href="https://docs.bettercone.dev"
+							href="https://docs.bettercone.com"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
