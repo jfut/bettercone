@@ -1,0 +1,776 @@
+---
+title: Better Auth Stripe Integration
+description: Complete guide to integrating billing components with Better Auth Stripe plugin
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# Better Auth Stripe Integration
+
+BetterCone UI components now feature built-in support for the [Better Auth Stripe plugin](https://www.better-auth.com/docs/plugins/stripe), enabling automatic subscription management, billing portal access, and checkout flows with zero configuration.
+
+## Overview
+
+Better Auth provides an official Stripe plugin that handles:
+
+- **Subscription Management** - Create, list, cancel, and restore subscriptions
+- **Billing Portal** - Hosted Stripe portal for payment methods and invoices
+- **Checkout Sessions** - Stripe Checkout integration for upgrades
+- **Webhook Handling** - Automatic sync between Stripe and your database
+
+BetterCone components **auto-detect** this plugin and provide three integration modes:
+
+<Callout type="info">
+**Mode A: Auto-Fetch** - Components automatically fetch data from Better Auth Stripe plugin
+
+**Mode B: Custom Backend** - Use the same API shape with your custom implementation
+
+**Mode C: Presentational** - Pass data manually via props (no backend integration)
+</Callout>
+
+## Quick Start
+
+<Steps>
+
+### Install Dependencies
+
+```bash
+npm install better-auth @better-auth/stripe stripe
+```
+
+### Configure Server Plugin
+
+```ts title="lib/auth.ts"
+import { betterAuth } from "better-auth";
+import { stripe } from "@better-auth/stripe";
+import Stripe from "stripe";
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-11-20.acacia",
+});
+
+export const auth = betterAuth({
+  database: {
+    // Your database config
+  },
+  plugins: [
+    stripe({
+      stripeClient,
+      subscription: {
+        enabled: true,
+        plans: [
+          {
+            id: "pro",
+            name: "Pro Plan",
+            stripePriceId: "price_xxx",
+            seats: 5,
+          },
+          {
+            id: "enterprise",
+            name: "Enterprise Plan",
+            stripePriceId: "price_yyy",
+            seats: 20,
+          },
+        ],
+      },
+    }),
+  ],
+});
+```
+
+### Configure Client Plugin
+
+```ts title="lib/auth-client.ts"
+import { createAuthClient } from "better-auth/client";
+import { stripeClient } from "@better-auth/stripe/client";
+
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_AUTH_URL,
+  plugins: [
+    stripeClient({
+      subscription: true,
+    }),
+  ],
+});
+```
+
+### Run Migration
+
+```bash
+npx @better-auth/cli migrate
+```
+
+This creates the necessary Stripe tables in your database.
+
+### Use Components
+
+```tsx title="app/billing/page.tsx"
+import { AuthUIProvider } from "@bettercone/ui";
+import { SubscriptionCard } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+export default function BillingPage() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      {/* Zero config - auto-fetches subscription data */}
+      <SubscriptionCard />
+    </AuthUIProvider>
+  );
+}
+```
+
+</Steps>
+
+## Component Modes
+
+### Mode A: Auto-Fetch (Recommended)
+
+When Better Auth Stripe plugin is detected, components automatically fetch data.
+
+```tsx
+import { AuthUIProvider } from "@bettercone/ui";
+import {
+  SubscriptionCard,
+  PaymentMethodCard,
+  InvoiceHistoryCard,
+  TeamBillingCard,
+  PricingCard,
+} from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+export default function BillingPage() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      {/* All components auto-fetch their data */}
+      <SubscriptionCard />
+      <PaymentMethodCard />
+      <InvoiceHistoryCard />
+      <TeamBillingCard />
+      
+      {/* PricingCard auto-handles checkout */}
+      <PricingCard
+        plan={{
+          id: "pro",
+          name: "Pro Plan",
+          priceMonthly: 29,
+          priceYearly: 290,
+          features: ["Feature 1", "Feature 2"],
+          stripePriceIdMonthly: "price_monthly",
+          stripePriceIdYearly: "price_yearly",
+        }}
+        billingInterval="monthly"
+      />
+    </AuthUIProvider>
+  );
+}
+```
+
+**Benefits:**
+- ✅ Zero configuration
+- ✅ Automatic data fetching
+- ✅ Built-in loading and error states
+- ✅ Real-time updates
+
+### Mode B: Custom Backend
+
+Use the same API shape with your custom implementation.
+
+<Tabs items={['Server', 'Client', 'Component']}>
+
+<Tab value="Server">
+```ts title="lib/auth.ts"
+import { betterAuth } from "better-auth";
+import type { BetterAuthPlugin } from "better-auth";
+
+// Create custom subscription plugin matching Better Auth Stripe API
+const customSubscriptionPlugin = (): BetterAuthPlugin => {
+  return {
+    id: "custom-subscription",
+    endpoints: {
+      getSubscriptions: createAuthEndpoint("/subscription/list", {
+        method: "GET",
+      }, async (ctx) => {
+        // Your custom logic
+        const subscriptions = await yourDatabase.getSubscriptions();
+        return ctx.json(subscriptions);
+      }),
+      // ... other endpoints
+    },
+  };
+};
+
+export const auth = betterAuth({
+  plugins: [customSubscriptionPlugin()],
+});
+```
+</Tab>
+
+<Tab value="Client">
+```ts title="lib/auth-client.ts"
+import { createAuthClient } from "better-auth/client";
+import type { BetterAuthClientPlugin } from "better-auth/client";
+import type { customSubscriptionPlugin } from "./auth";
+
+const customSubscriptionClient = (): BetterAuthClientPlugin => {
+  return {
+    id: "custom-subscription",
+    $InferServerPlugin: {} as ReturnType<typeof customSubscriptionPlugin>,
+  };
+};
+
+export const authClient = createAuthClient({
+  plugins: [customSubscriptionClient()],
+});
+```
+</Tab>
+
+<Tab value="Component">
+```tsx title="app/billing/page.tsx"
+// Components work the same - they auto-detect your custom plugin
+<AuthUIProvider authClient={authClient}>
+  <SubscriptionCard />
+</AuthUIProvider>
+```
+</Tab>
+
+</Tabs>
+
+**Benefits:**
+- ✅ Full control over backend logic
+- ✅ Can integrate with any payment provider
+- ✅ Same component API
+- ⚠️ Must match Better Auth Stripe API shape
+
+### Mode C: Presentational
+
+Pass data manually without any backend integration.
+
+```tsx
+import { 
+  SubscriptionCard, 
+  PaymentMethodCard,
+  type Subscription,
+  type PaymentMethod,
+} from "@bettercone/ui";
+
+export default function BillingPage() {
+  // Fetch data your own way
+  const subscription: Subscription = {
+    id: "sub_123",
+    plan: "pro",
+    status: "active",
+    referenceId: userId,
+    currentPeriodEnd: new Date("2025-12-01"),
+    seats: 5,
+  };
+
+  const paymentMethod: PaymentMethod = {
+    id: "pm_123",
+    type: "card",
+    last4: "4242",
+    brand: "visa",
+    expiryMonth: 12,
+    expiryYear: 2025,
+  };
+
+  return (
+    <>
+      <SubscriptionCard data={subscription} />
+      <PaymentMethodCard data={paymentMethod} />
+    </>
+  );
+}
+```
+
+**Benefits:**
+- ✅ No backend dependency
+- ✅ Complete control over data source
+- ✅ Simple to test
+- ⚠️ Must handle loading/error states yourself
+
+## Component Examples
+
+### SubscriptionCard
+
+Displays current subscription with management actions.
+
+<Tabs items={['Auto-Fetch', 'Presentational', 'Props']}>
+
+<Tab value="Auto-Fetch">
+```tsx
+import { SubscriptionCard } from "@bettercone/ui";
+
+<SubscriptionCard
+  // Optional: override auto-detected user ID
+  referenceId={organizationId}
+  
+  // Optional: custom actions
+  onBeforeManage={async () => {
+    console.log("Opening billing portal...");
+  }}
+  
+  // Optional: where to show plans
+  viewPlansUrl="/pricing"
+/>
+```
+</Tab>
+
+<Tab value="Presentational">
+```tsx
+import { SubscriptionCard, type Subscription } from "@bettercone/ui";
+
+const subscription: Subscription = {
+  id: "sub_123",
+  plan: "pro",
+  status: "active",
+  referenceId: userId,
+  currentPeriodEnd: new Date("2025-12-01"),
+  cancelAt: null,
+  seats: 5,
+};
+
+<SubscriptionCard data={subscription} />
+```
+</Tab>
+
+<Tab value="Props">
+```tsx
+interface SubscriptionCardProps {
+  data?: Subscription;           // Presentational mode
+  referenceId?: string;          // User/org ID (auto-detected from session)
+  className?: string;
+  classNames?: {
+    base?: string;
+    header?: string;
+    content?: string;
+    footer?: string;
+  };
+  localization?: Partial<BillingLocalization>;
+  showActions?: boolean;         // Show manage/cancel buttons
+  onBeforeManage?: () => Promise<void> | void;
+  viewPlansUrl?: string;         // Link to pricing page
+}
+```
+</Tab>
+
+</Tabs>
+
+### PaymentMethodCard
+
+Shows payment method with billing portal access.
+
+<Tabs items={['Auto-Fetch', 'Presentational']}>
+
+<Tab value="Auto-Fetch">
+```tsx
+import { PaymentMethodCard } from "@bettercone/ui";
+
+// Shows generic "Managed via Stripe" message
+<PaymentMethodCard />
+
+// With optional payment method data
+<PaymentMethodCard
+  data={{
+    id: "pm_123",
+    type: "card",
+    last4: "4242",
+    brand: "visa",
+    expiryMonth: 12,
+    expiryYear: 2025,
+  }}
+/>
+```
+</Tab>
+
+<Tab value="Presentational">
+```tsx
+import { PaymentMethodCard, type PaymentMethod } from "@bettercone/ui";
+
+const paymentMethod: PaymentMethod = {
+  id: "pm_123",
+  type: "card",
+  last4: "4242",
+  brand: "visa",
+  expiryMonth: 12,
+  expiryYear: 2025,
+  isDefault: true,
+};
+
+<PaymentMethodCard data={paymentMethod} />
+```
+</Tab>
+
+</Tabs>
+
+### PricingCard
+
+Handles Stripe Checkout with auto-upgrade.
+
+```tsx
+import { PricingCard, type PricingPlan } from "@bettercone/ui";
+
+const plan: PricingPlan = {
+  id: "pro",
+  name: "Pro Plan",
+  description: "For growing teams",
+  priceMonthly: 29,
+  priceYearly: 290,
+  features: [
+    "Unlimited projects",
+    "Advanced analytics",
+    "Priority support",
+  ],
+  popular: true,
+  
+  // Stripe IDs - enables auto-checkout
+  stripePriceIdMonthly: "price_monthly",
+  stripePriceIdYearly: "price_yearly",
+};
+
+<PricingCard
+  plan={plan}
+  billingInterval="monthly"
+  
+  // Optional: custom checkout URL
+  successUrl="/billing?success=true"
+  cancelUrl="/pricing?canceled=true"
+  
+  // Optional: pre-checkout validation
+  onBeforeCheckout={async () => {
+    // Validate, track analytics, etc.
+  }}
+/>
+```
+
+**Without Stripe IDs** (fallback to callback):
+
+```tsx
+<PricingCard
+  plan={{ 
+    id: "pro",
+    name: "Pro",
+    // No stripePriceId* fields
+  }}
+  billingInterval="monthly"
+  
+  // Custom checkout handler
+  onSubscribe={async (planId, interval) => {
+    await yourCheckoutFlow(planId, interval);
+  }}
+/>
+```
+
+### TeamBillingCard
+
+Organization-level subscription management.
+
+```tsx
+import { TeamBillingCard } from "@bettercone/ui";
+
+// Auto-fetches org subscription via useActiveOrganization hook
+<TeamBillingCard />
+
+// For specific organization
+<TeamBillingCard organizationId="org_123" />
+
+// With manual data
+<TeamBillingCard
+  data={{
+    id: "sub_123",
+    plan: "enterprise",
+    status: "active",
+    referenceId: "org_123",
+    currentPeriodEnd: new Date("2025-12-01"),
+    seats: 20,
+  }}
+/>
+```
+
+## API Reference
+
+### Better Auth Stripe Plugin Methods
+
+The plugin adds these methods to `authClient`:
+
+```ts
+authClient.subscription.upgrade(params: {
+  planId: string;
+  stripePriceId: string;
+  referenceId?: string;
+  successUrl?: string;
+  cancelUrl?: string;
+}): Promise<{ data?: { url: string }, error?: Error }>
+
+authClient.subscription.list(params?: {
+  referenceId?: string;
+}): Promise<{ data?: Subscription[], error?: Error }>
+
+authClient.subscription.cancel(params: {
+  referenceId?: string;
+  subscriptionId?: string;
+  returnUrl?: string;
+}): Promise<{ data?: { url: string }, error?: Error }>
+
+authClient.subscription.restore(params: {
+  referenceId?: string;
+  subscriptionId?: string;
+}): Promise<{ data?: Subscription, error?: Error }>
+
+authClient.subscription.billingPortal(params: {
+  referenceId?: string;
+  returnUrl?: string;
+}): Promise<{ data?: { url: string }, error?: Error }>
+```
+
+### Type Definitions
+
+```ts
+import type {
+  Subscription,
+  SubscriptionStatus,
+  PaymentMethod,
+  PaymentMethodType,
+  Invoice,
+  InvoiceStatus,
+  SubscriptionPlan,
+} from "@bettercone/ui";
+
+type SubscriptionStatus = 
+  | "incomplete"
+  | "incomplete_expired"
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "canceled"
+  | "unpaid";
+
+interface Subscription {
+  id: string;
+  plan: string;
+  referenceId: string;
+  status: SubscriptionStatus;
+  currentPeriodStart?: Date;
+  currentPeriodEnd?: Date;
+  cancelAtPeriodEnd?: boolean;
+  cancelAt?: Date;
+  seats?: number;
+  trialStart?: Date;
+  trialEnd?: Date;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+}
+```
+
+## Migration Guide
+
+### From v0.2.x to v0.3.0
+
+<Callout type="warn">
+v0.3.0 introduces breaking changes to billing and pricing components.
+</Callout>
+
+**Breaking Changes:**
+
+1. **Removed `authClient` prop** from all components
+2. **Added optional `data` props** (replaces required data props)
+3. **Added `AuthUIProvider` requirement** for auto-fetch mode
+
+**Migration Steps:**
+
+<Steps>
+
+### Wrap App with AuthUIProvider
+
+```tsx
+// Before
+import { authClient } from "./lib/auth-client";
+
+<SubscriptionCard authClient={authClient} />
+
+// After
+import { AuthUIProvider } from "@bettercone/ui";
+
+<AuthUIProvider authClient={authClient}>
+  <SubscriptionCard />
+</AuthUIProvider>
+```
+
+### Update Component Props
+
+<Tabs items={['SubscriptionCard', 'PricingCard', 'Usage Components']}>
+
+<Tab value="SubscriptionCard">
+```tsx
+// Before (v0.2.x)
+<SubscriptionCard
+  authClient={authClient}
+  subscription={subscriptionData}
+/>
+
+// After (v0.3.0) - Auto-fetch
+<SubscriptionCard />
+
+// After (v0.3.0) - Presentational
+<SubscriptionCard data={subscriptionData} />
+```
+</Tab>
+
+<Tab value="PricingCard">
+```tsx
+// Before (v0.2.x)
+<PricingCard
+  plan={planData}
+  billingInterval="monthly"
+  isLoading={loading}
+  onSubscribe={handleSubscribe}
+/>
+
+// After (v0.3.0) - Auto-checkout
+<PricingCard
+  plan={{
+    ...planData,
+    stripePriceIdMonthly: "price_xxx",
+    stripePriceIdYearly: "price_yyy",
+  }}
+  billingInterval="monthly"
+/>
+
+// After (v0.3.0) - Custom callback
+<PricingCard
+  plan={planData}
+  billingInterval="monthly"
+  onSubscribe={handleSubscribe}
+/>
+```
+</Tab>
+
+<Tab value="Usage Components">
+```tsx
+// No breaking changes in v0.3.0
+// Usage components remain presentational-only
+
+<ApiUsageCard current={1500} limit={5000} />
+<StorageUsageCard currentBytes={1024} limitBytes={5000} />
+```
+</Tab>
+
+</Tabs>
+
+### Update Callbacks
+
+```tsx
+// Before (v0.2.x)
+const handleManage = () => {
+  router.push("/billing-portal");
+};
+
+// After (v0.3.0)
+const handleManage = async () => {
+  // Component handles billing portal automatically
+  // This callback is now optional and for pre-action logic
+};
+```
+
+</Steps>
+
+## Troubleshooting
+
+### Components Not Auto-Fetching
+
+**Problem:** Components show loading state forever or display errors.
+
+**Solutions:**
+
+1. **Check AuthUIProvider is wrapping components:**
+   ```tsx
+   <AuthUIProvider authClient={authClient}>
+     <SubscriptionCard />
+   </AuthUIProvider>
+   ```
+
+2. **Verify Better Auth Stripe plugin is installed:**
+   ```ts
+   // lib/auth.ts
+   plugins: [stripe({ /* config */ })]
+   
+   // lib/auth-client.ts
+   plugins: [stripeClient({ subscription: true })]
+   ```
+
+3. **Check database migration ran:**
+   ```bash
+   npx @better-auth/cli migrate
+   ```
+
+4. **Verify Stripe environment variables:**
+   ```bash
+   # .env
+   STRIPE_SECRET_KEY=sk_test_...
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+   ```
+
+### Billing Portal Not Opening
+
+**Problem:** Clicking "Manage Subscription" does nothing.
+
+**Solutions:**
+
+1. **Check plugin configuration:**
+   ```ts
+   stripe({
+     stripeClient,
+     subscription: { enabled: true }, // Must be true
+   })
+   ```
+
+2. **Verify user has active subscription:**
+   - Billing portal requires an active Stripe customer
+   - Create a subscription first via PricingCard
+
+3. **Check console for errors:**
+   - Open browser dev tools
+   - Look for `[PaymentMethodCard]` or `[SubscriptionCard]` error logs
+
+### Checkout Not Working
+
+**Problem:** PricingCard button click does nothing.
+
+**Solutions:**
+
+1. **Verify Stripe Price IDs are set:**
+   ```tsx
+   plan={{
+     stripePriceIdMonthly: "price_xxx", // Required
+     stripePriceIdYearly: "price_yyy",  // Required
+   }}
+   ```
+
+2. **Check price IDs exist in Stripe:**
+   - Go to Stripe Dashboard → Products
+   - Verify price IDs match your config
+
+3. **Add fallback callback:**
+   ```tsx
+   <PricingCard
+     plan={plan}
+     onSubscribe={async (planId, interval) => {
+       console.log("Fallback checkout:", planId, interval);
+     }}
+   />
+   ```
+
+## Next Steps
+
+<Cards>
+  <Card title="Component Reference" href="/docs/components">
+    Explore all available billing components
+  </Card>
+  <Card title="Stripe Setup" href="/docs/guides/stripe/setup">
+    Configure Stripe for production
+  </Card>
+  <Card title="Customization" href="/docs/guides/customization">
+    Customize component styles and behavior
+  </Card>
+</Cards>

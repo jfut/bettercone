@@ -1,0 +1,271 @@
+---
+title: SeatAllocationCard
+description: Display team seat usage with member list
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# SeatAllocationCard
+
+The `SeatAllocationCard` component displays organization seat allocation with optional member list.
+
+<Callout type="info">
+**v0.3.0 Update:** Component now auto-fetches seat limits from organization subscription.
+</Callout>
+
+## Installation
+
+```bash
+npm install @bettercone/ui
+```
+
+## Features
+
+- ✅ **Auto-Fetch Mode** - Automatically fetches seat data from subscription
+- ✅ **Presentational Mode** - Pass seat data manually via `data` prop
+- ✅ **Progress Bar** - Visual seat usage indicator
+- ✅ **Member List** - Optional member avatars and names
+- ✅ **Warning States** - Highlights when approaching limit
+- ✅ **Localization** - Full i18n support
+
+## Usage
+
+<Tabs items={['Auto-Fetch', 'Presentational', 'With Members']}>
+  <Tab value="Auto-Fetch">
+    ```tsx
+    import { AuthUIProvider, SeatAllocationCard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function TeamPage() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          {/* Auto-fetches seat limit from subscription */}
+          <SeatAllocationCard />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Presentational">
+    ```tsx
+    import { SeatAllocationCard } from '@bettercone/ui';
+
+    export default function TeamPage() {
+      return (
+        <SeatAllocationCard
+          data={{
+            used: 8,
+            limit: 20,
+          }}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Members">
+    ```tsx
+    import { AuthUIProvider, SeatAllocationCard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function TeamPage() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <SeatAllocationCard 
+            showMemberList={true}
+            maxMembersShown={5}
+          />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+<TypeTable
+  type={{
+    data: {
+      type: '{ used: number; limit: number }',
+      description: 'Seat allocation data (presentational mode)',
+    },
+    organizationId: {
+      type: 'string',
+      description: 'Organization ID (auto-detected from active org if not provided)',
+    },
+    className: {
+      type: 'string',
+      description: 'Additional CSS classes for the card wrapper',
+    },
+    classNames: {
+      type: 'object',
+      description: 'CSS classes for specific card sections',
+    },
+    localization: {
+      type: 'Partial<TeamLocalization>',
+      description: 'Custom labels for internationalization',
+    },
+    showMemberList: {
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to show member avatars',
+    },
+    maxMembersShown: {
+      type: 'number',
+      default: '8',
+      description: 'Maximum members to display before "+X more"',
+    },
+    onUpgrade: {
+      type: '() => void',
+      description: 'Callback when upgrade button clicked (when at limit)',
+    },
+  }}
+/>
+
+## Seat Detection
+
+In auto-fetch mode, the component:
+
+1. Gets active organization from Better Auth session
+2. Fetches organization subscription
+3. Extracts `subscription.seats` as the limit
+4. Counts `organization.members.length` as used seats
+5. Calculates usage percentage and warnings
+
+```typescript
+// Internal auto-detection
+const { data: activeOrg } = useActiveOrganization();
+const { data: subscriptions } = useQuery({
+  queryKey: ["subscriptions"],
+  queryFn: () => authClient.subscription.list(),
+});
+
+const orgSubscription = subscriptions?.find(
+  sub => sub.referenceId === activeOrg.id
+);
+
+const seatData = {
+  used: activeOrg.members.length,
+  limit: orgSubscription?.seats || 5, // Default to 5
+};
+```
+
+## Warning States
+
+The component displays different states based on usage:
+
+| Usage | State | Description |
+|-------|-------|-------------|
+| < 80% | Normal | Green progress bar |
+| 80-99% | Warning | Yellow progress bar, warning message |
+| 100% | At Limit | Red progress bar, "Upgrade" button shown |
+
+## Examples
+
+### Example 1: Team Dashboard
+
+```tsx
+import { AuthUIProvider } from '@bettercone/ui';
+import { SeatAllocationCard, TeamBillingCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function TeamDashboard() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <SeatAllocationCard showMemberList={true} />
+        <TeamBillingCard />
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### Example 2: With Upgrade Flow
+
+```tsx
+import { SeatAllocationCard } from '@bettercone/ui';
+import { useRouter } from 'next/navigation';
+
+export default function TeamPage() {
+  const router = useRouter();
+
+  return (
+    <SeatAllocationCard
+      data={{ used: 20, limit: 20 }}
+      onUpgrade={() => router.push('/org/pricing')}
+    />
+  );
+}
+```
+
+### Example 3: Custom Styling
+
+```tsx
+<SeatAllocationCard
+  data={{ used: 8, limit: 20 }}
+  showMemberList={true}
+  classNames={{
+    base: "border-2",
+    header: "bg-gradient-to-r from-green-500 to-blue-500 text-white",
+    progress: "h-3 rounded-full",
+    memberList: "gap-2",
+  }}
+/>
+```
+
+## Customization
+
+### Custom Localization
+
+```tsx
+const portugueseLocalization = {
+  seatAllocation: "Alocação de Assentos",
+  seatsUsed: "Assentos Usados",
+  of: "de",
+  members: "Membros",
+  upgradePlan: "Aumentar Plano",
+  nearLimit: "Próximo do limite",
+  atLimit: "No limite de assentos",
+};
+
+<SeatAllocationCard localization={portugueseLocalization} />
+```
+
+## Migration from v0.2.x
+
+```tsx
+// Before (v0.2.x)
+<SeatAllocationCard 
+  used={8}
+  limit={20}
+  showMemberList={true}
+/>
+
+// After (v0.3.0) - Auto-fetch
+<AuthUIProvider authClient={authClient}>
+  <SeatAllocationCard showMemberList={true} />
+</AuthUIProvider>
+
+// After (v0.3.0) - Presentational
+<SeatAllocationCard 
+  data={{ used: 8, limit: 20 }}
+  showMemberList={true}
+/>
+```
+
+## Related Components
+
+- [TeamBillingCard](/docs/components/team/team-billing-card) - Organization subscription
+- [TeamDashboard](/docs/components/team/team-dashboard) - Complete team view
+- [PricingCard](/docs/components/pricing/pricing-card) - Upgrade plans
+
+## See Also
+
+- [Better Auth Stripe Integration](/docs/guides/authentication/better-auth-stripe)
+- [Organization Guide](/docs/guides/organization)
+- [Team Management](/docs/guides/organization/teams)

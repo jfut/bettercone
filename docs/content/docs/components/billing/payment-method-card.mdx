@@ -1,6 +1,6 @@
 ---
 title: PaymentMethodCard
-description: Display and manage payment methods via Stripe integration
+description: Display payment method with Stripe billing portal access
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
@@ -9,128 +9,84 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 
 # PaymentMethodCard
 
-The `PaymentMethodCard` component displays the default payment method (credit card) attached to the user's subscription with quick access to update via Stripe Customer Portal.
+The `PaymentMethodCard` component displays the user's payment method with quick access to the Stripe billing portal for updates.
 
 <Callout type="info">
-  This component is backend-agnostic and works with any Better Auth backend. It uses callbacks to handle payment method management.
+**v0.3.0 Update:** Component now auto-opens billing portal with Better Auth Stripe plugin. No `authClient` prop required.
 </Callout>
 
 ## Installation
 
-```tsx
-import { PaymentMethodCard } from '@bettercone/ui';
+```bash
+npm install @bettercone/ui
 ```
 
 ## Features
 
-- ✅ **Backend-Agnostic** - Works with any Better Auth backend (Convex, Prisma, Supabase, Drizzle)
-- ✅ **Secure Display** - Shows last 4 digits and card brand only
-- ✅ **Auto-Detection** - Automatically finds payment method from active subscription
-- ✅ **Stripe Portal** - One-click update via callback to your Stripe portal
-- ✅ **Card Icons** - Visual card brand indicators (Visa, Mastercard, Amex, etc.)
-- ✅ **Expiry Display** - Shows card expiration date
-- ✅ **No Card State** - Helpful prompt when no payment method exists
+- ✅ **Auto-Portal Access** - Opens Stripe billing portal automatically
+- ✅ **Presentational Mode** - Display payment method details manually
+- ✅ **Card Brand Icons** - Visual card brand indicators (Visa, Mastercard, Amex, etc.)
+- ✅ **Expiry Warnings** - Highlights expired or expiring cards
 - ✅ **Localization** - Full i18n support
-- ✅ **Skeleton Loading** - Smooth loading states
 
 ## Usage
 
-<Tabs items={['Basic', 'Custom Styling', 'Localized', 'Read-Only']}>
-  <Tab value="Basic">
+<Tabs items={['Auto-Portal', 'Presentational', 'With Data']}>
+  <Tab value="Auto-Portal">
     ```tsx
-    import { PaymentMethodCard } from '@bettercone/ui';
+    import { AuthUIProvider, PaymentMethodCard } from '@bettercone/ui';
     import { authClient } from '@/lib/auth-client';
 
     export default function BillingPage() {
-      const handleManagePayment = async (subscription, organization) => {
-        const response = await fetch("/api/billing/portal", {
-          method: "POST",
-          body: JSON.stringify({ organizationId: organization?.id })
-        });
-        const { url } = await response.json();
-        window.location.href = url;
-      };
-
       return (
-        <div className="grid gap-6 md:grid-cols-2">
-          <PaymentMethodCard
-            authClient={authClient}
-            onManagePayment={handleManagePayment}
-          />
-        </div>
+        <AuthUIProvider authClient={authClient}>
+          {/* Shows generic "Managed via Stripe" message */}
+          <PaymentMethodCard />
+        </AuthUIProvider>
       );
     }
     ```
   </Tab>
   
-  <Tab value="Custom Styling">
+  <Tab value="Presentational">
     ```tsx
-    import { PaymentMethodCard } from '@bettercone/ui';
-    import { authClient } from '@/lib/auth-client';
+    import { PaymentMethodCard, type PaymentMethod } from '@bettercone/ui';
 
     export default function BillingPage() {
-      const handleManagePayment = async (subscription, organization) => {
-        const response = await fetch("/api/billing/portal");
-        const { url } = await response.json();
-        window.location.href = url;
+      const paymentMethod: PaymentMethod = {
+        id: "pm_123",
+        type: "card",
+        last4: "4242",
+        brand: "visa",
+        expiryMonth: 12,
+        expiryYear: 2025,
       };
 
-      return (
-        <PaymentMethodCard 
-          authClient={authClient}
-          onManagePayment={handleManagePayment}
-          className="shadow-md"
-          classNames={{
-            base: "border-2 border-primary/20",
-            header: "bg-muted",
-            content: "p-6",
-          }}
-        />
-      );
+      return <PaymentMethodCard data={paymentMethod} />;
     }
     ```
   </Tab>
   
-  <Tab value="Localized">
+  <Tab value="With Data">
     ```tsx
-    import { PaymentMethodCard } from '@bettercone/ui';
+    import { AuthUIProvider, PaymentMethodCard } from '@bettercone/ui';
     import { authClient } from '@/lib/auth-client';
 
     export default function BillingPage() {
-      const handleManagePayment = async () => {
-        const response = await fetch("/api/billing/portal");
-        const { url } = await response.json();
-        window.location.href = url;
+      // Optional: provide payment method for better UX
+      const paymentMethod = {
+        id: "pm_123",
+        type: "card" as const,
+        last4: "4242",
+        brand: "visa" as const,
+        expiryMonth: 12,
+        expiryYear: 2025,
       };
 
       return (
-        <PaymentMethodCard 
-          authClient={authClient}
-          onManagePayment={handleManagePayment}
-          localization={{
-            paymentMethod: "Método de Pago",
-            cardEndingIn: "Tarjeta terminada en",
-            expires: "Vence",
-            updatePaymentMethod: "Actualizar Método",
-            addPaymentMethod: "Agregar Método"
-          }}
-        />
-      );
-    }
-    ```
-  </Tab>
-  
-  <Tab value="Read-Only">
-    ```tsx
-    import { PaymentMethodCard } from '@bettercone/ui';
-    import { authClient } from '@/lib/auth-client';
-
-    export default function AccountOverview() {
-      return (
-        <PaymentMethodCard 
-          authClient={authClient} 
-          showActions={false}
-        />
+        <AuthUIProvider authClient={authClient}>
+          <PaymentMethodCard data={paymentMethod} />
+        </AuthUIProvider>
       );
     }
     ```
@@ -141,326 +97,157 @@ import { PaymentMethodCard } from '@bettercone/ui';
 
 <TypeTable
   type={{
+    data: {
+      type: 'PaymentMethod',
+      description: 'Payment method data (optional)',
+    },
+    referenceId: {
+      type: 'string',
+      description: 'User or organization ID (auto-detected if not provided)',
+    },
     className: {
       type: 'string',
       description: 'Additional CSS classes for the card wrapper',
     },
     classNames: {
       type: 'object',
-      description: 'CSS classes for specific sections (base, header, content, footer)',
+      description: 'CSS classes for specific card sections (base, header, content, footer)',
     },
     localization: {
       type: 'Partial<BillingLocalization>',
       description: 'Custom labels for internationalization',
     },
-    showActions: {
-      type: 'boolean',
-      default: 'true',
-      description: 'Whether to show the update/add payment method button',
+    onBeforeManage: {
+      type: '() => Promise<void> | void',
+      description: 'Callback fired before opening billing portal',
     },
   }}
 />
 
-## Payment Method Display
-
-The component securely displays payment information:
+## Payment Method Types
 
 ```typescript
-// Example payment method data structure
-{
-  brand: "visa",           // Card brand (visa, mastercard, amex, etc.)
-  last4: "4242",          // Last 4 digits
-  expMonth: 12,           // Expiration month
-  expYear: 2025,          // Expiration year
+interface PaymentMethod {
+  id: string;
+  type: PaymentMethodType;
+  last4?: string;                  // Last 4 digits
+  brand?: CardBrand;               // Card brand
+  expiryMonth?: number;            // 1-12
+  expiryYear?: number;             // 2025, etc.
+  isDefault?: boolean;
 }
+
+type PaymentMethodType = "card" | "paypal" | "bank_account" | "other";
+
+type CardBrand = 
+  | "visa"
+  | "mastercard"
+  | "amex"
+  | "discover"
+  | "diners"
+  | "jcb"
+  | "unionpay"
+  | "unknown";
 ```
 
-### Card Brand Icons
+## Billing Portal Integration
 
-Supported card brands with visual indicators:
-
-- **Visa** - Blue gradient
-- **Mastercard** - Red/orange gradient
-- **American Express** - Blue gradient
-- **Discover** - Orange gradient
-- **JCB** - Blue/green gradient
-- **Diners Club** - Blue gradient
-- **UnionPay** - Red gradient
-- **Generic** - Gray fallback for unknown brands
-
-## Stripe Portal Integration
-
-Clicking "Update Payment Method" opens the Stripe Customer Portal focused on payment methods:
+The "Update Payment Method" button opens Stripe's billing portal using `authClient.subscription.billingPortal()`.
 
 ```tsx
-const handleUpdatePaymentMethod = async () => {
-  setIsLoading(true);
-  
-  const result = await authClient.subscription.createCustomerPortal({
+// Internal implementation
+const handleUpdate = async () => {
+  const result = await authClient.subscription.billingPortal({
+    referenceId: referenceId || session.user.id,
     returnUrl: window.location.href,
   });
   
   if (result.data?.url) {
     window.location.href = result.data.url;
-  } else {
-    toast.error("Failed to open payment portal");
   }
-  
-  setIsLoading(false);
 };
 ```
 
 <Callout type="warning">
-  Payment method updates must be done through Stripe's secure portal. Never attempt to collect card details directly in your application.
+Stripe billing portal must be enabled in your Stripe Dashboard.
 </Callout>
 
 ## Examples
 
-### Example 1: Billing Settings Grid
+### Example 1: With Expiry Warning
 
 ```tsx
-import { PaymentMethodCard } from '@/components/billing/cards/payment-method-card';
-import { SubscriptionCard } from '@/components/billing/cards/subscription-card';
-import { InvoiceHistoryCard } from '@/components/billing/cards/invoice-history-card';
+import { PaymentMethodCard } from '@bettercone/ui';
 
-export default function BillingSettingsPage() {
-  return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Billing</h1>
-      
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Subscription - Full Width */}
-        <div className="lg:col-span-2">
-          <SubscriptionCard />
-        </div>
-        
-        {/* Payment & Invoices - Side by Side */}
-        <PaymentMethodCard />
-        <InvoiceHistoryCard maxInvoices={3} />
-      </div>
-    </div>
-  );
-}
-```
-
-### Example 2: With Expiry Warning
-
-```tsx
-import { PaymentMethodCard } from '@/components/billing/cards/payment-method-card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
-import { authClient } from '@/lib/auth-client';
-
-export default function BillingPage() {
-  const { data: subscriptions } = authClient.useSession();
-  
-  // Check if card expires soon (within 30 days)
-  const isExpiringSoon = subscriptions?.[0]?.paymentMethod && (
-    new Date(
-      subscriptions[0].paymentMethod.expYear,
-      subscriptions[0].paymentMethod.expMonth - 1
-    ) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-  );
-
-  return (
-    <div className="space-y-6">
-      {isExpiringSoon && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Card Expiring Soon</AlertTitle>
-          <AlertDescription>
-            Your payment method expires soon. Update it to avoid service interruption.
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      <PaymentMethodCard />
-    </div>
-  );
-}
-```
-
-### Example 3: Minimal Display
-
-```tsx
-import { PaymentMethodCard } from '@/components/billing/cards/payment-method-card';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-export default function AccountSummary() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Account Overview</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-medium mb-2">Payment Information</h3>
-            <PaymentMethodCard 
-              showActions={false}
-              className="border-0 shadow-none"
-            />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-```
-
-### Example 4: With Manual Update Handler
-
-```tsx
-import { PaymentMethodCard } from '@/components/billing/cards/payment-method-card';
-import { useState } from 'react';
-import { toast } from 'sonner';
-
-export default function BillingPage() {
-  const [isUpdating, setIsUpdating] = useState(false);
-
-  const handleUpdate = async () => {
-    setIsUpdating(true);
-    
-    // Custom analytics or logging
-    console.log('User initiated payment method update');
-    
-    try {
-      const result = await authClient.subscription.createCustomerPortal({
-        returnUrl: `${window.location.href}?updated=true`,
-      });
-      
-      if (result.data?.url) {
-        window.location.href = result.data.url;
-      }
-    } catch (error) {
-      toast.error('Failed to open payment portal');
-      setIsUpdating(false);
-    }
-  };
-
-  return (
-    <PaymentMethodCard 
-      showActions={true}
-      className={isUpdating ? 'opacity-50 pointer-events-none' : ''}
-    />
-  );
-}
-```
-
-## No Payment Method State
-
-When no payment method exists:
-
-```tsx
-// Shows helpful prompt
-<Card>
-  <CardHeader>
-    <CardTitle>Payment Method</CardTitle>
-    <CardDescription>No payment method on file</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <p className="text-sm text-muted-foreground mb-4">
-      Add a payment method to subscribe to a plan
-    </p>
-    <Button onClick={handleAddPaymentMethod}>
-      <Plus className="h-4 w-4 mr-2" />
-      Add Payment Method
-    </Button>
-  </CardContent>
-</Card>
-```
-
-## Security Considerations
-
-<Callout type="warning">
-  **PCI Compliance**: Never store or display full card numbers. Always use Stripe's secure portal for payment updates.
-</Callout>
-
-- Only last 4 digits are displayed
-- Card details come from Stripe's secure API
-- All updates go through Stripe Customer Portal
-- No sensitive data is stored in your database
-- Follows PCI DSS compliance requirements
-
-## Payment Method Types
-
-While credit cards are most common, Stripe supports various payment methods:
-
-| Type | Display |
-|------|---------|
-| Credit Card | Card brand icon + last 4 + expiry |
-| Debit Card | Card brand icon + last 4 + expiry |
-| Bank Account | Bank name + last 4 account digits |
-| PayPal | PayPal email |
-| Apple Pay | "Apple Pay" + last 4 |
-| Google Pay | "Google Pay" + last 4 |
-
-<Callout type="info">
-  The component currently focuses on card display. For other payment methods, customize the display logic in the component.
-</Callout>
-
-## Customization
-
-### Custom Card Icons
-
-```tsx
-// Add custom card brand styling
-const cardBrandColors = {
-  visa: "text-blue-600",
-  mastercard: "text-orange-600",
-  amex: "text-blue-700",
-  discover: "text-orange-500",
+const expiringCard = {
+  id: "pm_123",
+  type: "card" as const,
+  last4: "4242",
+  brand: "visa" as const,
+  expiryMonth: 12,
+  expiryYear: 2024, // Expired!
 };
 
-<Badge className={cardBrandColors[brand]}>
-  {brand.toUpperCase()}
-</Badge>
+<PaymentMethodCard data={expiringCard} />
+// Shows warning: "Card expired"
 ```
 
-### Custom Localization
+### Example 2: Custom Styling
 
 ```tsx
-const frenchLocalization = {
-  paymentMethodTitle: "Moyen de Paiement",
-  paymentMethodDescription: "Votre carte par défaut",
-  cardEndingIn: "Carte se terminant par",
-  expiresOn: "Expire le",
-  updatePaymentMethod: "Mettre à Jour",
-  addPaymentMethod: "Ajouter un Moyen",
-  noPaymentMethod: "Aucun moyen de paiement",
-};
-
-<PaymentMethodCard localization={frenchLocalization} />
+<PaymentMethodCard 
+  data={paymentMethod}
+  className="shadow-lg"
+  classNames={{
+    base: "border-2",
+    header: "bg-gradient-to-r from-blue-500 to-purple-500 text-white",
+    content: "p-6",
+  }}
+/>
 ```
 
-## Loading States
-
-Automatic skeleton placeholder during data fetch:
+### Example 3: Localized
 
 ```tsx
-// Shows skeleton until subscriptions load
-if (isSessionPending || isOrgsPending || subscriptions === undefined) {
-  return <PaymentMethodCardSkeleton />;
-}
+<PaymentMethodCard
+  data={paymentMethod}
+  localization={{
+    paymentMethod: "Método de Pagamento",
+    updatePaymentMethod: "Atualizar Método",
+    cardEnding: "Cartão terminado em",
+    expires: "Expira",
+    expired: "Expirado",
+    noPaymentMethod: "Nenhum método de pagamento",
+  }}
+/>
 ```
 
-## Notes
+## Migration from v0.2.x
 
-- Payment method data comes from the active subscription
-- Updates are processed through Stripe's secure Customer Portal
-- Component supports both personal and organization subscriptions
-- Card expiry validation should trigger renewal reminders
-- Failed payment attempts show in subscription status
+<Callout type="warn">
+**Breaking Change:** The `authClient` prop has been removed. Use `AuthUIProvider` instead.
+</Callout>
+
+```tsx
+// Before (v0.2.x)
+<PaymentMethodCard authClient={authClient} />
+
+// After (v0.3.0) - Auto-portal
+<AuthUIProvider authClient={authClient}>
+  <PaymentMethodCard />
+</AuthUIProvider>
+
+// After (v0.3.0) - Presentational
+<PaymentMethodCard data={paymentMethodData} />
+```
 
 ## Related Components
 
-- [SubscriptionCard](/docs/components/billing/subscription-card) - View active subscription
-- [InvoiceHistoryCard](/docs/components/billing/invoice-history-card) - View payment history
+- [SubscriptionCard](/docs/components/billing/subscription-card) - Display subscription
+- [InvoiceHistoryCard](/docs/components/billing/invoice-history-card) - View invoices
 - [BillingDashboard](/docs/components/billing/billing-dashboard) - Complete billing view
 
-## Next Steps
+## See Also
 
-- [Configure Stripe Customer Portal](/docs/guides/stripe-integration#customer-portal)
-- [Handle payment failures](/docs/guides/stripe-integration#failed-payments)
-- [Set up payment webhooks](/docs/guides/stripe-integration#webhooks)
-- [View complete billing example](/docs/examples/billing-page)
+- [Better Auth Stripe Integration](/docs/guides/authentication/better-auth-stripe)
+- [Billing Portal Setup](/docs/guides/stripe/billing)

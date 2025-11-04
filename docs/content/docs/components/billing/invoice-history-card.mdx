@@ -1,6 +1,6 @@
 ---
 title: InvoiceHistoryCard
-description: Display past invoices with download links via Stripe
+description: Display invoice history with download and portal access
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
@@ -9,78 +9,71 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 
 # InvoiceHistoryCard
 
-The `InvoiceHistoryCard` component displays a link to view invoices via the Stripe Customer Portal.
+The `InvoiceHistoryCard` component displays a list of invoices with download links and billing portal access.
 
 <Callout type="info">
-  This component is backend-agnostic and uses a callback to navigate to your Stripe portal implementation.
+**v0.3.0 Update:** Component now accepts optional invoice data. Use presentational mode with `data` prop.
 </Callout>
 
 ## Installation
 
-```tsx
-import { InvoiceHistoryCard } from '@bettercone/ui';
+```bash
+npm install @bettercone/ui
 ```
 
 ## Features
 
-- ✅ **Backend-Agnostic** - Works with any Better Auth backend (Convex, Prisma, Supabase, Drizzle)
-- ✅ **Stripe Portal** - Navigate to Stripe portal to view invoices
-- ✅ **Status Badges** - Visual indicators for invoices found
-- ✅ **Empty State** - Helpful message when no invoices exist
-- ✅ **Configurable Limit** - Control max invoices display
+- ✅ **Invoice List** - Displays invoices with date, amount, status
+- ✅ **Status Badges** - Visual indicators (paid, open, void, uncollectible)
+- ✅ **Download Links** - Direct download for paid invoices
+- ✅ **Portal Access** - Link to billing portal for full history
 - ✅ **Localization** - Full i18n support
-- ✅ **Skeleton Loading** - Smooth loading states
 
 ## Usage
 
-<Tabs items={['Basic', 'Limited', 'Localized', 'Custom Styling']}>
-  <Tab value="Basic">
+<Tabs items={['Portal Only', 'Presentational', 'Localized']}>
+  <Tab value="Portal Only">
     ```tsx
-    import { InvoiceHistoryCard } from '@bettercone/ui';
+    import { AuthUIProvider, InvoiceHistoryCard } from '@bettercone/ui';
     import { authClient } from '@/lib/auth-client';
 
     export default function BillingPage() {
-      const handleViewInvoices = async (subscription, organization) => {
-        const response = await fetch("/api/billing/portal", {
-          method: "POST",
-          body: JSON.stringify({ organizationId: organization?.id })
-        });
-        const { url } = await response.json();
-        window.location.href = url;
-      };
-
       return (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <InvoiceHistoryCard
-            authClient={authClient}
-            onViewInvoices={handleViewInvoices}
-          />
-        </div>
+        <AuthUIProvider authClient={authClient}>
+          {/* Shows "View in billing portal" message */}
+          <InvoiceHistoryCard />
+        </AuthUIProvider>
       );
     }
     ```
   </Tab>
   
-  <Tab value="Limited">
+  <Tab value="Presentational">
     ```tsx
-    import { InvoiceHistoryCard } from '@bettercone/ui';
-    import { authClient } from '@/lib/auth-client';
+    import { InvoiceHistoryCard, type Invoice } from '@bettercone/ui';
 
-    export default function AccountOverview() {
-      const handleViewInvoices = async () => {
-        const response = await fetch("/api/billing/portal");
-        const { url } = await response.json();
-        window.location.href = url;
-      };
+    export default function BillingPage() {
+      const invoices: Invoice[] = [
+        {
+          id: "inv_123",
+          number: "INV-001",
+          amount: 2900,
+          currency: "usd",
+          status: "paid",
+          createdAt: new Date("2024-11-01"),
+          pdfUrl: "https://stripe.com/invoice.pdf",
+        },
+        {
+          id: "inv_124",
+          number: "INV-002",
+          amount: 2900,
+          currency: "usd",
+          status: "open",
+          createdAt: new Date("2024-12-01"),
+        },
+      ];
 
-      // Show only last 3 invoices
-      return (
-        <InvoiceHistoryCard
-          authClient={authClient}
-          onViewInvoices={handleViewInvoices}
-          maxInvoices={3}
-        />
-      );
+      return <InvoiceHistoryCard data={invoices} />;
     }
     ```
   </Tab>
@@ -88,57 +81,19 @@ import { InvoiceHistoryCard } from '@bettercone/ui';
   <Tab value="Localized">
     ```tsx
     import { InvoiceHistoryCard } from '@bettercone/ui';
-    import { authClient } from '@/lib/auth-client';
 
-    export default function BillingPage() {
-      const handleViewInvoices = async () => {
-        const response = await fetch("/api/billing/portal");
-        const { url } = await response.json();
-        window.location.href = url;
-      };
-
-      return (
-        <InvoiceHistoryCard 
-          authClient={authClient}
-          onViewInvoices={handleViewInvoices}
-          localization={{
-            invoiceHistory: "Historial de Facturas",
-            noInvoices: "Sin facturas",
-            viewInvoices: "Ver Facturas"
-          }}
-        />
-      );
-    }
-    ```
-  </Tab>
-  
-  <Tab value="Custom Styling">
-    ```tsx
-    import { InvoiceHistoryCard } from '@bettercone/ui';
-    import { authClient } from '@/lib/auth-client';
-
-    export default function BillingPage() {
-      const handleViewInvoices = async () => {
-        const response = await fetch("/api/billing/portal");
-        const { url } = await response.json();
-        window.location.href = url;
-      };
-
-      return (
-        <InvoiceHistoryCard 
-          authClient={authClient}
-          onViewInvoices={handleViewInvoices}
-          className="shadow-lg"
-          classNames={{
-            base: "border-2",
-            header: "bg-muted/50",
-            content: "space-y-4",
-            invoice: "hover:bg-accent/50 transition-colors",
-          }}
-          maxInvoices={10}
-        />
-      );
-    }
+    <InvoiceHistoryCard
+      data={invoices}
+      localization={{
+        invoiceHistory: "Histórico de Faturas",
+        viewInPortal: "Ver no Portal",
+        noInvoices: "Nenhuma fatura",
+        download: "Baixar",
+        date: "Data",
+        amount: "Valor",
+        status: "Status",
+      }}
+    />
     ```
   </Tab>
 </Tabs>
@@ -147,13 +102,21 @@ import { InvoiceHistoryCard } from '@bettercone/ui';
 
 <TypeTable
   type={{
+    data: {
+      type: 'Invoice[]',
+      description: 'Invoice data array (presentational mode)',
+    },
+    referenceId: {
+      type: 'string',
+      description: 'User or organization ID (auto-detected if not provided)',
+    },
     className: {
       type: 'string',
       description: 'Additional CSS classes for the card wrapper',
     },
     classNames: {
       type: 'object',
-      description: 'CSS classes for specific sections (base, header, content, invoice)',
+      description: 'CSS classes for specific card sections',
     },
     localization: {
       type: 'Partial<BillingLocalization>',
@@ -167,347 +130,111 @@ import { InvoiceHistoryCard } from '@bettercone/ui';
   }}
 />
 
-## Invoice Data Structure
-
-Each invoice contains:
+## Invoice Types
 
 ```typescript
 interface Invoice {
-  id: string;              // Stripe invoice ID
-  number: string;          // Invoice number (e.g., "INV-001")
-  amountPaid: number;      // Amount in cents
-  currency: string;        // Currency code (usd, eur, etc.)
-  status: string;          // paid, open, void, uncollectible
-  created: number;         // Unix timestamp
-  hostedInvoiceUrl: string; // Stripe-hosted invoice page
-  invoicePdf: string;      // Direct PDF download link
+  id: string;
+  number?: string;                 // Invoice number (INV-001)
+  amount: number;                  // Amount in cents
+  currency: string;                // ISO currency code (usd, eur, etc.)
+  status: InvoiceStatus;
+  createdAt: Date;
+  paidAt?: Date;
+  dueDate?: Date;
+  pdfUrl?: string;                 // Download URL
+  hostedInvoiceUrl?: string;       // Stripe hosted page
 }
+
+type InvoiceStatus = 
+  | "draft"
+  | "open"
+  | "paid"
+  | "void"
+  | "uncollectible";
 ```
 
-## Invoice Status
+## Status Badges
 
-Different statuses with visual indicators:
-
-| Status | Badge | Description |
-|--------|-------|-------------|
-| `paid` | Green | Successfully paid |
-| `open` | Yellow | Awaiting payment |
-| `draft` | Gray | Draft invoice, not finalized |
-| `void` | Gray | Canceled/voided invoice |
+| Status | Badge Color | Description |
+|--------|-------------|-------------|
+| `paid` | Green | Invoice paid successfully |
+| `open` | Blue | Invoice sent, awaiting payment |
+| `void` | Gray | Invoice voided |
 | `uncollectible` | Red | Marked as uncollectible |
-
-```tsx
-// Status badge colors
-const statusColors = {
-  paid: "bg-green-100 text-green-800",
-  open: "bg-yellow-100 text-yellow-800",
-  void: "bg-gray-100 text-gray-800",
-  uncollectible: "bg-red-100 text-red-800",
-};
-```
+| `draft` | Yellow | Draft invoice not yet sent |
 
 ## Examples
 
-### Example 1: Complete Billing Page
+### Example 1: Recent Invoices
 
 ```tsx
-import { InvoiceHistoryCard } from '@/components/billing/cards/invoice-history-card';
-import { SubscriptionCard } from '@/components/billing/cards/subscription-card';
-import { PaymentMethodCard } from '@/components/billing/cards/payment-method-card';
+import { InvoiceHistoryCard } from '@bettercone/ui';
+
+<InvoiceHistoryCard 
+  data={invoices}
+  maxInvoices={3}
+  className="shadow-sm"
+/>
+```
+
+### Example 2: With Portal Access
+
+```tsx
+import { AuthUIProvider, InvoiceHistoryCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
 
 export default function BillingPage() {
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Billing & Invoices</h1>
-      
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Subscription - Full Width */}
-        <div className="lg:col-span-2">
-          <SubscriptionCard />
-        </div>
-        
-        {/* Payment Method */}
-        <PaymentMethodCard />
-        
-        {/* Invoice History */}
-        <InvoiceHistoryCard maxInvoices={5} />
-      </div>
-    </div>
+    <AuthUIProvider authClient={authClient}>
+      <InvoiceHistoryCard 
+        data={recentInvoices}
+        onBeforeManage={async () => {
+          // Track analytics
+          await analytics.track('billing_portal_opened');
+        }}
+      />
+    </AuthUIProvider>
   );
 }
 ```
 
-### Example 2: Invoices-Only Page
+### Example 3: Custom Styling
 
 ```tsx
-import { InvoiceHistoryCard } from '@/components/billing/cards/invoice-history-card';
-import { Button } from '@/components/ui/button';
-import { FileText, Download } from 'lucide-react';
-
-export default function InvoicesPage() {
-  const handleDownloadAll = async () => {
-    // Implement bulk download logic
-    console.log('Downloading all invoices...');
-  };
-
-  return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Invoice History</h1>
-          <p className="text-muted-foreground">
-            Download and view your past invoices
-          </p>
-        </div>
-        
-        <Button onClick={handleDownloadAll} variant="outline">
-          <Download className="h-4 w-4 mr-2" />
-          Download All
-        </Button>
-      </div>
-      
-      {/* Show all invoices */}
-      <InvoiceHistoryCard maxInvoices={999} />
-    </div>
-  );
-}
+<InvoiceHistoryCard
+  data={invoices}
+  classNames={{
+    base: "border-2",
+    header: "bg-muted",
+    content: "p-6",
+    footer: "border-t",
+  }}
+/>
 ```
 
-### Example 3: With Date Filtering
+## Migration from v0.2.x
 
 ```tsx
-import { InvoiceHistoryCard } from '@/components/billing/cards/invoice-history-card';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue 
-} from '@/components/ui/select';
-import { useState } from 'react';
+// Before (v0.2.x) - No breaking changes for this component
+<InvoiceHistoryCard data={invoices} />
 
-export default function InvoicesPage() {
-  const [year, setYear] = useState<string>('2025');
+// After (v0.3.0) - Same API
+<InvoiceHistoryCard data={invoices} />
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <h2 className="text-xl font-bold">Invoices</h2>
-        
-        <Select value={year} onValueChange={setYear}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Year" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="2025">2025</SelectItem>
-            <SelectItem value="2024">2024</SelectItem>
-            <SelectItem value="2023">2023</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      
-      {/* Filter implementation would go in component */}
-      <InvoiceHistoryCard maxInvoices={12} />
-    </div>
-  );
-}
+// New in v0.3.0 - Portal access
+<AuthUIProvider authClient={authClient}>
+  <InvoiceHistoryCard />
+</AuthUIProvider>
 ```
-
-### Example 4: Compact Summary View
-
-```tsx
-import { InvoiceHistoryCard } from '@/components/billing/cards/invoice-history-card';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-export default function DashboardPage() {
-  return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {/* Other dashboard cards */}
-      
-      <Card className="lg:col-span-2">
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Show only last 3 invoices */}
-          <InvoiceHistoryCard 
-            maxInvoices={3}
-            className="border-0 shadow-none"
-          />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-```
-
-## Invoice Actions
-
-### Download Invoice PDF
-
-```tsx
-// Direct PDF download
-<Button
-  variant="ghost"
-  size="sm"
-  onClick={() => window.open(invoice.invoicePdf, '_blank')}
->
-  <FileText className="h-4 w-4 mr-2" />
-  Download PDF
-</Button>
-```
-
-### View in Stripe
-
-```tsx
-// Open Stripe-hosted invoice page
-<Button
-  variant="ghost"
-  size="sm"
-  onClick={() => window.open(invoice.hostedInvoiceUrl, '_blank')}
->
-  <ExternalLink className="h-4 w-4 mr-2" />
-  View in Stripe
-</Button>
-```
-
-## Date Formatting
-
-The component formats invoice dates for readability:
-
-```typescript
-// Format Unix timestamp to readable date
-const formatDate = (timestamp: number) => {
-  return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
-
-// Example output: "Oct 15, 2025"
-```
-
-## Currency Formatting
-
-Amounts are formatted based on currency:
-
-```typescript
-const formatAmount = (amount: number, currency: string) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency.toUpperCase(),
-  }).format(amount / 100); // Convert cents to dollars
-};
-
-// Examples:
-// formatAmount(4999, 'usd') => "$49.99"
-// formatAmount(4999, 'eur') => "€49.99"
-```
-
-## Empty State
-
-When no invoices exist:
-
-```tsx
-<Card>
-  <CardHeader>
-    <CardTitle>Invoice History</CardTitle>
-    <CardDescription>Your past invoices</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <div className="text-center py-8">
-      <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-      <p className="text-sm text-muted-foreground">
-        No invoices yet
-      </p>
-      <p className="text-xs text-muted-foreground">
-        Invoices will appear here after your first payment
-      </p>
-    </div>
-  </CardContent>
-</Card>
-```
-
-## Customization
-
-### Custom Invoice Display
-
-```tsx
-{invoices.map((invoice) => (
-  <div 
-    key={invoice.id}
-    className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent/50"
-  >
-    <div className="flex-1">
-      <p className="font-medium">{invoice.number}</p>
-      <p className="text-sm text-muted-foreground">
-        {formatDate(invoice.created)}
-      </p>
-    </div>
-    
-    <div className="flex items-center gap-4">
-      <p className="font-bold">
-        {formatAmount(invoice.amountPaid, invoice.currency)}
-      </p>
-      <Badge variant={invoice.status === 'paid' ? 'default' : 'secondary'}>
-        {invoice.status}
-      </Badge>
-      <Button size="sm" variant="ghost">
-        Download
-      </Button>
-    </div>
-  </div>
-))}
-```
-
-### Custom Localization
-
-```tsx
-const germanLocalization = {
-  invoiceHistoryTitle: "Rechnungsverlauf",
-  invoiceHistoryDescription: "Ihre vergangenen Rechnungen",
-  noInvoices: "Keine Rechnungen",
-  noInvoicesDescription: "Rechnungen erscheinen hier",
-  downloadInvoice: "Herunterladen",
-  paid: "Bezahlt",
-  pending: "Ausstehend",
-};
-
-<InvoiceHistoryCard localization={germanLocalization} />
-```
-
-## Loading States
-
-Automatic skeleton during data fetch:
-
-```tsx
-if (isSessionPending || isOrgsPending || subscriptions === undefined) {
-  return <InvoiceHistoryCardSkeleton />;
-}
-```
-
-## Notes
-
-<Callout type="info">
-  Invoices are automatically generated by Stripe when payments are processed. The component displays invoices from the active subscription only.
-</Callout>
-
-- Invoices sorted by date (most recent first)
-- PDF download links valid for 30 days (Stripe default)
-- Failed invoices remain visible for retry
-- Voided invoices are kept for record-keeping
-- All amounts include tax when applicable
 
 ## Related Components
 
-- [SubscriptionCard](/docs/components/billing/subscription-card) - View active subscription
-- [PaymentMethodCard](/docs/components/billing/payment-method-card) - Manage payment methods
+- [SubscriptionCard](/docs/components/billing/subscription-card) - Display subscription
+- [PaymentMethodCard](/docs/components/billing/payment-method-card) - Payment methods
 - [BillingDashboard](/docs/components/billing/billing-dashboard) - Complete billing view
 
-## Next Steps
+## See Also
 
-- [Configure invoice settings in Stripe](/docs/guides/stripe-integration#invoices)
-- [Set up tax collection](/docs/guides/stripe-integration#taxes)
-- [Customize invoice templates](/docs/guides/stripe-integration#invoice-templates)
-- [View complete billing example](/docs/examples/billing-page)
+- [Better Auth Stripe Integration](/docs/guides/authentication/better-auth-stripe)
+- [Invoice Management](/docs/guides/stripe/billing)

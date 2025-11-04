@@ -1,0 +1,274 @@
+---
+title: TeamBillingCard
+description: Organization subscription management with Better Auth Stripe
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# TeamBillingCard
+
+The `TeamBillingCard` component displays organization-level subscription information with billing portal access.
+
+<Callout type="info">
+**v0.3.0 Update:** Component now supports auto-fetch mode for organization subscriptions with Better Auth Stripe plugin.
+</Callout>
+
+## Installation
+
+```bash
+npm install @bettercone/ui
+```
+
+## Features
+
+- ✅ **Auto-Fetch Mode** - Automatically fetches org subscription from Better Auth
+- ✅ **Presentational Mode** - Pass subscription data manually via `data` prop
+- ✅ **Organization Context** - Auto-detects active organization
+- ✅ **Billing Portal** - One-click access to Stripe Customer Portal
+- ✅ **Seat Information** - Displays seat allocation for team plans
+- ✅ **Localization** - Full i18n support
+
+## Usage
+
+<Tabs items={['Auto-Fetch', 'Presentational', 'Specific Org']}>
+  <Tab value="Auto-Fetch">
+    ```tsx
+    import { AuthUIProvider, TeamBillingCard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function OrgBillingPage() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          {/* Auto-detects active organization subscription */}
+          <TeamBillingCard />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Presentational">
+    ```tsx
+    import { TeamBillingCard, type Subscription } from '@bettercone/ui';
+
+    export default function OrgBillingPage() {
+      const subscription: Subscription = {
+        id: "sub_org_123",
+        plan: "enterprise",
+        status: "active",
+        referenceId: organizationId,
+        currentPeriodEnd: new Date("2025-12-01"),
+        seats: 20,
+      };
+
+      return <TeamBillingCard data={subscription} />;
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Specific Org">
+    ```tsx
+    import { AuthUIProvider, TeamBillingCard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function OrgBillingPage({ orgId }: { orgId: string }) {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          {/* Fetch subscription for specific org */}
+          <TeamBillingCard organizationId={orgId} />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+<TypeTable
+  type={{
+    data: {
+      type: 'Subscription',
+      description: 'Subscription data (presentational mode only)',
+    },
+    organizationId: {
+      type: 'string',
+      description: 'Organization ID (auto-detected from active org if not provided)',
+    },
+    className: {
+      type: 'string',
+      description: 'Additional CSS classes for the card wrapper',
+    },
+    classNames: {
+      type: 'object',
+      description: 'CSS classes for specific card sections (base, header, content, footer)',
+    },
+    localization: {
+      type: 'Partial<BillingLocalization>',
+      description: 'Custom labels for internationalization',
+    },
+    showActions: {
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show action buttons (manage, cancel)',
+    },
+    onBeforeManage: {
+      type: '() => Promise<void> | void',
+      description: 'Callback fired before opening billing portal',
+    },
+    viewPlansUrl: {
+      type: 'string',
+      description: 'URL to org pricing page',
+    },
+  }}
+/>
+
+## Organization Detection
+
+In auto-fetch mode, the component:
+
+1. Gets active organization from Better Auth session
+2. Fetches all subscriptions via `authClient.subscription.list()`
+3. Finds subscription where `subscription.referenceId === organization.id`
+4. Displays subscription details with org context
+
+```typescript
+// Internal auto-detection
+const { data: activeOrg } = useActiveOrganization();
+const organizationId = organizationId || activeOrg?.id;
+
+// Fetch org subscription
+const { data: subscriptions } = useQuery({
+  queryKey: ["subscriptions"],
+  queryFn: () => authClient.subscription.list(),
+});
+
+const orgSubscription = subscriptions?.find(
+  sub => sub.referenceId === organizationId
+);
+```
+
+## Examples
+
+### Example 1: Organization Settings
+
+```tsx
+import { AuthUIProvider, TeamBillingCard } from '@bettercone/ui';
+import { SeatAllocationCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function OrgSettingsPage() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Organization Billing</h1>
+        
+        <TeamBillingCard viewPlansUrl="/org/pricing" />
+        <SeatAllocationCard />
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### Example 2: Admin Dashboard
+
+```tsx
+import { AuthUIProvider, TeamBillingCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+import { useState } from 'react';
+
+export default function AdminDashboard() {
+  const [selectedOrgId, setSelectedOrgId] = useState<string>();
+
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="space-y-6">
+        <select onChange={(e) => setSelectedOrgId(e.target.value)}>
+          {/* Org selector */}
+        </select>
+        
+        <TeamBillingCard 
+          key={selectedOrgId}
+          organizationId={selectedOrgId}
+        />
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### Example 3: With Analytics
+
+```tsx
+<TeamBillingCard
+  onBeforeManage={async () => {
+    await analytics.track('org_billing_portal_opened', {
+      organizationId: activeOrg.id,
+    });
+  }}
+/>
+```
+
+## Customization
+
+### Custom Styling
+
+```tsx
+<TeamBillingCard 
+  classNames={{
+    base: "border-2 border-primary",
+    header: "bg-gradient-to-r from-purple-500 to-pink-500 text-white",
+    content: "p-6 bg-muted/30",
+    footer: "border-t bg-muted/50",
+  }}
+/>
+```
+
+### Custom Localization
+
+```tsx
+<TeamBillingCard
+  localization={{
+    teamBilling: "Equipe - Cobrança",
+    organizationPlan: "Plano da Organização",
+    seats: "Assentos",
+    manageBilling: "Gerenciar Cobrança",
+    noActiveSubscription: "Nenhuma assinatura ativa",
+    viewPlans: "Ver Planos",
+  }}
+/>
+```
+
+## Migration from v0.2.x
+
+<Callout type="warn">
+**Breaking Change:** The `authClient` prop has been removed. Use `AuthUIProvider` instead.
+</Callout>
+
+```tsx
+// Before (v0.2.x)
+<TeamBillingCard authClient={authClient} />
+
+// After (v0.3.0) - Auto-fetch
+<AuthUIProvider authClient={authClient}>
+  <TeamBillingCard />
+</AuthUIProvider>
+
+// After (v0.3.0) - Presentational
+<TeamBillingCard data={subscriptionData} />
+```
+
+## Related Components
+
+- [SeatAllocationCard](/docs/components/team/seat-allocation-card) - Seat usage and members
+- [SubscriptionCard](/docs/components/billing/subscription-card) - Personal subscription
+- [PricingCard](/docs/components/pricing/pricing-card) - Upgrade plans
+
+## See Also
+
+- [Better Auth Stripe Integration](/docs/guides/authentication/better-auth-stripe)
+- [Organization Guide](/docs/guides/organization)
+- [Team Billing Setup](/docs/guides/stripe/billing)

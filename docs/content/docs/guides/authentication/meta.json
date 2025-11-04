@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "setup",
-    "email-password"
+    "email-password",
+    "better-auth-stripe"
   ]
 }
