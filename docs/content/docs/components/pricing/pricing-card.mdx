@@ -1,0 +1,542 @@
+---
+title: PricingCard
+description: Individual pricing plan card with Stripe checkout integration
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# PricingCard
+
+The `PricingCard` component displays an individual pricing plan with features, pricing details, and subscription actions. It integrates with Stripe Checkout for seamless plan upgrades.
+
+<Callout type="info">
+  This component is designed to work within the PricingDashboard but can also be used standalone for custom pricing layouts.
+</Callout>
+
+## Installation
+
+```tsx
+import { PricingCard } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Stripe Checkout** - Direct integration with Stripe subscription checkout
+- ✅ **Organization Support** - Team plans require organization selection
+- ✅ **Billing Intervals** - Monthly/yearly pricing with savings display
+- ✅ **Feature List** - Checkmark list of plan features
+- ✅ **Popular Badge** - Highlight recommended plans
+- ✅ **Custom Styling** - Granular control over card appearance
+- ✅ **Localization** - Full i18n support
+- ✅ **Loading States** - Disabled state during checkout process
+- ✅ **Type-Safe** - Full TypeScript with PricingPlan type
+
+## Usage
+
+<Tabs items={['Basic', 'With Organizations', 'Custom Styling', 'Localized']}>
+  <Tab value="Basic">
+    ```tsx
+    import { PricingCard } from '@/components/pricing/pricing-card';
+    import { useState } from 'react';
+
+    export default function PricingPage() {
+      const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+
+      const proPlan = {
+        id: 'pro',
+        name: 'Pro',
+        description: 'For professionals',
+        monthlyPrice: 29,
+        yearlyPrice: 290,
+        currency: 'usd',
+        stripePriceIdMonthly: 'price_xxx',
+        stripePriceIdYearly: 'price_yyy',
+        features: [
+          'Unlimited API calls',
+          '10 GB storage',
+          'Advanced analytics',
+          'Priority support',
+        ],
+        popular: true,
+      };
+
+      return (
+        <PricingCard
+          plan={proPlan}
+          billingInterval={billingInterval}
+          onSubscribe={() => console.log('Subscribe clicked')}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Organizations">
+    ```tsx
+    import { PricingCard } from '@/components/pricing/pricing-card';
+    import { authClient } from '@/lib/auth-client';
+    import { useState } from 'react';
+
+    export default function PricingPage() {
+      const { data: organizations } = authClient.useListOrganizations();
+      const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+
+      const teamPlan = {
+        id: 'team',
+        name: 'Team',
+        description: 'For growing teams',
+        monthlyPrice: 99,
+        yearlyPrice: 990,
+        currency: 'usd',
+        stripePriceIdMonthly: 'price_xxx',
+        stripePriceIdYearly: 'price_yyy',
+        requiresOrganization: true, // Team plan requires org
+        minSeats: 3,
+        maxSeats: 50,
+        features: [
+          'Unlimited everything',
+          '100 GB storage',
+          'Team collaboration',
+          'Dedicated support',
+        ],
+      };
+
+      return (
+        <PricingCard
+          plan={teamPlan}
+          billingInterval="month"
+          organizations={organizations || []}
+          orgsLoaded={!!organizations}
+          selectedOrgId={selectedOrgId}
+          onOrgChange={setSelectedOrgId}
+          onSubscribe={() => console.log('Team subscribe')}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Styling">
+    ```tsx
+    import { PricingCard } from '@/components/pricing/pricing-card';
+
+    export default function PricingPage() {
+      return (
+        <PricingCard
+          plan={plan}
+          billingInterval="month"
+          onSubscribe={handleSubscribe}
+          className="shadow-2xl"
+          classNames={{
+            base: "border-2 border-primary",
+            header: "bg-primary text-primary-foreground",
+            title: "text-2xl",
+            price: "text-4xl font-bold",
+            savings: "text-green-600",
+            featureItem: "text-sm",
+            button: "bg-gradient-to-r from-primary to-purple-600",
+            badge: "bg-yellow-500 text-black",
+          }}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Localized">
+    ```tsx
+    import { PricingCard } from '@/components/pricing/pricing-card';
+
+    export default function PricingPage() {
+      return (
+        <PricingCard
+          plan={plan}
+          billingInterval="month"
+          onSubscribe={handleSubscribe}
+          localization={{
+            popularBadge: "Más Popular",
+            freeLabel: "Gratis",
+            monthlyLabel: "/mes",
+            yearlyLabel: "/año",
+            savingsLabel: (amount) => `Ahorra $${amount}/año`,
+            seatsLabel: (min, max) => `por usuario, ${min}-${max} puestos`,
+            createOrgFirst: "Crea una organización primero",
+            processing: "Procesando...",
+            getStarted: "Comenzar",
+            startTrial: "Probar Gratis",
+          }}
+        />
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+<TypeTable
+  type={{
+    plan: {
+      type: 'PricingPlan',
+      required: true,
+      description: 'Plan configuration object with pricing and features',
+    },
+    billingInterval: {
+      type: "'month' | 'year'",
+      required: true,
+      description: 'Current billing interval selection',
+    },
+    isLoading: {
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the checkout process is in progress',
+    },
+    organizations: {
+      type: 'Organization[]',
+      default: '[]',
+      description: 'List of user organizations for team plans',
+    },
+    orgsLoaded: {
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether organizations have finished loading',
+    },
+    selectedOrgId: {
+      type: 'string | null',
+      description: 'Currently selected organization ID for team plans',
+    },
+    onOrgChange: {
+      type: '(orgId: string) => void',
+      description: 'Callback when organization selection changes',
+    },
+    onSubscribe: {
+      type: '() => void',
+      required: true,
+      description: 'Callback when subscribe button is clicked',
+    },
+    className: {
+      type: 'string',
+      description: 'Additional CSS classes for the card wrapper',
+    },
+    classNames: {
+      type: 'object',
+      description: 'CSS classes for specific card sections',
+    },
+    localization: {
+      type: 'Partial<PricingCardLocalization>',
+      description: 'Custom labels for internationalization',
+    },
+    formatPrice: {
+      type: '(price: number, interval: BillingInterval) => string',
+      description: 'Custom price formatting function',
+    },
+    getSavingsText: {
+      type: '(monthlyPrice: number) => string | null',
+      description: 'Custom savings text calculation',
+    },
+  }}
+/>
+
+## PricingPlan Type
+
+```typescript
+interface PricingPlan {
+  id: string;                    // Plan identifier (free, pro, team)
+  name: string;                  // Display name
+  description: string;           // Short description
+  monthlyPrice: number;          // Monthly price in dollars
+  yearlyPrice: number;           // Yearly price in dollars
+  currency: string;              // Currency code (usd, eur, etc.)
+  stripePriceIdMonthly: string;  // Stripe price ID for monthly billing
+  stripePriceIdYearly: string;   // Stripe price ID for yearly billing
+  features: string[];            // List of features
+  popular?: boolean;             // Show "Popular" badge
+  requiresOrganization?: boolean; // Team plans require org
+  minSeats?: number;             // Minimum seats for team plans
+  maxSeats?: number;             // Maximum seats for team plans
+  trialDays?: number;            // Free trial period in days
+}
+```
+
+## Examples
+
+### Example 1: Three-Tier Pricing Grid
+
+```tsx
+import { PricingCard } from '@/components/pricing/pricing-card';
+import { useState } from 'react';
+
+const plans = [
+  {
+    id: 'free',
+    name: 'Free',
+    description: 'For individuals',
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    currency: 'usd',
+    stripePriceIdMonthly: 'price_free',
+    stripePriceIdYearly: 'price_free',
+    features: [
+      '10,000 API calls/month',
+      '1 GB storage',
+      'Basic support',
+      'Community access',
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    description: 'For professionals',
+    monthlyPrice: 29,
+    yearlyPrice: 290,
+    currency: 'usd',
+    stripePriceIdMonthly: 'price_pro_monthly',
+    stripePriceIdYearly: 'price_pro_yearly',
+    features: [
+      '100,000 API calls/month',
+      '10 GB storage',
+      'Advanced analytics',
+      'Priority support',
+      'API access',
+    ],
+    popular: true,
+    trialDays: 14,
+  },
+  {
+    id: 'team',
+    name: 'Team',
+    description: 'For teams',
+    monthlyPrice: 99,
+    yearlyPrice: 990,
+    currency: 'usd',
+    stripePriceIdMonthly: 'price_team_monthly',
+    stripePriceIdYearly: 'price_team_yearly',
+    features: [
+      'Unlimited API calls',
+      '100 GB storage',
+      'Team collaboration',
+      'Dedicated support',
+      'Custom integrations',
+      'White labeling',
+    ],
+    requiresOrganization: true,
+    minSeats: 3,
+    maxSeats: 50,
+  },
+];
+
+export default function PricingPage() {
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+
+  return (
+    <div className="grid gap-6 md:grid-cols-3">
+      {plans.map((plan) => (
+        <PricingCard
+          key={plan.id}
+          plan={plan}
+          billingInterval={billingInterval}
+          onSubscribe={() => handleSubscribe(plan)}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+### Example 2: With Current Plan Indicator
+
+```tsx
+import { PricingCard } from '@/components/pricing/pricing-card';
+import { Badge } from '@/components/ui/badge';
+import { Check } from 'lucide-react';
+
+export default function PricingPage() {
+  const currentPlanId = 'pro'; // From subscription data
+
+  return (
+    <div className="grid gap-6 md:grid-cols-3">
+      {plans.map((plan) => {
+        const isCurrentPlan = plan.id === currentPlanId;
+        
+        return (
+          <div key={plan.id} className="relative">
+            {isCurrentPlan && (
+              <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
+                <Check className="h-3 w-3 mr-1" />
+                Current Plan
+              </Badge>
+            )}
+            
+            <PricingCard
+              plan={plan}
+              billingInterval="month"
+              onSubscribe={() => handleSubscribe(plan)}
+              className={isCurrentPlan ? 'border-primary' : ''}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+```
+
+### Example 3: With Comparison Table
+
+```tsx
+import { PricingCard } from '@/components/pricing/pricing-card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+export default function PricingPage() {
+  return (
+    <Tabs defaultValue="cards">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="cards">Card View</TabsTrigger>
+        <TabsTrigger value="table">Compare Features</TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="cards" className="mt-8">
+        <div className="grid gap-6 md:grid-cols-3">
+          {plans.map((plan) => (
+            <PricingCard
+              key={plan.id}
+              plan={plan}
+              billingInterval="month"
+              onSubscribe={() => handleSubscribe(plan)}
+            />
+          ))}
+        </div>
+      </TabsContent>
+      
+      <TabsContent value="table">
+        {/* Comparison table component */}
+      </TabsContent>
+    </Tabs>
+  );
+}
+```
+
+## Organization Selection
+
+For team plans that require an organization:
+
+```tsx
+// OrganizationSelector is shown automatically
+<PricingCard
+  plan={teamPlan}
+  billingInterval="month"
+  organizations={[
+    { id: 'org_1', name: 'Acme Corp' },
+    { id: 'org_2', name: 'TechStart Inc' },
+  ]}
+  orgsLoaded={true}
+  selectedOrgId={selectedOrgId}
+  onOrgChange={(orgId) => setSelectedOrgId(orgId)}
+  onSubscribe={handleSubscribe}
+/>
+```
+
+## Savings Calculation
+
+The component automatically calculates yearly savings:
+
+```typescript
+// Savings: (monthlyPrice * 12) - yearlyPrice
+const savings = (29 * 12) - 290; // $58/year saved
+
+// Display: "Save $58/year"
+```
+
+## Trial Period
+
+Plans with `trialDays` show "Start Free Trial" instead of "Get Started":
+
+```tsx
+const plan = {
+  // ...other props
+  trialDays: 14,
+};
+
+// Button text: "Start 14-day Free Trial"
+```
+
+## Checkout Integration
+
+The component triggers Stripe Checkout when subscribed:
+
+```tsx
+const handleSubscribe = async (plan: PricingPlan) => {
+  const priceId = billingInterval === 'month' 
+    ? plan.stripePriceIdMonthly 
+    : plan.stripePriceIdYearly;
+
+  const result = await authClient.subscription.createCheckoutSession({
+    priceId,
+    successUrl: `${window.location.origin}/billing?success=true`,
+    cancelUrl: `${window.location.origin}/pricing`,
+    organizationId: selectedOrgId, // For team plans
+  });
+
+  if (result.data?.url) {
+    window.location.href = result.data.url;
+  }
+};
+```
+
+<Callout type="warning">
+  Stripe Checkout must be configured in your Stripe Dashboard with success/cancel URLs before subscriptions work.
+</Callout>
+
+## Customization
+
+### Custom Price Formatting
+
+```tsx
+<PricingCard
+  plan={plan}
+  billingInterval="month"
+  onSubscribe={handleSubscribe}
+  formatPrice={(price, interval) => {
+    if (price === 0) return 'Free';
+    return `€${price}${interval === 'month' ? '/mo' : '/yr'}`;
+  }}
+/>
+```
+
+### Custom Savings Display
+
+```tsx
+<PricingCard
+  plan={plan}
+  billingInterval="year"
+  onSubscribe={handleSubscribe}
+  getSavingsText={(monthlyPrice) => {
+    const savings = (monthlyPrice * 12) - plan.yearlyPrice;
+    const percentage = Math.round((savings / (monthlyPrice * 12)) * 100);
+    return `${percentage}% off`;
+  }}
+/>
+```
+
+## Notes
+
+- Free plans (price = 0) show "Get Started" instead of pricing
+- Popular badge is shown based on `popular` prop
+- Team plans show seat range (e.g., "per user, 3-50 seats")
+- Organization selector appears only when `requiresOrganization` is true
+- Loading state disables button and shows spinner
+
+## Related Components
+
+- [PricingDashboard](/docs/components/pricing/pricing-dashboard) - Complete pricing page with all plans
+- [SubscriptionCard](/docs/components/billing/subscription-card) - View current subscription
+- [OrganizationSelector](/docs/components/team/organization-selector) - Select organization for team plans
+
+## Next Steps
+
+- [Set up Stripe pricing](/docs/guides/stripe-integration#pricing)
+- [Configure checkout settings](/docs/guides/stripe-integration#checkout)
+- [Handle subscription webhooks](/docs/guides/stripe-integration#webhooks)
+- [View complete pricing example](/docs/examples/pricing-page)

@@ -1,0 +1,184 @@
+---
+title: PhoneSignInForm
+description: Sign in with phone number and password
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# PhoneSignInForm
+
+Sign in users with phone number and password authentication.
+
+## Usage
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    ```tsx
+    import { PhoneSignInForm, AuthUIProvider } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function PhoneSignIn() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <PhoneSignInForm
+            redirectTo="/dashboard"
+            localization={{}}
+          />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab value="Code">
+    Full working example with all features.
+  </Tab>
+</Tabs>
+
+## Features
+
+- **International Format Validation** - E.164 phone number format (e.g., +1234567890)
+- **Password Input** - Secure password field with visibility toggle
+- **Remember Me** - Optional remember me checkbox (if enabled in config)
+- **Form Validation** - Client-side validation with error messages
+- **Loading States** - Built-in loading indicators
+- **Error Handling** - Automatic error display with localization
+
+## Props
+
+### PhoneSignInFormProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | - | Optional CSS class for styling |
+| `classNames` | `AuthFormClassNames` | - | Custom class names for form elements |
+| `isSubmitting` | `boolean` | - | External loading state control |
+| `localization` | `Partial<AuthLocalization>` | - | Custom text labels |
+| `redirectTo` | `string` | - | Redirect URL after successful sign-in |
+| `setIsSubmitting` | `(value: boolean) => void` | - | Callback for loading state |
+| `passwordValidation` | `PasswordValidation` | - | Custom password validation rules |
+
+## Requirements
+
+### Better Auth Configuration
+
+The `phoneNumber` plugin must be configured in your Better Auth setup:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { phoneNumber } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    phoneNumber({
+      // Optional: Custom password validation
+      passwordValidation: {
+        minLength: 8,
+        requireUppercase: true,
+        requireLowercase: true,
+        requireNumbers: true,
+        requireSpecialChars: true
+      }
+    })
+  ]
+});
+```
+
+### Database Schema
+
+The `phoneNumber` plugin adds these fields to the user table:
+
+- `phoneNumber: string` (nullable)
+- `phoneNumberVerified: boolean`
+
+## Customization
+
+### Custom Styling
+
+```tsx
+<PhoneSignInForm
+  className="max-w-md mx-auto"
+  classNames={{
+    base: "space-y-6",
+    label: "text-sm font-medium",
+    input: "border-2",
+    error: "text-red-600",
+    button: "w-full",
+    primaryButton: "bg-blue-600"
+  }}
+/>
+```
+
+### Custom Localization
+
+```tsx
+<PhoneSignInForm
+  localization={{
+    PASSWORD: "Password",
+    PASSWORD_PLACEHOLDER: "Enter your password",
+    SIGN_IN_ACTION: "Sign In",
+    REMEMBER_ME: "Keep me signed in"
+  }}
+/>
+```
+
+### Password Validation
+
+```tsx
+<PhoneSignInForm
+  passwordValidation={{
+    minLength: 10,
+    requireUppercase: true,
+    requireLowercase: true,
+    requireNumbers: true,
+    requireSpecialChars: true
+  }}
+/>
+```
+
+## Examples
+
+### Basic Sign-In
+
+```tsx
+import { PhoneSignInForm, AuthUIProvider } from '@bettercone/ui';
+
+export default function SignInPage() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="container mx-auto max-w-md py-8">
+        <h1 className="text-2xl font-bold mb-6">Sign In</h1>
+        <PhoneSignInForm redirectTo="/dashboard" />
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### With Custom Error Handling
+
+```tsx
+import { PhoneSignInForm, AuthUIProvider } from '@bettercone/ui';
+import { useState } from 'react';
+
+export default function SignInPage() {
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <AuthUIProvider 
+      authClient={authClient}
+      toast={({ variant, message }) => {
+        if (variant === 'error') setError(message);
+      }}
+    >
+      {error && <div className="bg-red-50 p-4 rounded">{error}</div>}
+      <PhoneSignInForm redirectTo="/dashboard" />
+    </AuthUIProvider>
+  );
+}
+```
+
+## Related Components
+
+- [PhoneSignUpForm](/docs/components/authentication/phone-sign-up-form) - Sign up with phone and OTP
+- [PhoneNumberCard](/docs/components/security/phone-number-card) - Manage phone number in settings
+- [AuthView](/docs/components/authentication/auth-view) - Complete auth flow including phone auth

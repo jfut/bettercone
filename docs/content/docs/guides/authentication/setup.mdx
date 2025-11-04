@@ -1,0 +1,171 @@
+---
+title: Setup
+description: Setting up Better Auth in your BetterCone application
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+## Client Setup
+
+The auth client is already configured in `apps/web/src/lib/auth-client.ts`:
+
+```typescript
+import { createAuthClient } from "better-auth/react";
+import { convexClient } from "@convex-dev/better-auth/client/plugins";
+import { organizationClient, apiKeyClient } from "better-auth/client/plugins";
+import { stripeClient } from "@better-auth/stripe/client";
+
+export const authClient = createAuthClient({
+  baseURL: window.location.origin,
+  plugins: [
+    convexClient(),
+    organizationClient(),
+    apiKeyClient(),
+    stripeClient()
+  ],
+});
+```
+
+### Plugins Explained
+
+- **convexClient()** - Integrates with Convex database
+- **organizationClient()** - Multi-tenant organization support
+- **apiKeyClient()** - API key authentication
+- **stripeClient()** - Billing and subscription management
+
+## Server Setup
+
+The auth server is configured in `packages/convex/convex/auth.ts`:
+
+```typescript
+import { betterAuth } from "better-auth";
+import { convex } from "@convex-dev/better-auth/plugins";
+import { organization, twoFactor, username, apiKey } from "better-auth/plugins";
+import { stripe } from "@better-auth/stripe";
+
+export const createAuth = (ctx, options) => {
+  return betterAuth({
+    baseURL: process.env.SITE_URL,
+    database: authComponent.adapter(ctx),
+    emailAndPassword: {
+      enabled: true,
+      requireEmailVerification: false,
+    },
+    socialProviders: {
+      github: {
+        clientId: process.env.GITHUB_CLIENT_ID!,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      },
+    },
+    plugins: [
+      convex(),
+      organization(),
+      twoFactor(),
+      username(),
+      apiKey(),
+      stripe({ /* ... */ }),
+    ],
+  });
+};
+```
+
+## Environment Variables
+
+Required environment variables for authentication:
+
+```bash
+# Site URL (required)
+SITE_URL=http://localhost:3000
+
+# Better Auth Secret (generate with: openssl rand -base64 32)
+BETTER_AUTH_SECRET=your_secret_key
+
+# GitHub OAuth (optional)
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Convex (required)
+CONVEX_DEPLOYMENT=your_convex_deployment_url
+NEXT_PUBLIC_CONVEX_URL=your_convex_deployment_url
+```
+
+### Generating Secrets
+
+Generate a secure secret for Better Auth:
+
+```bash
+openssl rand -base64 32
+```
+
+Copy the output to your `BETTER_AUTH_SECRET` environment variable.
+
+## Custom User Fields
+
+BetterCone extends the default user model with additional fields:
+
+```typescript
+user: {
+  additionalFields: {
+    company: {
+      type: "string",
+      required: false,
+    },
+    phone: {
+      type: "string",
+      required: false,
+    },
+    bio: {
+      type: "string",
+      required: false,
+    },
+  },
+}
+```
+
+These fields are available on the user object and can be updated via the auth API.
+
+## Security Configuration
+
+### Production Settings
+
+For production, enable email verification:
+
+```typescript
+emailAndPassword: {
+  enabled: true,
+  requireEmailVerification: true, // Enable in production
+}
+```
+
+### Rate Limiting
+
+Rate limiting is included by default for API keys:
+
+```typescript
+apiKey({
+  defaultPrefix: "ba_",
+  rateLimit: {
+    enabled: true,
+    timeWindow: 1000 * 60, // 1 minute
+    maxRequests: 1000,
+  },
+})
+```
+
+## Next Steps
+
+<Cards>
+  <Card title="Email & Password" href="/docs/guides/authentication/email-password">
+    Set up email and password authentication
+  </Card>
+  <Card title="OAuth Providers" href="/docs/guides/authentication/oauth">
+    Add Google and GitHub login
+  </Card>
+  <Card title="Session Management" href="/docs/guides/authentication/sessions">
+    Manage user sessions
+  </Card>
+</Cards>

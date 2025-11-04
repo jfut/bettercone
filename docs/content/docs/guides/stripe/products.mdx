@@ -1,0 +1,225 @@
+---
+title: Products & Pricing
+description: Configure products and pricing in Stripe
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Products & Pricing
+
+## Creating Products in Stripe
+
+<Steps>
+
+<Step>
+### Access Product Catalog
+
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com/products)
+2. Click **Add product**
+</Step>
+
+<Step>
+### Configure Product Details
+
+- **Name**: Display name (e.g., "Pro Plan")
+- **Description**: Product benefits
+- **Image**: Logo/icon (optional)
+</Step>
+
+<Step>
+### Set Up Pricing
+
+Choose pricing model:
+- **Subscription**: Recurring billing
+- **One-time**: Single payment
+- **Usage-based**: Pay-as-you-go
+</Step>
+
+</Steps>
+
+## Pricing Models
+
+### Subscription Pricing
+
+```typescript
+{
+  type: 'recurring',
+  recurring: {
+    interval: 'month', // 'day', 'week', 'month', 'year'
+    interval_count: 1,  // Bill every X intervals
+  },
+}
+```
+
+**Example:** Monthly subscription
+
+```typescript
+{
+  name: "Pro Plan",
+  price: 2900, // $29.00
+  interval: "month",
+}
+```
+
+### One-Time Payment
+
+```typescript
+{
+  type: 'one_time',
+}
+```
+
+**Example:** Lifetime access
+
+```typescript
+{
+  name: "Lifetime Pro",
+  price: 29900, // $299.00
+}
+```
+
+### Usage-Based Pricing
+
+```typescript
+{
+  type: 'recurring',
+  recurring: {
+    interval: 'month',
+    usage_type: 'metered',
+  },
+}
+```
+
+**Example:** API calls
+
+```typescript
+{
+  name: "API Credits",
+  price: 10, // $0.10 per call
+  usage_type: "metered",
+}
+```
+
+## Environment Variables
+
+Copy Price IDs from Stripe Dashboard:
+
+```bash title=".env.local"
+# Subscription Plans
+STRIPE_PRICE_PRO_MONTHLY=price_...
+STRIPE_PRICE_PRO_YEARLY=price_...
+STRIPE_PRICE_ENTERPRISE=price_...
+
+# One-Time Products
+STRIPE_PRICE_CREDITS_100=price_...
+STRIPE_PRICE_CREDITS_500=price_...
+```
+
+## Product Configuration
+
+```typescript title="convex/stripe.ts"
+export const products = [
+  {
+    id: 'pro',
+    name: 'Pro Plan',
+    description: 'For growing teams',
+    prices: {
+      monthly: process.env.STRIPE_PRICE_PRO_MONTHLY!,
+      yearly: process.env.STRIPE_PRICE_PRO_YEARLY!,
+    },
+    features: [
+      'Unlimited projects',
+      'Advanced analytics',
+      'Priority support',
+    ],
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    description: 'For large organizations',
+    prices: {
+      monthly: process.env.STRIPE_PRICE_ENTERPRISE!,
+    },
+    features: [
+      'Everything in Pro',
+      'Custom integrations',
+      'Dedicated support',
+    ],
+  },
+];
+```
+
+## Pricing Table
+
+Display available plans:
+
+```tsx
+import { products } from '@/convex/stripe';
+
+export function PricingTable() {
+  return (
+    <div className="grid md:grid-cols-3 gap-6">
+      {products.map(product => (
+        <div key={product.id} className="border rounded-lg p-6">
+          <h3>{product.name}</h3>
+          <p>{product.description}</p>
+          <ul>
+            {product.features.map(feature => (
+              <li key={feature}>✓ {feature}</li>
+            ))}
+          </ul>
+          <button>Subscribe</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+## Price Tiers
+
+For volume-based pricing:
+
+```typescript
+{
+  type: 'recurring',
+  recurring: {
+    interval: 'month',
+  },
+  tiers_mode: 'graduated',
+  tiers: [
+    { up_to: 1000, unit_amount: 100 },   // $1.00 per unit up to 1000
+    { up_to: 5000, unit_amount: 80 },    // $0.80 per unit 1001-5000
+    { up_to: null, unit_amount: 50 },    // $0.50 per unit 5001+
+  ],
+}
+```
+
+## Best Practices
+
+<Callout type="tip">
+- **Test Mode First**: Always test pricing in test mode
+- **Multiple Intervals**: Offer monthly + yearly for subscriptions
+- **Clear Names**: Use descriptive product names
+- **Price IDs**: Store in environment variables
+- **Metadata**: Add custom data for tracking
+</Callout>
+
+## Product Metadata
+
+Add custom fields to products:
+
+```typescript
+metadata: {
+  tier: 'pro',
+  features: 'unlimited,analytics,support',
+  recommended: 'true',
+}
+```
+
+## Next Steps
+
+- [Set Up Checkout](/docs/guides/stripe/checkout)
+- [Handle Webhooks](/docs/guides/stripe/webhooks)
+- [Manage Subscriptions](/docs/guides/stripe/billing)

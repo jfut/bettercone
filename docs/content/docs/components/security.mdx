@@ -1,0 +1,334 @@
+---
+title: Security Components
+description: Two-factor authentication, sessions, and security management
+---
+
+# Security Components
+
+8 production-ready components for enterprise-grade security features.
+
+## Components
+
+### SecuritySettingsCards
+Complete security dashboard with all security features in one component.
+
+```tsx
+import { SecuritySettingsCards } from '@bettercone/ui';
+<SecuritySettingsCards authClient={authClient} />
+```
+
+**Features:** Complete security overview with 2FA, passkeys, sessions, password change, and providers
+
+#### Included Sub-components
+
+`SecuritySettingsCards` is a comprehensive dashboard that includes:
+
+- **TwoFactorCard** - 2FA setup and management
+- **PasskeysCard** - Passkey management with PasskeyCell items
+- **SessionsCard** - Active sessions with SessionCell items
+- **ChangePasswordCard** - Password change form
+- **PhoneNumberCard** - Phone number management with OTP verification
+- **ProvidersCard** - Connected OAuth providers
+- **BackupCodesDialog** - 2FA backup codes generation
+- **TwoFactorPasswordDialog** - Password verification for 2FA
+
+---
+
+### TwoFactorCard
+Enable/disable two-factor authentication with QR code setup.
+
+```tsx
+import { TwoFactorCard } from '@bettercone/ui';
+<TwoFactorCard authClient={authClient} />
+```
+
+**Features:** TOTP setup, QR code, backup codes, disable 2FA
+
+**Sub-components:** BackupCodesDialog, TwoFactorPasswordDialog
+
+---
+
+### PasskeysCard
+Manage passkeys/WebAuthn authenticators.
+
+```tsx
+import { PasskeysCard } from '@bettercone/ui';
+<PasskeysCard authClient={authClient} />
+```
+
+**Features:** Add passkey, view devices, remove passkey
+
+**Sub-components:** PasskeyCell (displays individual passkey with device info)
+
+---
+
+### SessionsCard
+View and manage active sessions across devices.
+
+```tsx
+import { SessionsCard } from '@bettercone/ui';
+<SessionsCard authClient={authClient} />
+```
+
+**Features:** View all sessions, revoke sessions, current session indicator
+
+**Sub-components:** SessionCell (displays browser, OS, location, IP, last active)
+
+---
+
+### ChangePasswordCard
+Change password form with validation.
+
+```tsx
+import { ChangePasswordCard } from '@bettercone/ui';
+<ChangePasswordCard authClient={authClient} />
+```
+
+**Features:** Current password, new password, confirm password, strength meter
+
+---
+
+### PhoneNumberCard
+Manage phone number with OTP verification for updates.
+
+```tsx
+import { PhoneNumberCard } from '@bettercone/ui';
+<PhoneNumberCard authClient={authClient} />
+```
+
+**Features:** Display current phone number, verification badge, update with OTP, resend code
+
+**Requirements:** Better Auth `phoneNumber` plugin with SMS provider configured
+
+**Flow:** 
+1. Shows current phone number with verified status
+2. User enters new phone number
+3. OTP sent to new number via SMS
+4. User enters code in modal dialog
+5. Phone number updated on success
+
+**SMS Providers:** Works with Twilio, AWS SNS, Vonage, or any SMS API
+
+[View detailed documentation](/docs/components/security/phone-number-card)
+
+---
+
+### ProvidersCard
+Manage connected OAuth providers.
+
+```tsx
+import { ProvidersCard } from '@bettercone/ui';
+<ProvidersCard authClient={authClient} />
+```
+
+**Features:** View connected providers, disconnect providers, connect new providers
+
+## Quick Start
+
+### Complete Security Page
+
+```tsx
+import { SecuritySettingsCards } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function SecurityPage() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1>Security</h1>
+        <p className="text-muted-foreground">
+          Manage your account security and authentication methods
+        </p>
+      </div>
+      
+      <SecuritySettingsCards authClient={authClient} />
+    </div>
+  );
+}
+```
+
+### Individual Security Components
+
+If you need more control, use individual components:
+
+```tsx
+import {
+  TwoFactorCard,
+  PasskeysCard,
+  SessionsCard,
+  ChangePasswordCard,
+  PhoneNumberCard,
+  ProvidersCard
+} from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function SecurityPage() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1>Security</h1>
+        <p className="text-muted-foreground">
+          Manage your account security and authentication methods
+        </p>
+      </div>
+      
+      <ChangePasswordCard authClient={authClient} />
+      <TwoFactorCard authClient={authClient} />
+      <PasskeysCard authClient={authClient} />
+      <SessionsCard authClient={authClient} />
+      <PhoneNumberCard authClient={authClient} />
+      <ProvidersCard authClient={authClient} />
+    </div>
+  );
+}
+```
+
+## Advanced Usage
+
+### With Event Callbacks
+
+```tsx
+<TwoFactorCard 
+  authClient={authClient}
+  onEnabled={() => {
+    toast.success("Two-factor authentication enabled");
+  }}
+  onDisabled={() => {
+    toast.info("Two-factor authentication disabled");
+  }}
+/>
+```
+
+### Session Monitoring
+
+```tsx
+<SessionsCard 
+  authClient={authClient}
+  onSessionRevoked={async (sessionId) => {
+    // Log security event
+    await fetch('/api/security/log', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        event: 'session_revoked',
+        sessionId 
+      })
+    });
+    toast.success("Session revoked");
+  }}
+/>
+```
+
+## Security Best Practices
+
+### 1. Encourage Passkey Usage
+
+```tsx
+<div className="space-y-4">
+  <PasskeysCard authClient={authClient} />
+  <p className="text-sm text-muted-foreground">
+    Passkeys are the most secure way to sign in.
+    They use biometrics or your device's security.
+  </p>
+</div>
+```
+
+### 2. Combined Security Settings with Tabs
+
+```tsx
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+
+<Tabs defaultValue="password">
+  <TabsList>
+    <TabsTrigger value="password">Password</TabsTrigger>
+    <TabsTrigger value="2fa">Two-Factor</TabsTrigger>
+    <TabsTrigger value="passkeys">Passkeys</TabsTrigger>
+    <TabsTrigger value="sessions">Sessions</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="password">
+    <ChangePasswordCard authClient={authClient} />
+  </TabsContent>
+  
+  <TabsContent value="2fa">
+    <TwoFactorCard authClient={authClient} />
+  </TabsContent>
+  
+  <TabsContent value="passkeys">
+    <PasskeysCard authClient={authClient} />
+  </TabsContent>
+  
+  <TabsContent value="sessions">
+    <SessionsCard authClient={authClient} />
+  </TabsContent>
+</Tabs>
+```
+
+## Features
+
+### SecuritySettingsCards
+- ✅ Complete security dashboard
+- ✅ All security features in one component
+- ✅ Consistent layout and styling
+- ✅ Automatic feature detection
+
+### TwoFactorCard
+- ✅ TOTP (Time-based One-Time Password)
+- ✅ QR code generation
+- ✅ Manual entry code
+- ✅ Backup codes
+- ✅ Enable/disable toggle
+- ✅ Password verification
+
+### PasskeysCard
+- ✅ Add new passkey
+- ✅ Device name customization
+- ✅ Biometric support
+- ✅ Hardware key support
+- ✅ Remove passkey
+- ✅ Last used tracking
+
+### SessionsCard
+- ✅ All active sessions
+- ✅ Current session indicator
+- ✅ Device detection (browser, OS)
+- ✅ Location/IP tracking
+- ✅ Revoke individual sessions
+- ✅ Revoke all sessions
+
+### ChangePasswordCard
+- ✅ Current password verification
+- ✅ Password strength meter
+- ✅ Password requirements
+- ✅ Confirm password
+- ✅ Show/hide password
+- ✅ Success notification
+
+### PhoneNumberCard
+- ✅ Display verified phone number
+- ✅ Update with OTP verification
+- ✅ International phone format
+- ✅ Verified badge
+
+### ProvidersCard
+- ✅ View connected OAuth providers
+- ✅ Disconnect providers
+- ✅ Connect new providers
+
+## Props Reference
+
+| Component | Key Props | Description |
+|-----------|-----------|-------------|
+| `SecuritySettingsCards` | `authClient` | Complete security dashboard |
+| `TwoFactorCard` | `authClient`, `onEnabled`, `onDisabled` | 2FA management |
+| `PasskeysCard` | `authClient`, `onPasskeyAdded` | Passkey management |
+| `SessionsCard` | `authClient`, `onSessionRevoked` | Session management |
+| `ChangePasswordCard` | `authClient`, `onSuccess` | Password change |
+| `PhoneNumberCard` | `authClient`, `onUpdated` | Phone management |
+| `ProvidersCard` | `authClient`, `onConnected`, `onDisconnected` | OAuth providers |
+
+## Related
+
+- [Authentication Components](/docs/components/authentication) - Sign in, sign up
+- [Account Components](/docs/components/account) - Account settings
+- [Organization Components](/docs/components/organization) - Multi-tenancy
+```

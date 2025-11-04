@@ -1,0 +1,145 @@
+---
+title: Customization
+description: Customize BetterCone's appearance and branding
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Customization Guide
+
+Make BetterCone truly yours by customizing branding, themes, typography, and internationalization.
+
+<Callout type="info">
+  BetterCone uses Tailwind CSS for styling and supports full theming customization.
+</Callout>
+
+## What You Can Customize
+
+<Cards>
+  <Card
+    title="Branding"
+    description="Logo, favicon, metadata, and brand assets"
+    href="/docs/guides/customization/branding"
+  />
+  <Card
+    title="Theming"
+    description="Colors, dark mode, and Tailwind configuration"
+    href="/docs/guides/customization/theming"
+  />
+  <Card
+    title="Typography"
+    description="Fonts, text styles, and readability"
+    href="/docs/guides/customization/typography"
+  />
+  <Card
+    title="Components"
+    description="Customize UI components and layouts"
+    href="/docs/guides/customization/components"
+  />
+  <Card
+    title="Internationalization"
+    description="Multi-language support and localization"
+    href="/docs/guides/customization/i18n"
+  />
+</Cards>
+
+## Quick Start
+
+### 1. Update Brand Assets
+
+Replace logos and favicons in `/public`:
+
+```
+public/
+├── favicon.ico
+├── logo.svg
+├── og-image.png
+└── apple-touch-icon.png
+```
+
+### 2. Configure Colors
+
+Edit `tailwind.config.ts`:
+
+```typescript
+export default {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#3b82f6',
+          foreground: '#ffffff',
+        },
+      },
+    },
+  },
+};
+```
+
+### 3. Update Metadata
+
+Edit `app/layout.tsx`:
+
+```typescript
+export const metadata = {
+  title: 'Your SaaS Name',
+  description: 'Your description',
+};
+```
+
+## Common Customizations
+
+### Change Primary Color
+
+```typescript title="tailwind.config.ts"
+colors: {
+  primary: {
+    DEFAULT: '#8b5cf6', // Purple
+    foreground: '#ffffff',
+  },
+}
+```
+
+### Add Custom Font
+
+```typescript title="app/layout.tsx"
+import { Inter, Poppins } from 'next/font/google';
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+});
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" className={poppins.className}>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+### Custom Logo
+
+```tsx title="components/navbar.tsx"
+import Image from 'next/image';
+
+export function Navbar() {
+  return (
+    <nav>
+      <Image src="/logo.svg" alt="Logo" width={120} height={40} />
+    </nav>
+  );
+}
+```
+
+## Resources
+
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [shadcn/ui Theming](https://ui.shadcn.com/themes)
+- [Next.js Font Optimization](https://nextjs.org/docs/app/building-your-application/optimizing/fonts)
+
+## Next Steps
+
+Explore detailed customization guides in the sections above.

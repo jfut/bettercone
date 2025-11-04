@@ -1,0 +1,8 @@
+{
+  "title": "Authentication",
+  "pages": [
+    "index",
+    "setup",
+    "email-password"
+  ]
+}

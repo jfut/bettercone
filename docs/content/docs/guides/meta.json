@@ -1,0 +1,12 @@
+{
+  "title": "Guides",
+  "pages": [
+    "authentication",
+    "stripe",
+    "convex",
+    "organization",
+    "deployment",
+    "customization",
+    "analytics"
+  ]
+}

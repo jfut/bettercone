@@ -1,0 +1,9 @@
+{
+  "title": "Billing",
+  "pages": [
+    "billing-dashboard",
+    "subscription-card",
+    "payment-method-card",
+    "invoice-history-card"
+  ]
+}

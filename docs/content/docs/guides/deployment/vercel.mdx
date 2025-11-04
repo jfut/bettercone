@@ -1,0 +1,139 @@
+---
+title: Vercel Deployment
+description: Deploy to Vercel from GitHub
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Vercel Deployment
+
+<Steps>
+
+<Step>
+### Connect Repository
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Click **Import Git Repository**
+3. Select your BetterCone repository
+</Step>
+
+<Step>
+### Configure Project
+
+```
+Framework: Next.js
+Root Directory: apps/web
+Build Command: (auto-detected)
+Install Command: pnpm install
+```
+</Step>
+
+<Step>
+### Add Environment Variables
+
+Go to **Settings** → **Environment Variables**:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+BETTER_AUTH_SECRET=your-random-32-char-secret
+BETTER_AUTH_URL=https://yourdomain.com
+
+CONVEX_DEPLOYMENT=prod:your-deployment
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+CONVEX_DEPLOY_KEY=your-deploy-key
+
+STRIPE_SECRET_KEY=sk_live_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+RESEND_API_KEY=re_...
+BETTER_AUTH_EMAIL_FROM=noreply@yourdomain.com
+```
+</Step>
+
+<Step>
+### Deploy
+
+Click **Deploy** and wait 2-3 minutes.
+
+Your site: `https://your-project.vercel.app`
+</Step>
+
+</Steps>
+
+## Generate Auth Secret
+
+```bash
+openssl rand -base64 32
+```
+
+## Monorepo Configuration
+
+Vercel auto-detects `apps/web` as the root directory from `vercel.json`:
+
+```json title="vercel.json"
+{
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=web",
+  "installCommand": "pnpm install"
+}
+```
+
+## Environment Scopes
+
+- **Production**: Live environment
+- **Preview**: Pull request deployments
+- **Development**: Local development
+
+<Callout type="tip">
+  Use different Stripe keys for Preview (test mode) and Production (live mode).
+</Callout>
+
+## Automatic Deployments
+
+Vercel automatically deploys:
+- **Main branch** → Production
+- **Pull requests** → Preview deployments
+- **Other branches** → Preview deployments
+
+## CLI Deployment
+
+```bash
+# Install Vercel CLI
+pnpm add -g vercel
+
+# Login
+vercel login
+
+# Deploy
+vercel --prod
+```
+
+## Build Settings
+
+```json title="package.json"
+{
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  }
+}
+```
+
+## Troubleshooting
+
+### Build Fails
+
+Check build logs in Vercel dashboard. Common issues:
+- Missing environment variables
+- TypeScript errors
+- Dependency issues
+
+### Slow Builds
+
+Enable Turbo mode in **Settings** → **General** → **Build & Development Settings**.
+
+## Resources
+
+- [Vercel Documentation](https://vercel.com/docs)
+- [Next.js on Vercel](https://vercel.com/docs/frameworks/nextjs)

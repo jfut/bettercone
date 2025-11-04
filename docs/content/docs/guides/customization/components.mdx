@@ -1,0 +1,122 @@
+---
+title: Component Styling
+description: Customize @bettercone/ui components
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Component Styling
+
+Learn how to customize @bettercone/ui components to match your brand.
+
+## Using className Props
+
+All @bettercone/ui components accept a `className` prop:
+
+```tsx
+import { SubscriptionCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+<SubscriptionCard
+  authClient={authClient}
+  className="shadow-xl border-2 border-primary/20"
+  onManageSubscription={handleManageSubscription}
+/>
+```
+
+## Granular Styling with classNames
+
+Use the `classNames` prop for detailed control:
+
+```tsx
+import { BillingDashboard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+<BillingDashboard
+  authClient={authClient}
+  className="max-w-6xl mx-auto"
+  classNames={{
+    container: "bg-gray-50 p-6 rounded-lg",
+    subscriptionCard: "shadow-xl",
+    grid: "gap-8",
+    paymentCard: "border-2 border-blue-200",
+    invoiceCard: "border-2 border-blue-200"
+  }}
+/>
+```
+
+## Tailwind Configuration
+
+Add @bettercone/ui to your Tailwind config:
+
+```typescript title="tailwind.config.ts"
+export default {
+  content: [
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    // Add this line
+    './node_modules/@bettercone/ui/**/*.{js,ts,jsx,tsx}',
+  ],
+  theme: {
+    extend: {
+      borderRadius: {
+        lg: '1rem',
+        md: '0.75rem',
+        sm: '0.5rem',
+      },
+    },
+  },
+};
+```
+
+## Shadows
+
+```css title="app/globals.css"
+.card-shadow {
+  box-shadow: 
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.card-shadow-lg {
+  box-shadow: 
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+```
+
+## Layout Spacing
+
+```typescript title="components/dashboard-layout.tsx"
+export function DashboardLayout({ children }) {
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="space-y-8">
+        {children}
+      </div>
+    </div>
+  );
+}
+```
+
+<Callout type="tip">
+  Use Tailwind's spacing scale for consistency: 4, 6, 8, 12, 16, 24, 32
+</Callout>
+
+## Animations
+
+```css title="app/globals.css"
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+```
+
+## Resources
+
+- [shadcn/ui Components](https://ui.shadcn.com/)
+- [Tailwind CSS Components](https://tailwindcss.com/docs/preflight)

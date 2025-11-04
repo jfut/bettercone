@@ -1,0 +1,99 @@
+---
+title: Stripe Integration Overview
+description: Complete guide to integrating Stripe for payments, subscriptions, and billing
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+# Stripe Integration
+
+BetterCone includes deep Stripe integration through the Better Auth Stripe plugin, providing complete payment processing, subscription management, and billing automation.
+
+<Callout type="info">
+  Stripe is already integrated via Better Auth. This guide shows you how to configure products, webhooks, and advanced features.
+</Callout>
+
+## What You'll Learn
+
+This guide covers everything you need to integrate Stripe into your SaaS application:
+
+<Cards>
+  <Card
+    title="Initial Setup"
+    description="Get your Stripe keys and configure the integration"
+    href="/docs/guides/stripe/setup"
+  />
+  <Card
+    title="Products & Pricing"
+    description="Create subscription plans and one-time products"
+    href="/docs/guides/stripe/products"
+  />
+  <Card
+    title="Checkout Flow"
+    description="Implement payment and subscription checkout"
+    href="/docs/guides/stripe/checkout"
+  />
+  <Card
+    title="Webhooks"
+    description="Handle Stripe events and keep data in sync"
+    href="/docs/guides/stripe/webhooks"
+  />
+  <Card
+    title="Billing & Invoices"
+    description="Manage subscriptions, invoices, and customer portal"
+    href="/docs/guides/stripe/billing"
+  />
+</Cards>
+
+## Features
+
+- **Payment Processing**: Accept credit cards, digital wallets, and local payment methods
+- **Subscription Management**: Recurring billing with plans, trials, and usage-based pricing
+- **Customer Portal**: Self-service subscription and billing management
+- **Webhooks**: Real-time event notifications
+- **Invoicing**: Automatic invoice generation and delivery
+- **Tax Collection**: Stripe Tax for automatic tax calculation
+- **Failed Payment Recovery**: Smart retry logic and dunning management
+
+## Architecture
+
+```
+┌─────────────────────────────────────┐
+│         Client (Next.js)            │
+├─────────────────────────────────────┤
+│  authClient.stripe.createCheckout() │
+│  authClient.stripe.createPortal()   │
+└──────────────┬──────────────────────┘
+               │
+               │ HTTPS
+               │
+┌──────────────▼──────────────────────┐
+│           Stripe API                │
+├─────────────────────────────────────┤
+│  • Checkout Sessions                │
+│  • Subscriptions                    │
+│  • Invoices                         │
+│  • Customer Portal                  │
+└──────────────┬──────────────────────┘
+               │
+               │ Webhooks
+               │
+┌──────────────▼──────────────────────┐
+│      Your Application               │
+├─────────────────────────────────────┤
+│  /api/webhooks/stripe               │
+│  Convex Database                    │
+└─────────────────────────────────────┘
+```
+
+## Quick Links
+
+- [Stripe Documentation](https://stripe.com/docs)
+- [Better Auth Stripe Plugin](https://better-auth.com/docs/plugins/stripe)
+- [Stripe Testing](https://stripe.com/docs/testing)
+- [Webhook Events Reference](https://stripe.com/docs/api/events/types)
+
+## Next Steps
+
+Start with [Initial Setup](/docs/guides/stripe/setup) to configure your Stripe integration.

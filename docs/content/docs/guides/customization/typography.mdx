@@ -1,0 +1,129 @@
+---
+title: Typography
+description: Customize fonts and text styles
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Typography
+
+## Google Fonts
+
+<Steps>
+
+<Step>
+### Import Font
+
+```typescript title="app/layout.tsx"
+import { Inter, Poppins } from 'next/font/google';
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-poppins',
+});
+```
+</Step>
+
+<Step>
+### Apply Font
+
+```tsx
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" className={poppins.variable}>
+      <body className="font-poppins">{children}</body>
+    </html>
+  );
+}
+```
+</Step>
+
+</Steps>
+
+## Custom Fonts
+
+### Local Font Files
+
+```typescript title="app/layout.tsx"
+import localFont from 'next/font/local';
+
+const myFont = localFont({
+  src: [
+    {
+      path: '../fonts/MyFont-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../fonts/MyFont-Bold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-custom',
+});
+```
+
+## Font Stacks
+
+Configure in `tailwind.config.ts`:
+
+```typescript
+export default {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+    },
+  },
+};
+```
+
+## Typography Scales
+
+```css title="app/globals.css"
+.prose {
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-body: hsl(var(--foreground));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-links: hsl(var(--primary));
+}
+```
+
+## Font Optimization
+
+Next.js automatically optimizes fonts:
+- Self-hosts Google Fonts
+- Eliminates external requests
+- Zero layout shift
+- Privacy-friendly
+
+<Callout type="tip">
+  Limit font weights to 2-3 for better performance.
+</Callout>
+
+## Popular Font Combinations
+
+```typescript
+// Modern & Clean
+import { Inter, Fira Code } from 'next/font/google';
+
+// Professional
+import { Lato, Merriweather } from 'next/font/google';
+
+// Bold & Friendly
+import { Poppins, Space Mono } from 'next/font/google';
+
+// Elegant
+import { Playfair Display, Source Sans Pro } from 'next/font/google';
+```
+
+## Resources
+
+- [Google Fonts](https://fonts.google.com/)
+- [Next.js Font Optimization](https://nextjs.org/docs/app/building-your-application/optimizing/fonts)
+- [Font Pair](https://fontpair.co/)

@@ -1,0 +1,265 @@
+---
+title: Authentication
+description: Better Auth in BetterCone - email/password, GitHub OAuth, 2FA, and API keys
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+BetterCone uses [Better Auth](https://better-auth.com) integrated with Convex for authentication and session management.
+
+## What's Included
+
+BetterCone's auth setup includes:
+
+- **Email & Password** - Traditional authentication
+- **GitHub OAuth** - Social login
+- **Two-Factor Auth** - TOTP-based 2FA
+- **Username** - Optional username support
+- **API Keys** - For programmatic access
+- **Organizations** - Team-based access control
+
+## Quick Start
+
+### Check Session
+
+```typescript
+import { authClient } from "@/lib/auth-client";
+
+function Profile() {
+  const { data: session } = authClient.useSession();
+  
+  if (!session) return <p>Not logged in</p>;
+  
+  return <p>Welcome, {session.user.email}!</p>;
+}
+```
+
+### Sign Out
+
+```typescript
+await authClient.signOut();
+```
+
+## Authentication Setup
+
+### Client Configuration
+
+```typescript
+// apps/web/src/lib/auth-client.ts
+import { createAuthClient } from "better-auth/react";
+import { convexClient } from "@convex-dev/better-auth/client/plugins";
+import { organizationClient, apiKeyClient } from "better-auth/client/plugins";
+import { stripeClient } from "@better-auth/stripe/client";
+
+export const authClient = createAuthClient({
+  baseURL: window.location.origin,
+  plugins: [
+    convexClient(),
+    organizationClient(),
+    apiKeyClient(),
+    stripeClient(),
+  ],
+});
+```
+
+### Server Configuration
+
+```typescript
+// packages/convex/convex/auth.ts
+import { betterAuth } from "better-auth";
+import { organization, twoFactor, username, apiKey } from "better-auth/plugins";
+import { stripe } from "@better-auth/stripe";
+
+export const createAuth = (ctx) => {
+  return betterAuth({
+    baseURL: process.env.SITE_URL,
+    database: authComponent.adapter(ctx),
+    
+    emailAndPassword: {
+      enabled: true,
+      requireEmailVerification: false,
+    },
+    
+    socialProviders: {
+      github: {
+        clientId: process.env.GITHUB_CLIENT_ID!,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      },
+    },
+    
+    plugins: [
+      convex(),
+      organization({ /* ... */ }),
+      twoFactor({ issuer: process.env.SITE_URL }),
+      username(),
+      apiKey({
+        defaultPrefix: "ba_",
+        rateLimit: { enabled: true, maxRequests: 1000 },
+      }),
+      stripe({ /* ... */ }),
+    ],
+  });
+};
+```
+
+## Authentication Methods
+
+<Cards>
+  <Card title="Setup" href="/docs/guides/authentication/setup">
+    Configure auth client and server
+  </Card>
+  <Card title="Email & Password" href="/docs/guides/authentication/email-password">
+    Sign up, sign in, password reset
+  </Card>
+</Cards>
+
+## UI Components
+
+BetterCone uses [@daveyplate/better-auth-ui](https://www.npmjs.com/package/@daveyplate/better-auth-ui):
+
+```tsx
+import { AuthView, UserButton, SignedIn, SignedOut } from "@daveyplate/better-auth-ui";
+
+// Sign in page
+export default function SignInPage() {
+  return <AuthView view="SIGN_IN" />;
+}
+
+// User avatar + dropdown
+<SignedIn>
+  <UserButton />
+</SignedIn>
+<SignedOut>
+  <Link href="/auth/sign-in">Sign In</Link>
+</SignedOut>
+```
+
+Available views:
+- `SIGN_IN` - Email/password + GitHub OAuth
+- `SIGN_UP` - Create account
+- `FORGOT_PASSWORD` - Request reset link
+
+## GitHub OAuth
+
+Setup in [GitHub Settings](https://github.com/settings/developers):
+
+1. Create OAuth App
+2. Set callback URL: `https://yourdomain.com/api/auth/callback/github`
+3. Add to `.env`:
+
+```bash
+GITHUB_CLIENT_ID=Ov23...
+GITHUB_CLIENT_SECRET=abc123...
+```
+
+Users can now click "Sign in with GitHub" in the UI.
+
+## Two-Factor Authentication
+
+Enable 2FA for extra security:
+
+```typescript
+// Enable 2FA
+await authClient.twoFactor.enable({
+  password: userPassword,
+});
+
+// Returns QR code URI for authenticator app
+// { qrCode: "otpauth://totp/...", secret: "..." }
+
+// Verify with TOTP code
+await authClient.twoFactor.verify({
+  code: "123456",
+});
+```
+
+## API Keys
+
+Generate API keys for programmatic access:
+
+```typescript
+// Create API key
+const { data: apiKey } = await authClient.apiKey.create({
+  name: "Production API",
+  expiresIn: 1000 * 60 * 60 * 24 * 365, // 1 year
+});
+
+// Returns: { key: "ba_xxx...", name: "Production API" }
+
+// Use in requests
+fetch("/api/data", {
+  headers: {
+    "Authorization": `Bearer ${apiKey.key}`,
+  },
+});
+
+// List keys
+const { data: keys } = await authClient.apiKey.list();
+
+// Revoke key
+await authClient.apiKey.revoke({ id: keyId });
+```
+
+API keys have rate limiting (1000 requests/min by default).
+
+## Custom User Fields
+
+BetterCone extends the user model:
+
+```typescript
+// packages/convex/convex/auth.ts
+user: {
+  additionalFields: {
+    company: { type: "string", required: false },
+    phone: { type: "string", required: false },
+    bio: { type: "string", required: false },
+  },
+}
+```
+
+Access in session:
+
+```typescript
+const { data: session } = authClient.useSession();
+console.log(session?.user.company);
+```
+
+## Environment Variables
+
+```bash
+# Required
+BETTER_AUTH_SECRET=... # openssl rand -base64 32
+SITE_URL=http://localhost:3000
+
+# OAuth (optional)
+GITHUB_CLIENT_ID=Ov23...
+GITHUB_CLIENT_SECRET=...
+
+# Email (optional)
+RESEND_API_KEY=re_...
+```
+
+## Security Features
+
+BetterCone includes:
+
+- **Rate limiting** - 1000 requests/min per API key
+- **CSRF protection** - Built into Better Auth
+- **Secure sessions** - HTTP-only cookies
+- **Password hashing** - Bcrypt by default
+- **Email verification** - Optional (disabled in dev)
+
+## Best Practices
+
+1. **Use HTTPS** in production
+2. **Set strong secrets** - `openssl rand -base64 32`
+3. **Enable email verification** for production
+4. **Require 2FA** for admin users
+5. **Rotate API keys** regularly
+6. **Monitor failed login attempts**
+
+## Learn More
+
+- [Better Auth Docs](https://better-auth.com)
+- [Organization Guide](/docs/guides/organization)
+- [Convex Integration](/docs/guides/convex)

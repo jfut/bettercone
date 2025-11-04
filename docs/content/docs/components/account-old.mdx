@@ -1,0 +1,67 @@
+---
+title: Account Components
+description: User account management and settings
+---
+
+# Account Components
+
+3 components for managing user account settings.
+
+## Components
+
+### AccountView
+Complete account settings page with all user information.
+
+```tsx
+import { AccountView } from '@bettercone/ui';
+<AccountView authClient={authClient} />
+```
+
+**Includes:** Profile, email, password, 2FA, sessions, danger zone
+
+---
+
+### DeleteAccountCard
+Delete user account with confirmation.
+
+```tsx
+import { DeleteAccountCard } from '@bettercone/ui';
+<DeleteAccountCard authClient={authClient} />
+```
+
+**Safety:** Requires typing "DELETE" to confirm
+
+---
+
+### DeleteAccountDialog
+Modal version of account deletion.
+
+```tsx
+import { DeleteAccountDialog } from '@bettercone/ui';
+<DeleteAccountDialog authClient={authClient} />
+```
+
+## Quick Start
+
+```tsx
+// Complete account page
+import { AccountView } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function AccountPage() {
+  return <AccountView authClient={authClient} />;
+}
+```
+
+## Props Reference
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `onAccountDeleted` | `() => void` | Callback after deletion |
+| `className` | `string` | CSS classes |
+
+## Related
+
+- [User Components](/docs/components/user) - UserButton, UserAvatar
+- [Security Components](/docs/components/security) - Password, 2FA, sessions

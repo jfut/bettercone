@@ -1,0 +1,273 @@
+---
+title: Organization Components
+description: Multi-tenant organization and team management components
+---
+
+# Organization Components
+
+4 production-ready components for building B2B SaaS with multi-tenancy.
+
+## Components
+
+### OrganizationSwitcher
+Dropdown to switch between user's organizations (like Vercel/Linear).
+
+```tsx
+import { OrganizationSwitcher } from '@bettercone/ui';
+<OrganizationSwitcher authClient={authClient} />
+```
+
+**Features:** Search organizations, create new org, personal account toggle
+
+#### Included Sub-components
+
+- **CreateOrganizationDialog** - Modal to create new organization with name, slug, and logo upload
+
+---
+
+### OrganizationSettingsCards
+Complete organization settings dashboard.
+
+```tsx
+import { OrganizationSettingsCards } from '@bettercone/ui';
+<OrganizationSettingsCards authClient={authClient} />
+```
+
+**Features:** Organization name, slug, logo, and deletion settings
+
+#### Included Sub-components
+
+- **OrganizationNameCard** - Edit organization name
+- **OrganizationSlugCard** - Edit URL-safe slug
+- **OrganizationLogoCard** - Upload/update logo with crop/resize
+- **DeleteOrganizationCard** - Delete organization (owner only, requires confirmation)
+
+---
+
+### OrganizationMembersCard
+List and manage organization members with roles.
+
+```tsx
+import { OrganizationMembersCard } from '@bettercone/ui';
+<OrganizationMembersCard authClient={authClient} />
+```
+
+**Features:** View members, update roles, remove members, invite new
+
+#### Included Sub-components
+
+- **InviteMemberDialog** - Send email invitations with role selection
+- **UpdateMemberRoleDialog** - Change member's role (owner, admin, member)
+- **RemoveMemberDialog** - Remove member with confirmation
+- **LeaveOrganizationDialog** - Leave organization (if not owner)
+
+---
+
+### OrganizationInvitationsCard
+Manage pending invitations.
+
+```tsx
+import { OrganizationInvitationsCard } from '@bettercone/ui';
+<OrganizationInvitationsCard authClient={authClient} />
+```
+
+**Features:** View pending invites, resend, cancel
+
+#### Related Components
+
+- **AcceptInvitationCard** - Accept or decline organization invitation (for invitation pages)
+- **UserInvitationsCard** - User's list of pending invitations from all organizations (for user dashboard)
+
+---
+
+## Quick Start
+
+### Complete Organization Dashboard
+
+```tsx
+import {
+  OrganizationSwitcher,
+  OrganizationSettingsCards,
+  OrganizationMembersCard,
+  OrganizationInvitationsCard
+} from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function OrganizationPage() {
+  return (
+    <div className="space-y-6">
+      <OrganizationSwitcher authClient={authClient} />
+      
+      <div className="grid gap-6">
+        <OrganizationSettingsCards authClient={authClient} />
+        <OrganizationMembersCard authClient={authClient} />
+        <OrganizationInvitationsCard authClient={authClient} />
+      </div>
+    </div>
+  );
+}
+```
+
+### Organization Switcher in Header
+
+```tsx
+<header className="border-b">
+  <div className="container flex items-center justify-between py-4">
+    <Logo />
+    <OrganizationSwitcher authClient={authClient} />
+    <UserButton authClient={authClient} />
+  </div>
+</header>
+```
+
+### Team Page Layout
+
+```tsx
+import { OrganizationMembersCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function TeamPage() {
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h1>Team</h1>
+      </div>
+      
+      <OrganizationMembersCard authClient={authClient} />
+    </div>
+  );
+}
+```
+
+### Invitation Acceptance Page
+
+```tsx
+import { AcceptInvitationCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function AcceptInvitePage({ params }: { params: { id: string } }) {
+  return (
+    <div className="max-w-md mx-auto mt-16">
+      <AcceptInvitationCard 
+        authClient={authClient} 
+        invitationId={params.id}
+      />
+    </div>
+  );
+}
+```
+
+## Advanced Usage
+
+### Settings Page with Sections
+
+```tsx
+import { 
+  OrganizationSettingsCards,
+  OrganizationMembersCard
+} from '@bettercone/ui';
+
+<div className="max-w-4xl mx-auto space-y-8">
+  <section>
+    <h2>General</h2>
+    <OrganizationSettingsCards authClient={authClient} />
+  </section>
+  
+  <section>
+    <h2>Members</h2>
+    <OrganizationMembersCard authClient={authClient} />
+  </section>
+</div>
+```
+
+### Individual Settings Components
+
+If you need more control, you can import individual components:
+
+```tsx
+import {
+  OrganizationNameCard,
+  OrganizationSlugCard,
+  OrganizationLogoCard,
+  DeleteOrganizationCard
+} from '@bettercone/ui';
+
+// Use them separately
+<OrganizationNameCard authClient={authClient} />
+<OrganizationSlugCard authClient={authClient} />
+<OrganizationLogoCard authClient={authClient} />
+<DeleteOrganizationCard authClient={authClient} />
+```
+
+## Permission System
+
+All components automatically respect Better Auth's role-based permissions:
+
+- **Owner**: Full access (can delete org, manage all settings)
+- **Admin**: Manage members, settings (cannot delete org)
+- **Member**: Read-only access
+
+## Features
+
+### OrganizationSwitcher
+- ✅ Search organizations
+- ✅ Create new organization
+- ✅ Personal account toggle
+- ✅ Organization avatars
+- ✅ Keyboard navigation
+
+### OrganizationSettingsCards
+- ✅ Edit organization name
+- ✅ Edit URL-safe slug
+- ✅ Upload/update logo
+- ✅ Delete organization
+- ✅ Owner-only controls
+
+### OrganizationMembersCard
+- ✅ View all members
+- ✅ Role badges (owner, admin, member)
+- ✅ Invite new members
+- ✅ Update member roles
+- ✅ Remove members
+- ✅ Leave organization
+
+### OrganizationInvitationsCard
+- ✅ View pending invitations
+- ✅ Resend invitations
+- ✅ Cancel invitations
+- ✅ Expiration status
+
+## Props Reference
+
+### Common Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `organizationId` | `string` | Specific org ID (optional, auto-detected) |
+| `onSuccess` | `() => void` | Success callback |
+| `onError` | `(error) => void` | Error callback |
+| `className` | `string` | CSS classes |
+
+### OrganizationSwitcher
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `onOrganizationChange` | `(org) => void` | Callback when switching |
+| `className` | `string` | CSS classes |
+
+### AcceptInvitationCard
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `invitationId` | `string` | Invitation ID (required) |
+| `onAccept` | `() => void` | Callback after accepting |
+| `onDecline` | `() => void` | Callback after declining |
+
+## Related
+
+- [Account Components](/docs/components/account) - Personal account settings
+- [Security Components](/docs/components/security) - Security settings
+- [Billing Components](/docs/components/billing) - Organization billing

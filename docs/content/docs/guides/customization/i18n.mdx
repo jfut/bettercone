@@ -1,0 +1,264 @@
+---
+title: Internationalization
+description: Add multi-language support to @bettercone/ui components
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Internationalization (i18n)
+
+All @bettercone/ui components support internationalization through the `localization` prop.
+
+## Component Localization
+
+### Billing Components
+
+```tsx
+import { SubscriptionCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+<SubscriptionCard
+  authClient={authClient}
+  localization={{
+    currentPlan: "Plano Atual",
+    manageSubscription: "Gerenciar Assinatura",
+    noActiveSubscription: "Nenhuma assinatura ativa",
+    noActiveSubscriptionDescription: "Escolha um plano para começar",
+    billingCycle: "Ciclo de Cobrança",
+    nextBillingDate: "Próxima Data de Cobrança"
+  }}
+  onManageSubscription={handleManageSubscription}
+/>
+```
+
+### Usage Components
+
+```tsx
+import { ApiUsageCard } from '@bettercone/ui';
+
+<ApiUsageCard
+  current={8500}
+  limit={10000}
+  localization={{
+    apiUsage: "Uso de API",
+    used: "Usado",
+    of: "de",
+    upgradePrompt: "Atualize seu plano para mais chamadas"
+  }}
+  onUpgrade={() => router.push('/pricing')}
+/>
+```
+
+### Team Components
+
+```tsx
+import { TeamDashboard } from '@bettercone/ui';
+
+<TeamDashboard
+  organization={activeOrg}
+  subscription={subscription}
+  seatAllocation={seatData}
+  seatAllocationCardProps={{
+    localization: {
+      seats: "Assentos",
+      used: "Usados",
+      available: "Disponíveis",
+      inviteMember: "Convidar Membro"
+    }
+  }}
+/>
+```
+
+## Setup next-intl (Optional)
+
+For full app internationalization:
+
+<Steps>
+
+<Step>
+### Install Package
+
+```bash
+pnpm add next-intl
+```
+</Step>
+
+<Step>
+### Create Messages
+
+```json title="messages/en.json"
+{
+  "billing": {
+    "currentPlan": "Current Plan",
+    "manageSubscription": "Manage Subscription",
+    "noActiveSubscription": "No active subscription"
+  },
+  "usage": {
+    "apiUsage": "API Usage",
+    "storageUsage": "Storage Usage"
+  }
+}
+```
+
+```json title="messages/pt.json"
+{
+  "billing": {
+    "currentPlan": "Plano Atual",
+    "manageSubscription": "Gerenciar Assinatura",
+    "noActiveSubscription": "Nenhuma assinatura ativa"
+  },
+  "usage": {
+    "apiUsage": "Uso de API",
+    "storageUsage": "Uso de Armazenamento"
+  }
+}
+```
+</Step>
+
+<Step>
+### Configure i18n
+
+```typescript title="i18n/config.ts"
+export const locales = ['en', 'pt', 'es'] as const;
+export type Locale = (typeof locales)[number];
+
+export const defaultLocale: Locale = 'en';
+```
+</Step>
+
+<Step>
+### Update Layout
+
+```typescript title="app/[locale]/layout.tsx"
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+
+export default async function LocaleLayout({
+  children,
+  params: { locale },
+}) {
+  const messages = await getMessages();
+
+  return (
+    <NextIntlClientProvider messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+```
+</Step>
+
+</Steps>
+
+## Usage with next-intl
+
+```tsx
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { SubscriptionCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export function BillingPage() {
+  const t = useTranslations('billing');
+
+  return (
+    <SubscriptionCard
+      authClient={authClient}
+      localization={{
+        currentPlan: t('currentPlan'),
+        manageSubscription: t('manageSubscription'),
+        noActiveSubscription: t('noActiveSubscription')
+      }}
+      onManageSubscription={handleManageSubscription}
+    />
+  );
+}
+```
+
+export function Navbar() {
+  const t = useTranslations('nav');
+  
+  return (
+    <nav>
+      <a href="/">{t('home')}</a>
+      <a href="/pricing">{t('pricing')}</a>
+      <a href="/docs">{t('docs')}</a>
+    </nav>
+  );
+}
+
+
+## Language Switcher
+
+```tsx
+'use client';
+
+import { usePathname, useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
+
+export function LanguageSwitcher() {
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+  
+  const switchLocale = (newLocale: string) => {
+    const path = pathname.replace(`/${locale}`, `/${newLocale}`);
+    router.push(path);
+  };
+  
+  return (
+    <select value={locale} onChange={(e) => switchLocale(e.target.value)}>
+      <option value="en">English</option>
+      <option value="pt">Português</option>
+      <option value="es">Español</option>
+    </select>
+  );
+}
+```
+
+## Date & Number Formatting
+
+```tsx
+import { useFormatter } from 'next-intl';
+
+export function FormattedData() {
+  const format = useFormatter();
+  
+  return (
+    <div>
+      <p>{format.dateTime(new Date(), { dateStyle: 'long' })}</p>
+      <p>{format.number(1234.56, { style: 'currency', currency: 'USD' })}</p>
+    </div>
+  );
+}
+```
+
+## Email Templates
+
+```typescript title="emails/welcome.tsx"
+import { useTranslations } from 'next-intl';
+
+export function WelcomeEmail({ locale }: { locale: string }) {
+  const t = useTranslations('emails.welcome');
+  
+  return (
+    <html lang={locale}>
+      <body>
+        <h1>{t('title')}</h1>
+        <p>{t('message')}</p>
+      </body>
+    </html>
+  );
+}
+```
+
+<Callout type="tip">
+  Use namespaces to organize translations by feature or page.
+</Callout>
+
+## Resources
+
+- [next-intl Documentation](https://next-intl-docs.vercel.app/)
+- [i18n Routing](https://nextjs.org/docs/app/building-your-application/routing/internationalization)

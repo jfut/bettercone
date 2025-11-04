@@ -1,0 +1,79 @@
+---
+title: User Components
+description: User profile and avatar components
+---
+
+# User Components
+
+2 components for displaying user information.
+
+## Components
+
+### UserButton
+Dropdown menu with user info and account actions (like Clerk).
+
+```tsx
+import { UserButton } from '@bettercone/ui';
+<UserButton authClient={authClient} />
+```
+
+**Features:** Avatar, name, email, account link, sign out
+
+---
+
+### UserAvatar
+User avatar with fallback initials.
+
+```tsx
+import { UserAvatar } from '@bettercone/ui';
+<UserAvatar user={user} size="md" />
+```
+
+**Sizes:** sm, md, lg
+
+## Quick Start
+
+### Header with User Button
+
+```tsx
+<header className="border-b">
+  <div className="container flex items-center justify-between py-4">
+    <Logo />
+    <UserButton authClient={authClient} />
+  </div>
+</header>
+```
+
+### Custom Avatar
+
+```tsx
+<UserAvatar 
+  user={user}
+  size="lg"
+  className="ring-2 ring-primary"
+/>
+```
+
+## Props Reference
+
+### UserButton
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `showEmail` | `boolean` | Show email in dropdown |
+| `showAccount` | `boolean` | Show account link |
+| `className` | `string` | CSS classes |
+
+### UserAvatar
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `user` | `User` | User object (required) |
+| `size` | `sm \| md \| lg` | Avatar size |
+| `className` | `string` | CSS classes |
+
+## Related
+
+- [Account Components](/docs/components/account) - Account settings
+- [Organization Components](/docs/components/organization) - OrganizationSwitcher

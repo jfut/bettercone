@@ -1,0 +1,406 @@
+---
+title: SubscriptionCard
+description: Display and manage active subscription with billing portal access
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# SubscriptionCard
+
+The `SubscriptionCard` component displays the user's current subscription plan with management actions including access to the Stripe Customer Portal.
+
+<Callout type="info">
+  This component automatically detects and displays subscriptions for both personal accounts and organizations using Better Auth's Stripe plugin.
+</Callout>
+
+## Installation
+
+```tsx
+import { SubscriptionCard } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Backend-Agnostic** - Works with any Better Auth backend (Convex, Prisma, Supabase, Drizzle)
+- ✅ **Auto-Detection** - Automatically finds active subscriptions for user or organization
+- ✅ **Stripe Portal** - One-click access to Stripe Customer Portal via callbacks
+- ✅ **Status Badges** - Visual indicators for subscription status (active, trialing, past_due)
+- ✅ **Action Callbacks** - Customizable actions (manage, cancel, upgrade)
+- ✅ **Localization** - Full i18n support with custom labels
+- ✅ **Skeleton Loading** - Smooth loading states
+- ✅ **Type-Safe** - Full TypeScript support with Better Auth types
+
+## Usage
+
+<Tabs items={['Basic', 'Custom Actions', 'Localized', 'Read-Only']}>
+  <Tab value="Basic">
+    ```tsx
+    import { SubscriptionCard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function BillingPage() {
+      const handleManageSubscription = async (subscription, organization) => {
+        const response = await fetch("/api/billing/portal", {
+          method: "POST",
+          body: JSON.stringify({ organizationId: organization?.id })
+        });
+        const { url } = await response.json();
+        window.location.href = url;
+      };
+
+      return (
+        <div className="space-y-6">
+          <SubscriptionCard
+            authClient={authClient}
+            onManageSubscription={handleManageSubscription}
+          />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Actions">
+    ```tsx
+    import { SubscriptionCard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+    import { useRouter } from 'next/navigation';
+
+    export default function BillingPage() {
+      const router = useRouter();
+
+      const handleAction = (action: "manage" | "cancel" | "upgrade", subscription) => {
+        if (action === "upgrade") {
+          router.push('/pricing');
+        } else if (action === "cancel") {
+          // Custom cancellation flow
+          console.log('Opening cancellation modal');
+        }
+      };
+
+      return (
+        <SubscriptionCard 
+          authClient={authClient}
+          onAction={handleAction}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Localized">
+    ```tsx
+    import { SubscriptionCard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function BillingPage() {
+      return (
+        <SubscriptionCard 
+          authClient={authClient}
+          localization={{
+            currentPlan: "Plano Atual",
+            manageSubscription: "Gerenciar Assinatura",
+            noActiveSubscription: "Nenhuma assinatura ativa",
+            noActiveSubscriptionDescription: "Escolha um plano para começar"
+          }}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Read-Only">
+    ```tsx
+    import { SubscriptionCard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function AccountOverview() {
+      return (
+        <SubscriptionCard 
+          authClient={authClient}
+          showActions={false}
+          className="border-muted"
+        />
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+<TypeTable
+  type={{
+    authClient: {
+      type: 'BetterAuthClient',
+      description: 'Better Auth client instance (required)',
+    },
+    className: {
+      type: 'string',
+      description: 'Additional CSS classes for the card wrapper',
+    },
+    classNames: {
+      type: 'object',
+      description: 'CSS classes for specific card sections',
+    },
+    localization: {
+      type: 'Partial<BillingLocalization>',
+      description: 'Custom labels for internationalization',
+    },
+    showActions: {
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show action buttons (manage, cancel, upgrade)',
+    },
+    onManageSubscription: {
+      type: '(subscription, organization) => Promise<void>',
+      description: 'Callback fired when manage subscription is clicked',
+    },
+    onAction: {
+      type: '(action: string, subscription) => void',
+      description: 'Callback fired when an action button is clicked',
+    },
+  }}
+/>
+
+## Subscription Detection
+
+The component automatically detects subscriptions by:
+
+1. **Personal Subscriptions**: Matches `subscription.referenceId` to `user.id`
+2. **Organization Subscriptions**: Matches `subscription.referenceId` to any organization the user belongs to
+3. **Active Status**: Filters for `active` or `trialing` subscriptions
+
+```typescript
+// Automatic detection logic
+const validReferenceIds = [
+  session?.user?.id,          // Personal subscription
+  ...organizations.map(org => org.id) // Org subscriptions
+];
+
+const subscription = subscriptions.find(
+  sub => validReferenceIds.includes(sub.referenceId) &&
+         (sub.status === "active" || sub.status === "trialing")
+);
+```
+
+## Subscription Status
+
+The component displays different UI based on subscription status:
+
+| Status | Badge Color | Description |
+|--------|-------------|-------------|
+| `active` | Green | Subscription is active and paid |
+| `trialing` | Blue | In free trial period |
+| `past_due` | Yellow | Payment failed, retry in progress |
+| `canceled` | Red | Subscription canceled but still active until period end |
+| `incomplete` | Orange | Subscription requires payment action |
+
+## Stripe Customer Portal
+
+The "Manage Billing" button opens Stripe's Customer Portal where users can:
+
+- Update payment methods
+- Download invoices
+- View billing history
+- Cancel subscription
+- Update billing information
+
+```tsx
+// Stripe portal integration
+const handleManageBilling = async () => {
+  setIsPortalLoading(true);
+  
+  const result = await authClient.subscription.createCustomerPortal({
+    returnUrl: window.location.href,
+  });
+  
+  if (result.data?.url) {
+    window.location.href = result.data.url;
+  }
+};
+```
+
+<Callout type="warning">
+  The Stripe Customer Portal must be enabled in your Stripe Dashboard settings before this feature works.
+</Callout>
+
+## Examples
+
+### Example 1: Billing Settings Page
+
+```tsx
+import { SubscriptionCard } from '@/components/billing/cards/subscription-card';
+import { PaymentMethodCard } from '@/components/billing/cards/payment-method-card';
+import { InvoiceHistoryCard } from '@/components/billing/cards/invoice-history-card';
+
+export default function BillingSettingsPage() {
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-8">Billing Settings</h1>
+      
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Subscription Details */}
+        <div className="lg:col-span-2">
+          <SubscriptionCard />
+        </div>
+        
+        {/* Payment & Invoices */}
+        <PaymentMethodCard />
+        <InvoiceHistoryCard />
+      </div>
+    </div>
+  );
+}
+```
+
+### Example 2: With Upgrade Prompt
+
+```tsx
+import { SubscriptionCard } from '@/components/billing/cards/subscription-card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Sparkles } from 'lucide-react';
+
+export default function BillingPage() {
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(true);
+
+  return (
+    <div className="space-y-6">
+      {showUpgradePrompt && (
+        <Alert>
+          <Sparkles className="h-4 w-4" />
+          <AlertDescription>
+            Unlock advanced features with our Pro plan!
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      <SubscriptionCard 
+        onAction={(action) => {
+          if (action === "upgrade") {
+            router.push('/pricing?from=billing');
+          }
+        }}
+      />
+    </div>
+  );
+}
+```
+
+### Example 3: Multi-Org Selector
+
+```tsx
+import { SubscriptionCard } from '@/components/billing/cards/subscription-card';
+import { OrganizationSelector } from '@/components/organization-selector';
+import { useState } from 'react';
+
+export default function AdminBillingPage() {
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Subscription Management</h1>
+        <OrganizationSelector 
+          value={selectedOrgId}
+          onChange={setSelectedOrgId}
+        />
+      </div>
+      
+      {/* Shows subscription for selected org */}
+      <SubscriptionCard key={selectedOrgId} />
+    </div>
+  );
+}
+```
+
+## Customization
+
+### Custom Styling
+
+```tsx
+<SubscriptionCard 
+  className="shadow-lg"
+  classNames={{
+    header: "bg-primary text-primary-foreground",
+    title: "text-xl font-bold",
+    content: "bg-muted/50",
+    actions: "justify-end gap-2",
+  }}
+/>
+```
+
+### Custom Localization
+
+```tsx
+const spanishLocalization = {
+  title: "Mi Suscripción",
+  description: "Administra tu plan y facturación",
+  currentPlan: "Plan Actual",
+  renewsOn: "Se renueva el",
+  manageBilling: "Administrar Facturación",
+  cancelPlan: "Cancelar Plan",
+  upgradePlan: "Mejorar Plan",
+  noSubscription: "Sin suscripción activa",
+  noSubscriptionDescription: "Elige un plan para comenzar",
+};
+
+<SubscriptionCard localization={spanishLocalization} />
+```
+
+## Loading States
+
+The component shows skeleton placeholders while fetching data:
+
+```tsx
+// Automatic skeleton during data fetch
+if (isSessionPending || isOrgsPending || subscriptions === undefined) {
+  return <SubscriptionCardSkeleton />;
+}
+```
+
+## Error Handling
+
+The component gracefully handles various states:
+
+- **No subscription**: Shows "Get Started" prompt
+- **Loading error**: Falls back to empty state with action
+- **Portal error**: Shows toast notification
+
+```tsx
+// Error handling with toast notifications
+authClient.subscription.createCustomerPortal({ returnUrl })
+  .then(result => {
+    if (result.error) {
+      toast.error("Failed to open billing portal");
+    }
+  });
+```
+
+## Notes
+
+<Callout type="info">
+  Subscription data is fetched from Better Auth's Stripe plugin using `authClient.subscription.list()`.
+</Callout>
+
+- Component automatically refreshes when session or organizations change
+- Supports both personal and organization-level subscriptions
+- Stripe Customer Portal URL includes return URL for seamless navigation
+- Loading states prevent UI flicker during data fetch
+- Action callbacks allow custom flows before portal redirect
+
+## Related Components
+
+- [PaymentMethodCard](/docs/components/billing/payment-method-card) - Display payment methods
+- [InvoiceHistoryCard](/docs/components/billing/invoice-history-card) - View past invoices
+- [BillingDashboard](/docs/components/billing/billing-dashboard) - Complete billing view
+- [PricingDashboard](/docs/components/pricing/pricing-dashboard) - Upgrade plans
+
+## Next Steps
+
+- [Configure Stripe Customer Portal](/docs/guides/stripe-integration#customer-portal)
+- [Handle subscription webhooks](/docs/guides/stripe-integration#webhooks)
+- [Customize billing localization](/docs/guides/customization#localization)
+- [View complete billing example](/docs/examples/billing-page)

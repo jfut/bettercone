@@ -1,0 +1,473 @@
+---
+title: StorageUsageCard
+description: Real-time storage monitoring with capacity tracking
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# StorageUsageCard
+
+The `StorageUsageCard` component displays real-time storage usage with human-readable formatting (GB/MB/KB), visual progress indicators, and upgrade prompts when approaching capacity limits.
+
+<Callout type="info">
+  This component automatically converts bytes to the most appropriate unit (B, KB, MB, GB, TB) for display.
+</Callout>
+
+## Installation
+
+```tsx
+import { StorageUsageCard } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Real-Time Tracking** - Live updates via Convex subscriptions
+- ✅ **Smart Formatting** - Automatic byte conversion (B, KB, MB, GB, TB)
+- ✅ **Visual Progress** - Color-coded progress bars
+- ✅ **Warning System** - Alerts at configurable thresholds
+- ✅ **Upgrade Prompts** - Contextual upgrade suggestions
+- ✅ **Percentage Display** - Clear usage percentage
+- ✅ **Skeleton Loading** - Smooth loading states
+- ✅ **Type-Safe** - Full TypeScript support
+
+## Usage
+
+<Tabs items={['Basic', 'With Upgrade', 'Custom Threshold', 'Different Units']}>
+  <Tab value="Basic">
+    ```tsx
+    import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+
+    export default function UsagePage() {
+      return (
+        <div className="grid gap-6 md:grid-cols-2">
+          <StorageUsageCard
+            currentBytes={750000000}  // 750 MB
+            limitBytes={1073741824}   // 1 GB
+          />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Upgrade">
+    ```tsx
+    import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+    import { useRouter } from 'next/navigation';
+
+    export default function UsagePage() {
+      const router = useRouter();
+
+      return (
+        <StorageUsageCard
+          currentBytes={9500000000}   // 9.5 GB
+          limitBytes={10737418240}    // 10 GB
+          onUpgrade={() => router.push('/pricing')}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Threshold">
+    ```tsx
+    import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+
+    export default function UsagePage() {
+      // Show warning at 75% instead of 80%
+      return (
+        <StorageUsageCard
+          currentBytes={8000000000}
+          limitBytes={10737418240}
+          warningThreshold={75}
+          onUpgrade={() => router.push('/pricing')}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Different Units">
+    ```tsx
+    import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+
+    export default function UsagePage() {
+      return (
+        <div className="space-y-6">
+          {/* Small usage (MB) */}
+          <StorageUsageCard
+            currentBytes={50000000}     // 50 MB
+            limitBytes={1073741824}     // 1 GB
+          />
+          
+          {/* Large usage (GB) */}
+          <StorageUsageCard
+            currentBytes={85899345920}  // 80 GB
+            limitBytes={107374182400}   // 100 GB
+          />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+<TypeTable
+  type={{
+    currentBytes: {
+      type: 'number | undefined',
+      required: true,
+      description: 'Current storage used in bytes',
+    },
+    limitBytes: {
+      type: 'number | undefined',
+      required: true,
+      description: 'Maximum storage allowed in bytes',
+    },
+    warningThreshold: {
+      type: 'number',
+      default: '80',
+      description: 'Percentage at which to show warning (0-100)',
+    },
+    onUpgrade: {
+      type: '() => void',
+      description: 'Callback when upgrade button is clicked',
+    },
+  }}
+/>
+
+## Byte Formatting
+
+The component automatically formats bytes to human-readable units:
+
+```typescript
+const formatBytes = (bytes: number): string => {
+  if (bytes === 0) return "0 B";
+  
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+};
+
+// Examples:
+// 1024 → "1.00 KB"
+// 1048576 → "1.00 MB"
+// 1073741824 → "1.00 GB"
+// 750000000 → "715.26 MB"
+```
+
+## Warning States
+
+Visual states based on storage usage:
+
+| Usage | Badge | Progress Bar | Action |
+|-------|-------|--------------|--------|
+| 0-79% | Outline (gray) | Blue | None |
+| 80-89% | Secondary (yellow) | Orange | "High Usage" warning |
+| 90-100% | Destructive (red) | Red | "Upgrade Plan" button |
+
+## Examples
+
+### Example 1: Storage Dashboard
+
+```tsx
+import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+import { ApiUsageCard } from '@/components/usage/api-usage-card';
+
+export default function UsagePage() {
+  return (
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">Resource Usage</h1>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        <ApiUsageCard
+          current={75000}
+          limit={100000}
+          onUpgrade={() => router.push('/pricing')}
+        />
+        
+        <StorageUsageCard
+          currentBytes={8589934592}   // 8 GB
+          limitBytes={10737418240}    // 10 GB
+          onUpgrade={() => router.push('/pricing')}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+### Example 2: With Real-Time Convex Data
+
+```tsx
+import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+
+export default function UsagePage() {
+  const usageData = useQuery(api.usage.getCurrentUsage, {
+    userId: session?.user?.id,
+  });
+
+  return (
+    <StorageUsageCard
+      currentBytes={usageData?.storageBytes}
+      limitBytes={usageData?.storageLimit}
+      onUpgrade={() => router.push('/pricing')}
+    />
+  );
+}
+```
+
+### Example 3: With File Count Breakdown
+
+```tsx
+import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FileText, Image, Film } from 'lucide-react';
+
+export default function StoragePage() {
+  const storageBreakdown = [
+    { type: 'Documents', icon: FileText, size: 2147483648, count: 150 },
+    { type: 'Images', icon: Image, size: 4294967296, count: 520 },
+    { type: 'Videos', icon: Film, size: 2147483648, count: 25 },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <StorageUsageCard
+        currentBytes={8589934592}
+        limitBytes={10737418240}
+        onUpgrade={() => router.push('/pricing')}
+      />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Storage Breakdown</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {storageBreakdown.map((item) => (
+              <div key={item.type} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <item.icon className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{item.type}</span>
+                  <span className="text-xs text-muted-foreground">
+                    ({item.count} files)
+                  </span>
+                </div>
+                <span className="text-sm font-medium">
+                  {formatBytes(item.size)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+```
+
+### Example 4: With Upload Progress
+
+```tsx
+import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+import { Progress } from '@/components/ui/progress';
+import { useState } from 'react';
+
+export default function StoragePage() {
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentStorage, setCurrentStorage] = useState(8000000000);
+
+  const handleUpload = async (file: File) => {
+    // Simulate upload
+    setUploadProgress(0);
+    
+    for (let i = 0; i <= 100; i += 10) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      setUploadProgress(i);
+    }
+    
+    // Update storage
+    setCurrentStorage(prev => prev + file.size);
+  };
+
+  return (
+    <div className="space-y-6">
+      <StorageUsageCard
+        currentBytes={currentStorage}
+        limitBytes={10737418240}
+        onUpgrade={() => router.push('/pricing')}
+      />
+      
+      {uploadProgress > 0 && uploadProgress < 100 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Uploading...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Progress value={uploadProgress} />
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+```
+
+## Storage Tracking
+
+Track file uploads in your application:
+
+```typescript
+// In your file upload handler
+import { api } from '@/convex/_generated/api';
+import { fetchMutation } from 'convex/nextjs';
+
+export async function POST(request: Request) {
+  const formData = await request.formData();
+  const file = formData.get('file') as File;
+  
+  // Check storage limit before upload
+  const usage = await fetchQuery(api.usage.getCurrentUsage, {
+    userId: session.user.id,
+  });
+  
+  if (usage.storageBytes + file.size > usage.storageLimit) {
+    return Response.json(
+      { error: 'Storage limit exceeded' },
+      { status: 413 } // Payload Too Large
+    );
+  }
+  
+  // Upload file...
+  const fileUrl = await uploadToStorage(file);
+  
+  // Track storage usage
+  await fetchMutation(api.usage.trackStorage, {
+    userId: session.user.id,
+    bytes: file.size,
+    operation: 'add',
+  });
+  
+  return Response.json({ url: fileUrl });
+}
+```
+
+<Callout type="warning">
+  Always validate storage limits server-side before accepting file uploads to prevent abuse.
+</Callout>
+
+## Plan Storage Limits
+
+Typical storage limits by plan:
+
+| Plan | Storage Limit | Equivalent |
+|------|---------------|------------|
+| Free | 1 GB | ~1,000 documents or ~500 images |
+| Pro | 10 GB | ~10,000 documents or ~5,000 images |
+| Team | 100 GB | ~100,000 documents or ~50,000 images |
+
+## File Size Calculations
+
+Common file sizes for reference:
+
+```typescript
+// Document sizes
+const documentSizes = {
+  textFile: 50 * 1024,           // 50 KB
+  pdfDocument: 500 * 1024,       // 500 KB
+  presentation: 5 * 1024 * 1024, // 5 MB
+};
+
+// Media sizes
+const mediaSizes = {
+  thumbnail: 100 * 1024,          // 100 KB
+  image: 2 * 1024 * 1024,         // 2 MB
+  hdVideo: 100 * 1024 * 1024,     // 100 MB
+  4kVideo: 500 * 1024 * 1024,     // 500 MB
+};
+```
+
+## Storage Optimization Tips
+
+Display helpful tips when storage is high:
+
+```tsx
+{isWarning && (
+  <div className="text-sm text-muted-foreground space-y-2">
+    <p className="font-medium">Storage Optimization Tips:</p>
+    <ul className="list-disc list-inside space-y-1 text-xs">
+      <li>Delete unused files and old uploads</li>
+      <li>Compress large images before uploading</li>
+      <li>Use video compression for large videos</li>
+      <li>Archive old projects to free up space</li>
+    </ul>
+  </div>
+)}
+```
+
+## Loading States
+
+Shows skeleton when data is undefined:
+
+```tsx
+if (currentBytes === undefined || limitBytes === undefined) {
+  return <StorageUsageCardSkeleton />;
+}
+```
+
+## Delete Files to Free Space
+
+Implement file deletion with storage tracking:
+
+```typescript
+// Delete file handler
+export async function DELETE(request: Request) {
+  const { fileId } = await request.json();
+  
+  // Get file size before deletion
+  const file = await getFile(fileId);
+  
+  // Delete file
+  await deleteFromStorage(fileId);
+  
+  // Update storage tracking
+  await fetchMutation(api.usage.trackStorage, {
+    userId: session.user.id,
+    bytes: file.size,
+    operation: 'remove', // Decrease storage
+  });
+  
+  return Response.json({ success: true });
+}
+```
+
+## Notes
+
+- Storage data updates in real-time via Convex
+- Byte formatting automatically selects appropriate unit
+- Progress bar color changes based on usage percentage
+- Warning appears at 80%, critical alert at 90%
+- Upgrade button only shows when `onUpgrade` is provided
+- All calculations use binary units (1024 bytes = 1 KB)
+
+## Related Components
+
+- [ApiUsageCard](/docs/components/usage/api-usage-card) - Track API calls
+- [FeatureAccessCard](/docs/components/usage/feature-access-card) - Display features
+- [UsageDashboard](/docs/components/usage/usage-dashboard) - Complete usage view
+
+## Next Steps
+
+- [Implement file upload tracking](/docs/guides/file-uploads)
+- [Set up storage limits](/docs/guides/storage-limits)
+- [Configure storage alerts](/docs/guides/usage-alerts)
+- [View complete usage example](/docs/examples/usage-page)

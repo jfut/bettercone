@@ -1,0 +1,18 @@
+{
+  "title": "Authentication",
+  "pages": [
+    "auth-view",
+    "auth-form",
+    "sign-in-form",
+    "sign-up-form",
+    "phone-sign-in-form",
+    "phone-sign-up-form",
+    "auth-callback",
+    "provider-button",
+    "passkey-button",
+    "magic-link-button",
+    "email-otp-button",
+    "one-tap",
+    "sign-out"
+  ]
+}

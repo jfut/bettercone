@@ -1,0 +1,509 @@
+---
+title: FeatureAccessCard
+description: Display available features based on subscription plan
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# FeatureAccessCard
+
+The `FeatureAccessCard` component displays a visual list of features available to the user based on their current subscription plan, with clear indicators for enabled and locked features.
+
+<Callout type="info">
+  This component helps users understand what features they have access to and encourages upgrades by showing locked premium features.
+</Callout>
+
+## Installation
+
+```tsx
+import { FeatureAccessCard } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Plan-Based Access** - Shows features based on subscription tier
+- ✅ **Visual Indicators** - Green checkmarks for enabled, locks for disabled
+- ✅ **Feature Descriptions** - Helpful descriptions for each feature
+- ✅ **Upgrade Prompts** - Contextual prompts for locked features
+- ✅ **Plan Badge** - Displays current plan prominently
+- ✅ **Customizable Features** - Define your own feature set
+- ✅ **Skeleton Loading** - Smooth loading states
+- ✅ **Type-Safe** - Full TypeScript support
+
+## Usage
+
+<Tabs items={['Basic', 'With Upgrade', 'Custom Features', 'Multiple Plans']}>
+  <Tab value="Basic">
+    ```tsx
+    import { FeatureAccessCard } from '@/components/usage/feature-access-card';
+
+    export default function UsagePage() {
+      const features = {
+        planId: 'pro',
+        advancedAnalytics: true,
+        apiAccess: true,
+        customIntegrations: false,
+        prioritySupport: true,
+      };
+
+      return (
+        <FeatureAccessCard features={features} />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Upgrade">
+    ```tsx
+    import { FeatureAccessCard } from '@/components/usage/feature-access-card';
+    import { useRouter } from 'next/navigation';
+
+    export default function UsagePage() {
+      const router = useRouter();
+
+      return (
+        <FeatureAccessCard
+          features={features}
+          onUpgrade={() => router.push('/pricing')}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Features">
+    ```tsx
+    import { FeatureAccessCard } from '@/components/usage/feature-access-card';
+
+    export default function UsagePage() {
+      // Define your own feature set
+      const customFeatures = {
+        planId: 'team',
+        advancedAnalytics: true,
+        apiAccess: true,
+        customIntegrations: true,
+        prioritySupport: true,
+        whiteLabeling: true,
+        dedicatedAccount: true,
+        customSLA: false,
+      };
+
+      return (
+        <FeatureAccessCard features={customFeatures} />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Multiple Plans">
+    ```tsx
+    import { FeatureAccessCard } from '@/components/usage/feature-access-card';
+
+    const planFeatures = {
+      free: {
+        planId: 'free',
+        advancedAnalytics: false,
+        apiAccess: false,
+        customIntegrations: false,
+        prioritySupport: false,
+      },
+      pro: {
+        planId: 'pro',
+        advancedAnalytics: true,
+        apiAccess: true,
+        customIntegrations: false,
+        prioritySupport: true,
+      },
+      team: {
+        planId: 'team',
+        advancedAnalytics: true,
+        apiAccess: true,
+        customIntegrations: true,
+        prioritySupport: true,
+      },
+    };
+
+    export default function UsagePage() {
+      const currentPlan = 'pro';
+
+      return (
+        <FeatureAccessCard 
+          features={planFeatures[currentPlan]}
+          onUpgrade={() => router.push('/pricing')}
+        />
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+<TypeTable
+  type={{
+    features: {
+      type: 'FeatureAccess | undefined',
+      required: true,
+      description: 'Feature access configuration object',
+    },
+    onUpgrade: {
+      type: '() => void',
+      description: 'Callback when upgrade button is clicked',
+    },
+  }}
+/>
+
+## FeatureAccess Type
+
+```typescript
+interface FeatureAccess {
+  planId: string;                   // Current plan identifier
+  advancedAnalytics: boolean;       // Advanced analytics access
+  apiAccess: boolean;               // REST API access
+  customIntegrations: boolean;      // Third-party integrations
+  prioritySupport: boolean;         // Priority support access
+  [key: string]: boolean | string;  // Additional custom features
+}
+```
+
+## Default Features
+
+The component includes these default features:
+
+| Feature | Free | Pro | Team |
+|---------|------|-----|------|
+| Advanced Analytics | ❌ | ✅ | ✅ |
+| API Access | ❌ | ✅ | ✅ |
+| Custom Integrations | ❌ | ❌ | ✅ |
+| Priority Support | ❌ | ✅ | ✅ |
+
+## Examples
+
+### Example 1: Usage Dashboard
+
+```tsx
+import { FeatureAccessCard } from '@/components/usage/feature-access-card';
+import { ApiUsageCard } from '@/components/usage/api-usage-card';
+import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+
+export default function UsagePage() {
+  const features = {
+    planId: 'pro',
+    advancedAnalytics: true,
+    apiAccess: true,
+    customIntegrations: false,
+    prioritySupport: true,
+  };
+
+  return (
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">Usage & Features</h1>
+      
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ApiUsageCard current={45000} limit={100000} />
+        <StorageUsageCard currentBytes={5000000000} limitBytes={10737418240} />
+        
+        <div className="lg:col-span-2">
+          <FeatureAccessCard 
+            features={features}
+            onUpgrade={() => router.push('/pricing')}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### Example 2: With Real-Time Convex Data
+
+```tsx
+import { FeatureAccessCard } from '@/components/usage/feature-access-card';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+
+export default function UsagePage() {
+  const featureAccess = useQuery(api.usage.getFeatureAccess, {
+    userId: session?.user?.id,
+  });
+
+  return (
+    <FeatureAccessCard
+      features={featureAccess}
+      onUpgrade={() => router.push('/pricing')}
+    />
+  );
+}
+```
+
+### Example 3: Feature Comparison View
+
+```tsx
+import { FeatureAccessCard } from '@/components/usage/feature-access-card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+const planFeatures = {
+  free: { planId: 'free', advancedAnalytics: false, apiAccess: false, customIntegrations: false, prioritySupport: false },
+  pro: { planId: 'pro', advancedAnalytics: true, apiAccess: true, customIntegrations: false, prioritySupport: true },
+  team: { planId: 'team', advancedAnalytics: true, apiAccess: true, customIntegrations: true, prioritySupport: true },
+};
+
+export default function FeaturesPage() {
+  return (
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">Feature Comparison</h1>
+      
+      <Tabs defaultValue="free">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="free">Free</TabsTrigger>
+          <TabsTrigger value="pro">Pro</TabsTrigger>
+          <TabsTrigger value="team">Team</TabsTrigger>
+        </TabsList>
+        
+        {Object.entries(planFeatures).map(([plan, features]) => (
+          <TabsContent key={plan} value={plan}>
+            <FeatureAccessCard features={features} />
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
+  );
+}
+```
+
+### Example 4: With Feature Gating
+
+```tsx
+import { FeatureAccessCard } from '@/components/usage/feature-access-card';
+import { Button } from '@/components/ui/button';
+import { Lock } from 'lucide-react';
+
+export default function AnalyticsPage() {
+  const features = useQuery(api.usage.getFeatureAccess);
+
+  // Gate feature access
+  if (!features?.advancedAnalytics) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="max-w-2xl mx-auto text-center space-y-6">
+          <Lock className="h-16 w-16 text-muted-foreground mx-auto" />
+          <h1 className="text-3xl font-bold">Advanced Analytics</h1>
+          <p className="text-muted-foreground">
+            This feature is not available on your current plan.
+          </p>
+          
+          <FeatureAccessCard 
+            features={features}
+            onUpgrade={() => router.push('/pricing')}
+          />
+          
+          <Button size="lg" onClick={() => router.push('/pricing')}>
+            Upgrade to Access
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Analytics dashboard content */}
+    </div>
+  );
+}
+```
+
+## Feature Display
+
+### Enabled Features
+
+Shown with green background and checkmark:
+
+```tsx
+<div className="flex items-start gap-3 p-3 rounded-lg border bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900">
+  <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+  <div>
+    <p className="text-sm font-medium">Advanced Analytics</p>
+    <p className="text-xs text-muted-foreground">Detailed insights and reports</p>
+  </div>
+  <Badge variant="secondary">Enabled</Badge>
+</div>
+```
+
+### Locked Features
+
+Shown with gray background and lock icon:
+
+```tsx
+<div className="flex items-start gap-3 p-3 rounded-lg border bg-muted/50">
+  <Lock className="h-4 w-4 text-muted-foreground" />
+  <div>
+    <p className="text-sm font-medium text-muted-foreground">Custom Integrations</p>
+    <p className="text-xs text-muted-foreground">Connect with third-party tools</p>
+  </div>
+  <Badge variant="outline">Team Plan</Badge>
+</div>
+```
+
+## Feature Configuration
+
+Define custom features in your application:
+
+```typescript
+// packages/convex/convex/subscriptionPlans.ts
+export const planFeatures = {
+  free: {
+    advancedAnalytics: false,
+    apiAccess: false,
+    customIntegrations: false,
+    prioritySupport: false,
+    whiteLabeling: false,
+  },
+  pro: {
+    advancedAnalytics: true,
+    apiAccess: true,
+    customIntegrations: false,
+    prioritySupport: true,
+    whiteLabeling: false,
+  },
+  team: {
+    advancedAnalytics: true,
+    apiAccess: true,
+    customIntegrations: true,
+    prioritySupport: true,
+    whiteLabeling: true,
+  },
+};
+```
+
+## Feature Gating
+
+Use features to gate access in your app:
+
+```typescript
+// middleware.ts
+import { getFeatureAccess } from '@/lib/features';
+
+export async function middleware(request: NextRequest) {
+  const features = await getFeatureAccess(session.user.id);
+  
+  // Block access to analytics for free users
+  if (request.nextUrl.pathname.startsWith('/analytics')) {
+    if (!features.advancedAnalytics) {
+      return NextResponse.redirect(new URL('/pricing', request.url));
+    }
+  }
+  
+  // Block API endpoints for non-API plans
+  if (request.nextUrl.pathname.startsWith('/api/external')) {
+    if (!features.apiAccess) {
+      return NextResponse.json(
+        { error: 'API access not available on your plan' },
+        { status: 403 }
+      );
+    }
+  }
+  
+  return NextResponse.next();
+}
+```
+
+<Callout type="warning">
+  Always enforce feature access server-side. Client-side checks are for UX only and can be bypassed.
+</Callout>
+
+## Upgrade Prompt
+
+When locked features are present and `onUpgrade` is provided:
+
+```tsx
+{disabledFeatures.length > 0 && onUpgrade && (
+  <div className="pt-4 border-t">
+    <p className="text-sm text-muted-foreground mb-3">
+      Upgrade to unlock {disabledFeatures.length} premium features
+    </p>
+    <Button onClick={onUpgrade} className="w-full">
+      View Upgrade Options
+    </Button>
+  </div>
+)}
+```
+
+## Loading States
+
+Shows skeleton when features are undefined:
+
+```tsx
+if (!features) {
+  return <FeatureAccessCardSkeleton />;
+}
+```
+
+## Plan Badge
+
+Displays current plan with color coding:
+
+```tsx
+<Badge variant="outline" className="capitalize">
+  {features.planId} Plan
+</Badge>
+
+// Color variants:
+// free → gray
+// pro → blue
+// team → purple
+```
+
+## Custom Feature Labels
+
+Extend the default feature config:
+
+```typescript
+const customFeatureConfig = [
+  { 
+    key: 'advancedAnalytics',
+    label: 'Advanced Analytics',
+    description: 'Detailed insights and reports'
+  },
+  { 
+    key: 'apiAccess',
+    label: 'API Access',
+    description: 'REST API integration'
+  },
+  { 
+    key: 'whiteLabeling',
+    label: 'White Labeling',
+    description: 'Remove BetterCone branding'
+  },
+  { 
+    key: 'sso',
+    label: 'Single Sign-On',
+    description: 'SAML 2.0 authentication'
+  },
+];
+```
+
+## Notes
+
+- Features update in real-time when subscription changes
+- Locked features show which plan is required to unlock
+- Upgrade button only appears when locked features exist
+- Plan badge automatically displays current plan tier
+- Component supports custom feature definitions
+- All feature checks should be enforced server-side
+
+## Related Components
+
+- [ApiUsageCard](/docs/components/usage/api-usage-card) - Track API usage
+- [StorageUsageCard](/docs/components/usage/storage-usage-card) - Monitor storage
+- [UsageDashboard](/docs/components/usage/usage-dashboard) - Complete usage view
+- [PricingDashboard](/docs/components/pricing/pricing-dashboard) - Upgrade plans
+
+## Next Steps
+
+- [Implement feature gating](/docs/guides/feature-gating)
+- [Configure plan features](/docs/guides/subscription-plans)
+- [Set up role-based access](/docs/guides/permissions)
+- [View complete usage example](/docs/examples/usage-page)

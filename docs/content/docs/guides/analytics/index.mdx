@@ -1,0 +1,427 @@
+---
+title: Analytics & Monitoring
+description: Track user behavior and monitor errors with PostHog and Sentry
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Analytics & Monitoring
+
+BetterCone includes production-ready analytics and error monitoring out of the box.
+
+## PostHog Analytics
+
+PostHog provides user behavior tracking, feature flags, and session replay.
+
+### Features Included
+
+- ✅ Automatic page view tracking
+- ✅ User identification
+- ✅ Custom event tracking
+- ✅ Subscription lifecycle events
+- ✅ Debug mode for development
+
+### Configuration
+
+PostHog is already integrated in `lib/posthog.tsx`:
+
+```typescript
+import posthog from "posthog-js";
+
+posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+  api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  person_profiles: "identified_only",
+  capture_pageview: false, // Manual control
+  loaded: (posthog) => {
+    if (process.env.NODE_ENV === "development") {
+      posthog.debug();
+    }
+  },
+});
+```
+
+### Environment Variables
+
+Add to `.env.local`:
+
+```bash
+NEXT_PUBLIC_POSTHOG_KEY=phc_your_key_here
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+```
+
+<Callout type="info">
+Get your PostHog key from [app.posthog.com](https://app.posthog.com/project/settings). The free tier includes 1M events/month.
+</Callout>
+
+### Usage
+
+#### Automatic Page Tracking
+
+Page views are tracked automatically via `PageViewTracker`:
+
+```tsx
+import { PageViewTracker } from "@/lib/posthog-pageview";
+
+export default function RootLayout({ children }) {
+  return (
+    <PostHogProvider>
+      <PageViewTracker />
+      {children}
+    </PostHogProvider>
+  );
+}
+```
+
+#### User Identification
+
+Identify users on sign-in:
+
+```typescript
+import { analytics } from "@/lib/analytics";
+
+// On sign in
+analytics.identifyUser(user.id, {
+  email: user.email,
+  name: user.name,
+  createdAt: user.createdAt,
+});
+
+// On sign out
+analytics.resetUser();
+```
+
+#### Custom Events
+
+Track user actions:
+
+```typescript
+import { analytics } from "@/lib/analytics";
+
+// Sign up
+analytics.trackSignUp({ method: "email" });
+
+// Sign in
+analytics.trackSignIn({ method: "google" });
+
+// Subscription created
+analytics.trackSubscriptionCreated({
+  plan: "pro",
+  interval: "monthly",
+  amount: 29,
+});
+
+// Subscription upgraded
+analytics.trackSubscriptionUpgraded({
+  fromPlan: "starter",
+  toPlan: "pro",
+  fromInterval: "monthly",
+  toInterval: "yearly",
+});
+
+// Subscription cancelled
+analytics.trackSubscriptionCancelled({
+  plan: "pro",
+  reason: "too expensive",
+});
+
+// Subscription reactivated
+analytics.trackSubscriptionReactivated({
+  plan: "pro",
+});
+```
+
+### Custom Event Helper
+
+Create your own events:
+
+```typescript
+import { posthog } from "@/lib/posthog";
+
+// Track any custom event
+posthog.capture("feature_used", {
+  feature: "api_dashboard",
+  organizationId: org.id,
+  timestamp: new Date().toISOString(),
+});
+
+// Track with user properties
+posthog.capture("report_generated", {
+  reportType: "analytics",
+  dateRange: "30days",
+  format: "pdf",
+});
+```
+
+## Sentry Error Monitoring
+
+Sentry captures errors, exceptions, and performance issues in production.
+
+### Features Included
+
+- ✅ Server-side error tracking
+- ✅ Client-side error tracking
+- ✅ Edge runtime support
+- ✅ Global error boundary
+- ✅ Request error capture
+- ✅ Performance monitoring
+
+### Configuration
+
+Sentry is pre-configured with three files using environment variables:
+
+#### Server-side (`sentry.server.config.ts`)
+
+```typescript
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: 1,
+  enableLogs: true,
+  sendDefaultPii: true,
+});
+```
+
+#### Client-side (`instrumentation-client.ts`)
+
+```typescript
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: 1,
+  enableLogs: true,
+  sendDefaultPii: true,
+});
+```
+
+#### Edge runtime (`sentry.edge.config.ts`)
+
+```typescript
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: 1,
+  enableLogs: true,
+  sendDefaultPii: true,
+});
+```
+
+### Environment Variables
+
+Add to `.env.local`:
+
+```bash
+NEXT_PUBLIC_SENTRY_DSN=https://your-dsn@sentry.io/your-project-id
+```
+
+<Callout type="info">
+Get your Sentry DSN from [sentry.io](https://sentry.io/signup) → Create Project → Project Settings → Client Keys (DSN).
+</Callout>
+
+### Global Error Handling
+
+Errors are automatically captured via `global-error.tsx`:
+
+```tsx
+"use client";
+
+import * as Sentry from "@sentry/nextjs";
+import NextError from "next/error";
+import { useEffect } from "react";
+
+export default function GlobalError({ error }: { error: Error }) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
+  return (
+    <html>
+      <body>
+        <NextError statusCode={500} />
+      </body>
+    </html>
+  );
+}
+```
+
+### Instrumentation
+
+Automatic request error capture in `instrumentation.ts`:
+
+```typescript
+import * as Sentry from '@sentry/nextjs';
+
+export async function register() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('../sentry.server.config');
+  }
+  if (process.env.NEXT_RUNTIME === 'edge') {
+    await import('../sentry.edge.config');
+  }
+}
+
+export const onRequestError = Sentry.captureRequestError;
+```
+
+### Manual Error Capture
+
+Capture errors manually:
+
+```typescript
+import * as Sentry from "@sentry/nextjs";
+
+try {
+  // Risky operation
+  await dangerousFunction();
+} catch (error) {
+  Sentry.captureException(error, {
+    level: "error",
+    tags: {
+      section: "billing",
+      action: "subscription_create",
+    },
+    extra: {
+      userId: user.id,
+      organizationId: org.id,
+    },
+  });
+  throw error;
+}
+```
+
+### User Context
+
+Add user context to errors:
+
+```typescript
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.setUser({
+  id: user.id,
+  email: user.email,
+  username: user.name,
+});
+
+// Clear on sign out
+Sentry.setUser(null);
+```
+
+## Best Practices
+
+### 1. Environment-Specific Tracking
+
+Only track in production or explicitly enable:
+
+```typescript
+const shouldTrack = 
+  process.env.NODE_ENV === "production" || 
+  process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true";
+
+if (shouldTrack) {
+  posthog.capture("event");
+}
+```
+
+### 2. Privacy Compliance
+
+Don't track PII unless necessary:
+
+```typescript
+// ❌ Bad - tracking sensitive data
+posthog.capture("payment_failed", {
+  creditCardLast4: "1234",
+  billingAddress: "123 Main St",
+});
+
+// ✅ Good - tracking anonymized data
+posthog.capture("payment_failed", {
+  paymentMethod: "card",
+  failureReason: "insufficient_funds",
+});
+```
+
+### 3. Event Naming
+
+Use consistent naming:
+
+```typescript
+// ✅ Good - snake_case, descriptive
+posthog.capture("subscription_upgraded");
+posthog.capture("team_member_invited");
+posthog.capture("api_limit_reached");
+
+// ❌ Bad - inconsistent, vague
+posthog.capture("upgrade");
+posthog.capture("TeamInvite");
+posthog.capture("limit");
+```
+
+### 4. Error Context
+
+Add context to errors:
+
+```typescript
+Sentry.captureException(error, {
+  tags: {
+    feature: "billing",
+    user_role: member.role,
+  },
+  extra: {
+    subscriptionId: subscription.id,
+    attemptedAction: "upgrade",
+  },
+});
+```
+
+## Dashboard
+
+### PostHog Dashboard
+
+View analytics at [app.posthog.com](https://app.posthog.com):
+
+- **Insights**: User trends, retention, funnels
+- **Session Replay**: Watch user sessions
+- **Feature Flags**: A/B testing
+- **Experiments**: Test variations
+
+### Sentry Dashboard
+
+Monitor errors at [sentry.io](https://sentry.io):
+
+- **Issues**: Error tracking and grouping
+- **Performance**: Transaction monitoring
+- **Releases**: Deploy tracking
+- **Alerts**: Email/Slack notifications
+
+## Troubleshooting
+
+### PostHog not tracking
+
+1. Check environment variables are set
+2. Verify PostHog key is correct
+3. Check browser console for errors
+4. Enable debug mode: `posthog.debug()`
+
+### Sentry not capturing errors
+
+1. Check DSN is correct
+2. Verify `instrumentation.ts` is loaded
+3. Check Sentry dashboard for events
+4. Test with `Sentry.captureException(new Error("Test"))`
+
+## Next Steps
+
+- [Deployment](/docs/guides/deployment) - Deploy with monitoring
+- [Production Checklist](/docs/guides/deployment/production) - Pre-launch checks
+- [Customization](/docs/guides/customization) - Customize tracking events
+
+## Resources
+
+- [PostHog Docs](https://posthog.com/docs)
+- [Sentry Next.js](https://docs.sentry.io/platforms/javascript/guides/nextjs/)
+- [Analytics Best Practices](https://posthog.com/blog/b2b-saas-product-metrics)

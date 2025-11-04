@@ -1,0 +1,190 @@
+---
+title: Service Configuration
+description: Configure Convex, Stripe, and email services for production
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Service Configuration
+
+## Convex Production
+
+<Steps>
+
+<Step>
+### Deploy to Production
+
+```bash
+cd apps/web
+npx convex deploy --prod
+```
+
+This creates a production deployment.
+</Step>
+
+<Step>
+### Get Production URL
+
+```bash
+# Output example:
+# Deployment: prod:happy-animal-123
+# URL: https://happy-animal-123.convex.cloud
+```
+
+Add to Vercel environment variables:
+
+```bash
+CONVEX_DEPLOYMENT=prod:happy-animal-123
+NEXT_PUBLIC_CONVEX_URL=https://happy-animal-123.convex.cloud
+```
+</Step>
+
+<Step>
+### Set Environment Variables
+
+```bash
+npx convex env set STRIPE_SECRET_KEY sk_live_... --prod
+npx convex env set RESEND_API_KEY re_... --prod
+npx convex env set BETTER_AUTH_SECRET your-secret --prod
+```
+</Step>
+
+</Steps>
+
+## Stripe Production
+
+<Steps>
+
+<Step>
+### Switch to Live Mode
+
+In [Stripe Dashboard](https://dashboard.stripe.com), toggle from **Test** to **Live** mode.
+</Step>
+
+<Step>
+### Get Live API Keys
+
+1. Go to **Developers** → **API Keys**
+2. Copy **Publishable key** and **Secret key**
+3. Add to Vercel:
+
+```bash
+STRIPE_SECRET_KEY=sk_live_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+```
+</Step>
+
+<Step>
+### Configure Webhook
+
+1. Go to **Developers** → **Webhooks**
+2. Click **Add endpoint**
+3. URL: `https://yourdomain.com/api/webhooks/stripe`
+4. Select events:
+   - `checkout.session.completed`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+   - `invoice.payment_succeeded`
+   - `invoice.payment_failed`
+5. Copy **Signing secret**:
+
+```bash
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+</Step>
+
+<Step>
+### Test Webhook
+
+```bash
+stripe listen --forward-to https://yourdomain.com/api/webhooks/stripe
+stripe trigger checkout.session.completed
+```
+</Step>
+
+</Steps>
+
+## Email Service (Resend)
+
+<Steps>
+
+<Step>
+### Create API Key
+
+1. Go to [Resend Dashboard](https://resend.com/api-keys)
+2. Click **Create API Key**
+3. Add to Vercel:
+
+```bash
+RESEND_API_KEY=re_...
+BETTER_AUTH_EMAIL_FROM=noreply@yourdomain.com
+```
+</Step>
+
+<Step>
+### Verify Domain
+
+1. Go to **Domains** in Resend
+2. Add your domain
+3. Add DNS records:
+
+```
+Type: TXT
+Name: resend._domainkey
+Value: (provided by Resend)
+```
+</Step>
+
+</Steps>
+
+## Better Auth
+
+```bash
+# Generate secret
+BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+
+# Set URL
+BETTER_AUTH_URL=https://yourdomain.com
+```
+
+## OAuth Providers
+
+### GitHub OAuth
+
+Update callback URL:
+```
+https://yourdomain.com/api/auth/callback/github
+```
+
+### Google OAuth
+
+Update authorized redirect:
+```
+https://yourdomain.com/api/auth/callback/google
+```
+
+<Callout type="warn">
+  Always use live mode keys in production. Never commit secrets to git.
+</Callout>
+
+## Health Checks
+
+Test each service:
+
+```bash
+# Test Convex
+curl https://your-deployment.convex.cloud/_system/ping
+
+# Test Stripe
+stripe webhooks test --endpoint https://yourdomain.com/api/webhooks/stripe
+
+# Test Email
+# Send test email via Resend dashboard
+```
+
+## Resources
+
+- [Convex Production](https://docs.convex.dev/production)
+- [Stripe Go Live](https://stripe.com/docs/account/activate)
+- [Resend Documentation](https://resend.com/docs)

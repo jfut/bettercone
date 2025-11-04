@@ -1,0 +1,247 @@
+---
+title: Utility Components
+description: Helper components for conditional rendering and redirects
+---
+
+# Utility Components
+
+8 utility components for auth state management and conditional rendering.
+
+## Components
+
+### SignedIn
+Render children only when user is signed in.
+
+```tsx
+import { SignedIn } from '@bettercone/ui';
+
+<SignedIn authClient={authClient}>
+  <DashboardContent />
+</SignedIn>
+```
+
+---
+
+### SignedOut
+Render children only when user is signed out.
+
+```tsx
+import { SignedOut } from '@bettercone/ui';
+
+<SignedOut authClient={authClient}>
+  <SignInPrompt />
+</SignedOut>
+```
+
+---
+
+### AuthLoading
+Show loading state while auth is initializing.
+
+```tsx
+import { AuthLoading } from '@bettercone/ui';
+
+<AuthLoading authClient={authClient}>
+  <Spinner />
+</AuthLoading>
+```
+
+---
+
+### RedirectToSignIn
+Automatically redirect to sign-in page if not authenticated.
+
+```tsx
+import { RedirectToSignIn } from '@bettercone/ui';
+
+<RedirectToSignIn authClient={authClient} />
+```
+
+---
+
+### RedirectToSignUp
+Automatically redirect to sign-up page.
+
+```tsx
+import { RedirectToSignUp } from '@bettercone/ui';
+
+<RedirectToSignUp authClient={authClient} />
+```
+
+---
+
+### PasswordInput
+Password input with show/hide toggle.
+
+```tsx
+import { PasswordInput } from '@bettercone/ui';
+
+<PasswordInput 
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+/>
+```
+
+---
+
+### FormError
+Display form error messages.
+
+```tsx
+import { FormError } from '@bettercone/ui';
+
+<FormError error="Invalid email or password" />
+```
+
+---
+
+### Provider Icons
+OAuth provider icons (Google, GitHub, etc.).
+
+```tsx
+import { GoogleIcon, GitHubIcon, DiscordIcon } from '@bettercone/ui';
+
+<GoogleIcon className="w-5 h-5" />
+```
+
+## Quick Start
+
+### Protected Page
+
+```tsx
+import { SignedIn, RedirectToSignIn } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function DashboardPage() {
+  return (
+    <>
+      <SignedIn authClient={authClient}>
+        <Dashboard />
+      </SignedIn>
+      
+      <RedirectToSignIn authClient={authClient} />
+    </>
+  );
+}
+```
+
+### Conditional UI
+
+```tsx
+import { SignedIn, SignedOut } from '@bettercone/ui';
+
+export default function Header() {
+  return (
+    <header>
+      <Logo />
+      
+      <SignedIn authClient={authClient}>
+        <UserButton authClient={authClient} />
+      </SignedIn>
+      
+      <SignedOut authClient={authClient}>
+        <Link href="/sign-in">Sign In</Link>
+      </SignedOut>
+    </header>
+  );
+}
+```
+
+### Loading State
+
+```tsx
+import { AuthLoading, SignedIn } from '@bettercone/ui';
+
+export default function App() {
+  return (
+    <AuthLoading authClient={authClient}>
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner />
+      </div>
+    </AuthLoading>
+    
+    <SignedIn authClient={authClient}>
+      <App />
+    </SignedIn>
+  );
+}
+```
+
+## Props Reference
+
+### SignedIn / SignedOut / AuthLoading
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `children` | `ReactNode` | Content to render |
+
+### RedirectToSignIn / RedirectToSignUp
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `redirectUrl` | `string` | URL to redirect to after auth |
+
+### PasswordInput
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `value` | `string` | Input value |
+| `onChange` | `(e) => void` | Change handler |
+| `...props` | `InputProps` | Standard input props |
+
+## Common Patterns
+
+### Protected Route Pattern
+
+```tsx
+// app/dashboard/page.tsx
+import { SignedIn, RedirectToSignIn } from '@bettercone/ui';
+
+export default function ProtectedPage() {
+  return (
+    <>
+      <SignedIn authClient={authClient}>
+        <ProtectedContent />
+      </SignedIn>
+      <RedirectToSignIn authClient={authClient} />
+    </>
+  );
+}
+```
+
+### Marketing Site Header
+
+```tsx
+<header>
+  <Logo />
+  <nav>
+    <Link href="/features">Features</Link>
+    <Link href="/pricing">Pricing</Link>
+  </nav>
+  
+  <div className="flex items-center gap-2">
+    <SignedOut authClient={authClient}>
+      <Button variant="ghost" asChild>
+        <Link href="/sign-in">Sign In</Link>
+      </Button>
+      <Button asChild>
+        <Link href="/sign-up">Get Started</Link>
+      </Button>
+    </SignedOut>
+    
+    <SignedIn authClient={authClient}>
+      <Button asChild>
+        <Link href="/dashboard">Dashboard</Link>
+      </Button>
+      <UserButton authClient={authClient} />
+    </SignedIn>
+  </div>
+</header>
+```
+
+## Related
+
+- [Authentication Components](/docs/components/authentication) - Sign in, sign up
+- [User Components](/docs/components/user) - UserButton, UserAvatar

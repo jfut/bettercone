@@ -1,0 +1,492 @@
+---
+title: PricingDashboard
+description: Complete pricing table with plan selection and Stripe checkout
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# PricingDashboard
+
+The `PricingDashboard` component displays pricing plans with plan selection callbacks and organization support for team plans.
+
+<Callout type="info">
+  This component is **backend-agnostic**. You provide the checkout logic through callback props.
+</Callout>
+
+## Installation
+
+```bash
+pnpm add @bettercone/ui better-auth
+```
+
+```tsx
+import { PricingDashboard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+```
+
+## Features
+
+- ✅ **Multiple Pricing Plans** - Display Free, Pro, and Team plans
+- ✅ **Billing Intervals** - Toggle between monthly and yearly pricing
+- ✅ **Organization Support** - Team plan requires organization selection
+- ✅ **Current Plan Indication** - Highlights user's active subscription
+- ✅ **Responsive Design** - Grid layout adapts to screen size
+- ✅ **Backend-Agnostic** - Works with any backend (Convex, Prisma, Supabase, etc.)
+- ✅ **Callback-Based** - You control the checkout flow
+- ✅ **Type-Safe** - Full TypeScript support
+
+## Usage
+
+<Tabs items={['Basic', 'With Callbacks', 'Yearly Default', 'Custom Styling']}>
+  <Tab value="Basic">
+    ```tsx
+    import { PricingDashboard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function PricingPage() {
+      return (
+        <div className="container mx-auto py-12">
+          <PricingDashboard authClient={authClient} />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Callbacks">
+    ```tsx
+    import { PricingDashboard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function PricingPage() {
+      return (
+        <div className="container mx-auto py-12">
+          <PricingDashboard 
+            authClient={authClient}
+            onSelectPlan={async (planId, interval, organizationId) => {
+              // Create Stripe checkout session
+              const response = await fetch("/api/billing/checkout", {
+                method: "POST",
+                body: JSON.stringify({ planId, interval, organizationId })
+              });
+              const { url } = await response.json();
+              window.location.href = url;
+            }}
+          />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Yearly Default">
+    ```tsx
+    import { PricingDashboard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function PricingPage() {
+      return (
+        <div className="container mx-auto py-12">
+          {/* Default to yearly billing */}
+          <PricingDashboard 
+            authClient={authClient}
+            defaultInterval="yearly" 
+          />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Styling">
+    ```tsx
+    import { PricingDashboard } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function PricingPage() {
+      return (
+        <div className="container mx-auto py-12">
+          <PricingDashboard 
+            authClient={authClient}
+            className="max-w-7xl mx-auto"
+            classNames={{
+              container: "space-y-12",
+              header: "mb-16",
+              grid: "gap-8 lg:gap-12"
+            }}
+          />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+<TypeTable
+  type={{
+    authClient: {
+      type: 'BetterAuthClient',
+      description: 'Better Auth client instance (required)',
+    },
+    onSelectPlan: {
+      type: '(planId: string, interval: "monthly" | "yearly", organizationId?: string) => void | Promise<void>',
+      description: 'Callback when user selects a plan',
+    },
+    currentPlan: {
+      type: 'string',
+      description: 'Current plan ID to highlight',
+    },
+    className: {
+      type: 'string',
+      description: 'Additional CSS classes for the root container',
+    },
+    classNames: {
+      type: 'object',
+      description: 'Granular styling control for child elements',
+      properties: {
+        container: 'string - Root container classes',
+        header: 'string - Pricing header classes',
+        grid: 'string - Pricing cards grid classes',
+      },
+    },
+    defaultInterval: {
+      type: '"monthly" | "yearly"',
+      default: '"monthly"',
+      description: 'Default billing interval selection',
+    },
+  }}
+/>
+
+## Pricing Plans
+
+The component displays pricing tiers that you define. Example structure:
+
+### Free Plan
+- **Price:** $0/month
+- **Features:** Basic features for personal use
+- **Limits:** Limited API calls, storage, and features
+- **Ideal for:** Individuals and testing
+
+### Pro Plan
+- **Price:** $29/month or $290/year (save 17%)
+- **Features:** Advanced features for professionals
+- **Limits:** Higher API calls, storage, and feature access
+- **Ideal for:** Power users and small teams
+
+### Team Plan
+- **Price:** $99/month or $990/year (save 17%)
+- **Features:** Everything in Pro plus team collaboration
+- **Limits:** Unlimited usage with team management
+- **Ideal for:** Organizations and large teams
+- **Requires:** Active organization
+
+<Callout type="info">
+  You define pricing plans in your backend. The component displays them and calls your `onSelectPlan` callback.
+</Callout>
+
+## Examples
+
+### Example 1: Public Pricing Page
+
+```tsx
+import { PricingDashboard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function PublicPricingPage() {
+  return (
+    <div className="min-h-screen bg-linear-to-b from-background to-muted/20">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 pt-16 pb-12 text-center">
+        <h1 className="text-5xl font-bold mb-4">
+          Simple, Transparent Pricing
+        </h1>
+        <p className="text-xl text-muted-foreground mb-8">
+          Choose the plan that's right for you
+        </p>
+      </div>
+
+      {/* Pricing Dashboard */}
+      <PricingDashboard 
+        authClient={authClient}
+        onSelectPlan={async (planId, interval, organizationId) => {
+          const response = await fetch("/api/billing/checkout", {
+            method: "POST",
+            body: JSON.stringify({ planId, interval, organizationId })
+          });
+          const { url } = await response.json();
+          window.location.href = url;
+        }}
+      />
+
+      {/* Trust Badges */}
+      <div className="container mx-auto px-4 py-16 text-center">
+        <p className="text-sm text-muted-foreground mb-4">
+          Trusted by 10,000+ teams worldwide
+        </p>
+      </div>
+    </div>
+  );
+}
+```
+
+### Example 2: Authenticated Pricing (Upgrade Flow)
+
+```tsx
+'use client';
+
+import { PricingDashboard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+import { SignedIn, SignedOut } from '@daveyplate/better-auth-ui';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+
+export default function UpgradePage() {
+  return (
+    <div className="container mx-auto py-12 px-4">
+      <SignedOut>
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold mb-4">Sign in to upgrade</h1>
+          <Button asChild>
+            <Link href="/auth/sign-in">Sign In</Link>
+          </Button>
+        </div>
+      </SignedOut>
+
+      <SignedIn>
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold mb-2">
+            Upgrade Your Plan
+          </h1>
+          <p className="text-muted-foreground">
+            Get more features and higher limits
+          </p>
+        </div>
+
+        <PricingDashboard 
+          authClient={authClient}
+          currentPlan="pro"
+          defaultInterval="yearly"
+          onSelectPlan={async (planId, interval, organizationId) => {
+            const response = await fetch("/api/billing/checkout", {
+              method: "POST",
+              body: JSON.stringify({ planId, interval, organizationId })
+            });
+            const { url } = await response.json();
+            window.location.href = url;
+          }}
+        />
+      </SignedIn>
+    </div>
+  );
+}
+```
+
+### Example 3: Custom Styled Pricing
+
+```tsx
+import { PricingDashboard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function PremiumPricingPage() {
+  return (
+    <div className="container mx-auto py-12">
+      <PricingDashboard 
+        authClient={authClient}
+        className="max-w-7xl mx-auto"
+        classNames={{
+          container: "space-y-12",
+          header: "mb-16",
+          grid: "gap-8 lg:gap-12"
+        }}
+      />
+    </div>
+  );
+}
+```
+
+### Example 4: With Comparison Table
+
+```tsx
+import { PricingDashboard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Check, X } from 'lucide-react';
+
+export default function ComparisonPage() {
+  return (
+    <div className="container mx-auto py-12">
+      {/* Pricing Cards */}
+      <PricingDashboard authClient={authClient} />
+
+      {/* Feature Comparison Table */}
+      <div className="mt-16">
+        <h2 className="text-3xl font-bold text-center mb-8">
+          Feature Comparison
+        </h2>
+        
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Feature</TableHead>
+              <TableHead className="text-center">Free</TableHead>
+              <TableHead className="text-center">Pro</TableHead>
+              <TableHead className="text-center">Team</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>API Calls/month</TableCell>
+              <TableCell className="text-center">10,000</TableCell>
+              <TableCell className="text-center">100,000</TableCell>
+              <TableCell className="text-center">Unlimited</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Storage</TableCell>
+              <TableCell className="text-center">1 GB</TableCell>
+              <TableCell className="text-center">10 GB</TableCell>
+              <TableCell className="text-center">100 GB</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Team Members</TableCell>
+              <TableCell className="text-center"><X className="inline text-muted-foreground" /></TableCell>
+              <TableCell className="text-center"><X className="inline text-muted-foreground" /></TableCell>
+              <TableCell className="text-center">Unlimited</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Priority Support</TableCell>
+              <TableCell className="text-center"><X className="inline text-muted-foreground" /></TableCell>
+              <TableCell className="text-center"><Check className="inline text-green-500" /></TableCell>
+              <TableCell className="text-center"><Check className="inline text-green-500" /></TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+```
+
+## Billing Intervals
+
+The component supports switching between monthly and yearly billing:
+
+```tsx
+import { PricingDashboard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+// Default to monthly
+<PricingDashboard authClient={authClient} defaultInterval="monthly" />
+
+// Default to yearly (show savings)
+<PricingDashboard authClient={authClient} defaultInterval="yearly" />
+```
+
+**Yearly Savings:** The component automatically displays the percentage saved when billing yearly (typically 17% discount).
+
+## Organization Selection
+
+For team plans, users must select an organization:
+
+1. Component automatically detects if user has organizations
+2. Shows organization selector for team plan
+3. Validates organization selection before calling `onSelectPlan`
+4. Passes organizationId to your callback
+
+<Callout type="warning">
+  Users without organizations will be prompted to create one before subscribing to team plans.
+</Callout>
+
+## Backend Integration
+
+### Stripe Checkout Example
+
+Create an API route to handle checkout sessions:
+
+```tsx title="app/api/billing/checkout/route.ts"
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-10-28.acacia"
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const { planId, interval, organizationId } = await request.json();
+    
+    // Get customer ID from your database
+    const customerId = await getCustomerId(organizationId);
+    
+    // Get price ID based on plan and interval
+    const priceId = getPriceId(planId, interval);
+
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode: "subscription",
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?success=true`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
+    });
+
+    return NextResponse.json({ url: session.url });
+  } catch (error) {
+    console.error("Checkout error:", error);
+    return NextResponse.json(
+      { error: "Failed to create checkout session" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Price ID Configuration
+
+Configure your Stripe price IDs:
+
+```typescript
+function getPriceId(planId: string, interval: "monthly" | "yearly") {
+  const priceIds = {
+    pro_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
+    pro_yearly: process.env.STRIPE_PRICE_PRO_YEARLY,
+    team_monthly: process.env.STRIPE_PRICE_TEAM_MONTHLY,
+    team_yearly: process.env.STRIPE_PRICE_TEAM_YEARLY,
+  };
+  
+  return priceIds[`${planId}_${interval}`];
+}
+```
+
+## Notes
+
+<Callout type="info">
+  The component is **backend-agnostic**. It provides the UI and calls your callbacks - you implement the checkout logic with your preferred payment provider and backend.
+</Callout>
+
+- Works with Stripe, Paddle, LemonSqueezy, or any payment provider
+- You control the checkout flow through `onSelectPlan` callback
+- Supports any backend (Convex, Prisma, Supabase, etc.)
+- Team plan subscriptions can be organization-scoped
+- Free plan doesn't require checkout
+
+## Related Components
+
+- [PricingCard](/docs/components/pricing/pricing-card) - Individual pricing plan card
+- [BillingDashboard](/docs/components/billing/billing-dashboard) - Manage existing subscription
+- [SubscriptionCard](/docs/components/billing/subscription-card) - Display current subscription
+
+## Next Steps
+
+- [Set up Stripe integration](/docs/guides/stripe/billing)
+- [Customize component styling](/docs/guides/customization/components)
+- [Learn about team management](/docs/components/team)

@@ -1,0 +1,288 @@
+---
+title: Webhooks
+description: Handle Stripe events with webhooks
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Stripe Webhooks
+
+Webhooks notify your app about payment events in real-time.
+
+<Callout type="warn">
+  Always verify webhook signatures to prevent unauthorized requests.
+</Callout>
+
+## Webhook Endpoint
+
+```typescript title="app/api/webhooks/stripe/route.ts"
+import { headers } from "next/headers";
+import Stripe from "stripe";
+import { fetchAction } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-12-18.acacia",
+});
+
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+export async function POST(req: Request) {
+  const body = await req.text();
+  const signature = headers().get("stripe-signature")!;
+  
+  let event: Stripe.Event;
+  
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      webhookSecret
+    );
+  } catch (err) {
+    console.error("Webhook signature verification failed:", err);
+    return Response.json({ error: "Invalid signature" }, { status: 400 });
+  }
+  
+  // Handle event
+  switch (event.type) {
+    case "checkout.session.completed":
+      await handleCheckoutCompleted(event.data.object);
+      break;
+      
+    case "customer.subscription.updated":
+      await handleSubscriptionUpdated(event.data.object);
+      break;
+      
+    case "customer.subscription.deleted":
+      await handleSubscriptionDeleted(event.data.object);
+      break;
+      
+    case "invoice.payment_succeeded":
+      await handlePaymentSucceeded(event.data.object);
+      break;
+      
+    case "invoice.payment_failed":
+      await handlePaymentFailed(event.data.object);
+      break;
+      
+    default:
+      console.log(`Unhandled event: ${event.type}`);
+  }
+  
+  return Response.json({ received: true });
+}
+```
+
+## Event Handlers
+
+### Checkout Completed
+
+```typescript
+async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const { userId, organizationId } = session.metadata!;
+  
+  await fetchAction(api.stripe.activateSubscription, {
+    userId,
+    organizationId,
+    stripeCustomerId: session.customer as string,
+    stripeSubscriptionId: session.subscription as string,
+  });
+}
+```
+
+### Subscription Updated
+
+```typescript
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  await fetchAction(api.stripe.updateSubscription, {
+    stripeSubscriptionId: subscription.id,
+    status: subscription.status,
+    currentPeriodEnd: subscription.current_period_end,
+    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+  });
+}
+```
+
+### Subscription Deleted
+
+```typescript
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  await fetchAction(api.stripe.cancelSubscription, {
+    stripeSubscriptionId: subscription.id,
+  });
+}
+```
+
+### Payment Succeeded
+
+```typescript
+async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
+  await fetchAction(api.stripe.recordPayment, {
+    stripeInvoiceId: invoice.id,
+    amount: invoice.amount_paid,
+    currency: invoice.currency,
+  });
+}
+```
+
+### Payment Failed
+
+```typescript
+async function handlePaymentFailed(invoice: Stripe.Invoice) {
+  await fetchAction(api.stripe.handleFailedPayment, {
+    stripeCustomerId: invoice.customer as string,
+    stripeInvoiceId: invoice.id,
+  });
+}
+```
+
+## Convex Actions
+
+```typescript title="convex/stripe.ts"
+export const activateSubscription = action({
+  args: {
+    userId: v.string(),
+    organizationId: v.optional(v.id("organizations")),
+    stripeCustomerId: v.string(),
+    stripeSubscriptionId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Update organization with subscription info
+    await ctx.runMutation(internal.organizations.updateSubscription, {
+      organizationId: args.organizationId!,
+      stripeCustomerId: args.stripeCustomerId,
+      stripeSubscriptionId: args.stripeSubscriptionId,
+      status: "active",
+    });
+    
+    // Send confirmation email
+    // Add to analytics
+  },
+});
+
+export const updateSubscription = action({
+  args: {
+    stripeSubscriptionId: v.string(),
+    status: v.string(),
+    currentPeriodEnd: v.number(),
+    cancelAtPeriodEnd: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(internal.organizations.updateSubscriptionStatus, args);
+  },
+});
+```
+
+## Setup Webhook Endpoint
+
+<Steps>
+
+<Step>
+### Local Testing (Stripe CLI)
+
+```bash
+# Install Stripe CLI
+brew install stripe/stripe-cli/stripe
+
+# Login
+stripe login
+
+# Forward webhooks
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+```
+
+Copy the webhook signing secret:
+
+```bash
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+</Step>
+
+<Step>
+### Production Setup
+
+1. Go to [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks)
+2. Click **Add endpoint**
+3. Enter URL: `https://yourdomain.com/api/webhooks/stripe`
+4. Select events:
+   - `checkout.session.completed`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+   - `invoice.payment_succeeded`
+   - `invoice.payment_failed`
+5. Copy signing secret to production environment
+</Step>
+
+</Steps>
+
+## Important Events
+
+### Subscription Lifecycle
+
+```
+checkout.session.completed → Subscription created
+customer.subscription.updated → Plan changed
+customer.subscription.deleted → Subscription canceled
+```
+
+### Payment Events
+
+```
+invoice.created → New invoice
+invoice.payment_succeeded → Payment successful
+invoice.payment_failed → Payment failed
+invoice.payment_action_required → 3D Secure required
+```
+
+### Customer Events
+
+```
+customer.created → New customer
+customer.updated → Customer details changed
+customer.deleted → Customer deleted
+```
+
+## Error Handling
+
+```typescript
+export async function POST(req: Request) {
+  try {
+    // Webhook processing
+  } catch (err) {
+    console.error("Webhook error:", err);
+    
+    // Return 200 to acknowledge receipt
+    // Log error for manual review
+    return Response.json({ 
+      error: "Webhook processing failed",
+      logged: true 
+    }, { status: 200 });
+  }
+}
+```
+
+<Callout type="tip">
+  Return 200 status even on errors to prevent Stripe from retrying. Log errors for manual review.
+</Callout>
+
+## Testing Webhooks
+
+```bash
+# Test specific event
+stripe trigger checkout.session.completed
+
+# Test with CLI
+stripe listen --forward-to localhost:3000/api/webhooks/stripe --events checkout.session.completed,customer.subscription.updated
+```
+
+## Webhook Logs
+
+View webhook delivery attempts in [Stripe Dashboard](https://dashboard.stripe.com/webhooks).
+
+## Next Steps
+
+- [Manage Subscriptions](/docs/guides/stripe/billing)
+- [Customer Portal](/docs/guides/stripe/portal)
+- [Handle Failed Payments](/docs/guides/stripe/failed-payments)

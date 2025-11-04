@@ -1,0 +1,452 @@
+---
+title: Quick Start
+description: Build your first billing page with @bettercone/ui in 5 minutes
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Quick Start
+
+This guide will walk you through creating your first billing page with @bettercone/ui in just 5 minutes.
+
+<Callout type="info">
+  **Prerequisites:** Make sure you've completed the [Installation guide](/docs/getting-started/installation) first.
+</Callout>
+
+## What We'll Build
+
+A complete billing dashboard that displays:
+- Current subscription information
+- Payment method management
+- Invoice history
+
+All with just a few lines of code using @bettercone/ui's pre-built components.
+
+<Steps>
+
+<Step>
+
+## Create a Billing Page
+
+Create a new page in your Next.js app:
+
+```tsx title="app/billing/page.tsx"
+"use client";
+
+import { BillingDashboard } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+export default function BillingPage() {
+  return (
+    <div className="container mx-auto py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Billing</h1>
+        <p className="text-muted-foreground">
+          Manage your subscription and payment methods
+        </p>
+      </div>
+
+      <BillingDashboard authClient={authClient} />
+    </div>
+  );
+}
+```
+
+<Callout type="success">
+  **That's it!** The `BillingDashboard` component includes everything you need for billing management.
+</Callout>
+
+</Step>
+
+<Step>
+
+## Add Callback Handlers
+
+Make the dashboard interactive by adding callback handlers:
+
+```tsx title="app/billing/page.tsx"
+"use client";
+
+import { BillingDashboard } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+export default function BillingPage() {
+  const handleManageSubscription = async (subscription, organization) => {
+    // Create Stripe billing portal session
+    const response = await fetch("/api/billing/portal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ organizationId: organization?.id })
+    });
+    
+    const { url } = await response.json();
+    window.location.href = url;
+  };
+
+  return (
+    <div className="container mx-auto py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Billing</h1>
+        <p className="text-muted-foreground">
+          Manage your subscription and payment methods
+        </p>
+      </div>
+
+      <BillingDashboard
+        authClient={authClient}
+        subscriptionCardProps={{
+          onManageSubscription: handleManageSubscription
+        }}
+        paymentMethodCardProps={{
+          onManagePayment: handleManageSubscription
+        }}
+        invoiceHistoryCardProps={{
+          onViewInvoices: handleManageSubscription
+        }}
+      />
+    </div>
+  );
+}
+```
+
+</Step>
+
+<Step>
+
+## Create Billing Portal API Route
+
+Create an API route to generate Stripe billing portal sessions:
+
+```tsx title="app/api/billing/portal/route.ts"
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-10-28.acacia"
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const { organizationId } = await request.json();
+    
+    // Get the Stripe customer ID from your database
+    // Example with Convex:
+    // const customer = await convex.query(api.billing.getCustomer, { organizationId });
+    
+    // Example with Prisma:
+    // const org = await prisma.organization.findUnique({
+    //   where: { id: organizationId },
+    //   select: { stripeCustomerId: true }
+    // });
+    
+    const customerId = "cus_xxx"; // Replace with your actual customer ID
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
+    });
+
+    return NextResponse.json({ url: session.url });
+  } catch (error) {
+    console.error("Error creating portal session:", error);
+    return NextResponse.json(
+      { error: "Failed to create portal session" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+</Step>
+
+<Step>
+
+## Test Your Billing Page
+
+Start your development server and navigate to your billing page:
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000/billing](http://localhost:3000/billing) in your browser.
+
+You should see your billing dashboard! 🎉
+
+</Step>
+
+</Steps>
+
+## Next Steps
+
+Now that you have a basic billing page, explore more components:
+
+<Tabs items={['Pricing', 'Usage', 'Team']}>
+  <Tab value="Pricing">
+    Add a pricing page to let users upgrade or change plans:
+
+    ```tsx title="app/pricing/page.tsx"
+    "use client";
+
+    import { PricingDashboard } from "@bettercone/ui";
+    import { authClient } from "@/lib/auth-client";
+    import { useRouter } from "next/navigation";
+
+    export default function PricingPage() {
+      const router = useRouter();
+
+      return (
+        <div className="container mx-auto py-8">
+          <h1 className="text-3xl font-bold mb-8 text-center">
+            Choose Your Plan
+          </h1>
+          
+          <PricingDashboard
+            authClient={authClient}
+            currentPlan="pro"
+            onSelectPlan={async (planId) => {
+              // Handle plan selection
+              const response = await fetch("/api/billing/checkout", {
+                method: "POST",
+                body: JSON.stringify({ planId })
+              });
+              const { url } = await response.json();
+              window.location.href = url;
+            }}
+          />
+        </div>
+      );
+    }
+    ```
+
+    [View Pricing Components →](/docs/components/pricing)
+  </Tab>
+  
+  <Tab value="Usage">
+    Track API usage, storage, and feature access:
+
+    ```tsx title="app/usage/page.tsx"
+    "use client";
+
+    import { UsageDashboard } from "@bettercone/ui";
+    import { authClient } from "@/lib/auth-client";
+    import { useRouter } from "next/navigation";
+
+    export default function UsagePage() {
+      const router = useRouter();
+
+      return (
+        <div className="container mx-auto py-8">
+          <h1 className="text-3xl font-bold mb-8">Usage & Limits</h1>
+          
+          <UsageDashboard
+            authClient={authClient}
+            apiUsageCardProps={{
+              onUpgrade: () => router.push("/pricing")
+            }}
+            storageUsageCardProps={{
+              onUpgrade: () => router.push("/pricing")
+            }}
+            featureAccessCardProps={{
+              onUpgrade: () => router.push("/pricing")
+            }}
+          />
+        </div>
+      );
+    }
+    ```
+
+    [View Usage Components →](/docs/components/usage)
+  </Tab>
+  
+  <Tab value="Team">
+    Manage team members and seat allocation:
+
+    ```tsx title="app/team/page.tsx"
+    "use client";
+
+    import { TeamDashboard } from "@bettercone/ui";
+    import { authClient } from "@/lib/auth-client";
+
+    export default function TeamPage() {
+      const { data: activeOrg } = authClient.useActiveOrganization();
+
+      return (
+        <div className="container mx-auto py-8">
+          <h1 className="text-3xl font-bold mb-8">Team Management</h1>
+          
+          <TeamDashboard
+            authClient={authClient}
+            organizationId={activeOrg?.id}
+          />
+        </div>
+      );
+    }
+    ```
+
+    [View Team Components →](/docs/components/team)
+  </Tab>
+</Tabs>
+
+## Common Patterns
+
+### Using Individual Components
+
+Instead of using the dashboard components, you can use individual cards for more control:
+
+```tsx
+import { 
+  SubscriptionCard,
+  PaymentMethodCard,
+  InvoiceHistoryCard 
+} from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+export default function CustomBillingPage() {
+  return (
+    <div className="grid gap-6 md:grid-cols-2">
+      <SubscriptionCard 
+        authClient={authClient}
+        className="md:col-span-2"
+      />
+      <PaymentMethodCard authClient={authClient} />
+      <InvoiceHistoryCard authClient={authClient} />
+    </div>
+  );
+}
+```
+
+### Protected Routes
+
+Protect your pages with Better Auth:
+
+```tsx
+"use client";
+
+import { SignedIn, SignedOut } from "@daveyplate/better-auth-ui";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+
+export default function ProtectedPage() {
+  return (
+    <>
+      <SignedOut>
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold mb-4">Sign in required</h1>
+          <Button asChild>
+            <Link href="/auth/sign-in">Sign In</Link>
+          </Button>
+        </div>
+      </SignedOut>
+
+      <SignedIn>
+        {/* Your protected content */}
+      </SignedIn>
+    </>
+  );
+}
+```
+
+### Custom Styling
+
+Customize components with className and classNames props:
+
+```tsx
+import { BillingDashboard } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+<BillingDashboard 
+  authClient={authClient}
+  className="max-w-6xl mx-auto"
+  classNames={{
+    header: "bg-gradient-to-r from-blue-500 to-purple-600 text-white",
+    card: {
+      base: "border-2 hover:border-primary transition-colors",
+      title: "text-xl font-bold"
+    }
+  }}
+/>
+```
+
+## Troubleshooting
+
+### Component not found
+
+**Problem:** `Cannot find module '@bettercone/ui'`
+
+**Solution:** Install the package:
+```bash
+pnpm add @bettercone/ui better-auth
+```
+
+### TypeScript errors
+
+**Problem:** Type errors when using components
+
+**Solution:** Make sure you have Better Auth types installed:
+```bash
+pnpm add -D @types/better-auth
+```
+
+### Authentication issues
+
+**Problem:** authClient not working
+
+**Solution:** Verify your Better Auth setup in `lib/auth-client.ts`:
+```tsx
+import { createAuthClient } from "better-auth/react";
+
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_APP_URL
+});
+```
+
+## Learn More
+
+<div className="grid gap-4 md:grid-cols-2 mt-8">
+  <div className="border rounded-lg p-6">
+    <h3 className="font-semibold mb-2">📖 Component Documentation</h3>
+    <p className="text-sm text-muted-foreground mb-4">
+      Explore all available components and their APIs
+    </p>
+    <a href="/docs/components" className="text-sm text-primary hover:underline">
+      View Components →
+    </a>
+  </div>
+
+  <div className="border rounded-lg p-6">
+    <h3 className="font-semibold mb-2">🎨 Customization Guide</h3>
+    <p className="text-sm text-muted-foreground mb-4">
+      Learn how to customize components to match your brand
+    </p>
+    <a href="/docs/guides/customization/components" className="text-sm text-primary hover:underline">
+      Customize Components →
+    </a>
+  </div>
+
+  <div className="border rounded-lg p-6">
+    <h3 className="font-semibold mb-2">💳 Stripe Integration</h3>
+    <p className="text-sm text-muted-foreground mb-4">
+      Set up Stripe billing and subscriptions
+    </p>
+    <a href="/docs/guides/stripe/billing" className="text-sm text-primary hover:underline">
+      Configure Stripe →
+    </a>
+  </div>
+
+  <div className="border rounded-lg p-6">
+    <h3 className="font-semibold mb-2">🌍 Internationalization</h3>
+    <p className="text-sm text-muted-foreground mb-4">
+      Add multi-language support to your components
+    </p>
+    <a href="/docs/guides/customization/i18n" className="text-sm text-primary hover:underline">
+      Setup i18n →
+    </a>
+  </div>
+</div>
+
+---
+
+**Congratulations!** You've built your first billing page with @bettercone/ui. 🚀

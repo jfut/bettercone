@@ -1,0 +1,380 @@
+---
+title: Installation
+description: Get started with @bettercone/ui in your project
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# Installation
+
+This guide will help you install and set up @bettercone/ui in your project.
+
+## Prerequisites
+
+Before you begin, make sure you have the following:
+
+- **Node.js 18+** - [Download](https://nodejs.org/)
+- **A package manager** - npm, pnpm, or yarn
+- **React 18+** - Works with Next.js, Vite, Remix, or any React framework
+- **Better Auth configured** - [Better Auth docs](https://better-auth.com)
+
+<Callout type="info">
+  @bettercone/ui works with any React framework (Next.js, Vite, Remix) and any Better Auth backend (Convex, Prisma, Supabase, Drizzle, etc.).
+</Callout>
+
+## Installation
+
+Install @bettercone/ui and its peer dependencies:
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add @bettercone/ui better-auth
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install @bettercone/ui better-auth
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn add @bettercone/ui better-auth
+    ```
+  </Tab>
+</Tabs>
+
+## Tailwind CSS Setup
+
+@bettercone/ui uses Tailwind CSS. Add the package to your Tailwind config:
+
+<Tabs items={['Next.js', 'Vite', 'Remix']}>
+  <Tab value="Next.js">
+    ```js title="tailwind.config.js"
+    /** @type {import('tailwindcss').Config} */
+    module.exports = {
+      content: [
+        './app/**/*.{js,ts,jsx,tsx,mdx}',
+        './components/**/*.{js,ts,jsx,tsx,mdx}',
+        // Add this line
+        './node_modules/@bettercone/ui/**/*.{js,ts,jsx,tsx}',
+      ],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    }
+    ```
+  </Tab>
+  <Tab value="Vite">
+    ```js title="tailwind.config.js"
+    /** @type {import('tailwindcss').Config} */
+    export default {
+      content: [
+        './index.html',
+        './src/**/*.{js,ts,jsx,tsx}',
+        // Add this line
+        './node_modules/@bettercone/ui/**/*.{js,ts,jsx,tsx}',
+      ],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    }
+    ```
+  </Tab>
+  <Tab value="Remix">
+    ```js title="tailwind.config.js"
+    /** @type {import('tailwindcss').Config} */
+    module.exports = {
+      content: [
+        './app/**/*.{js,ts,jsx,tsx}',
+        // Add this line
+        './node_modules/@bettercone/ui/**/*.{js,ts,jsx,tsx}',
+      ],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Better Auth Setup
+
+You need to have Better Auth configured in your project. Here's a minimal example:
+
+<Tabs items={['Convex', 'Prisma', 'Supabase', 'Drizzle']}>
+  <Tab value="Convex">
+    ```typescript title="lib/auth-client.ts"
+    import { createAuthClient } from "better-auth/react";
+    import { organizationClient, stripeClient } from "better-auth/client/plugins";
+
+    export const authClient = createAuthClient({
+      baseURL: process.env.NEXT_PUBLIC_CONVEX_URL!,
+      plugins: [
+        organizationClient(),
+        stripeClient()
+      ]
+    });
+    ```
+  </Tab>
+  
+  <Tab value="Prisma">
+    ```typescript title="lib/auth-client.ts"
+    import { createAuthClient } from "better-auth/react";
+    import { organizationClient, stripeClient } from "better-auth/client/plugins";
+
+    export const authClient = createAuthClient({
+      baseURL: process.env.NEXT_PUBLIC_API_URL!,
+      plugins: [
+        organizationClient(),
+        stripeClient()
+      ]
+    });
+    ```
+  </Tab>
+  
+  <Tab value="Supabase">
+    ```typescript title="lib/auth-client.ts"
+    import { createAuthClient } from "better-auth/react";
+    import { organizationClient, stripeClient } from "better-auth/client/plugins";
+
+    export const authClient = createAuthClient({
+      baseURL: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      plugins: [
+        organizationClient(),
+        stripeClient()
+      ]
+    });
+    ```
+  </Tab>
+  
+  <Tab value="Drizzle">
+    ```typescript title="lib/auth-client.ts"
+    import { createAuthClient } from "better-auth/react";
+    import { organizationClient, stripeClient } from "better-auth/client/plugins";
+
+    export const authClient = createAuthClient({
+      baseURL: process.env.NEXT_PUBLIC_API_URL!,
+      plugins: [
+        organizationClient(),
+        stripeClient()
+      ]
+    });
+    ```
+  </Tab>
+</Tabs>
+
+<Callout type="info">
+  The Stripe plugin is required for billing components. Organization plugin is required for team components.
+</Callout>
+
+## Usage
+
+Import and use components:
+
+```tsx title="app/billing/page.tsx"
+"use client";
+
+import { BillingDashboard } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+export default function BillingPage() {
+  const handleManageSubscription = async (subscription, organization) => {
+    // Create Stripe portal session
+    const response = await fetch("/api/billing/portal", {
+      method: "POST",
+      body: JSON.stringify({ organizationId: organization?.id })
+    });
+    const { url } = await response.json();
+    window.location.href = url;
+  };
+
+  return (
+    <div className="container mx-auto py-8">
+      <BillingDashboard
+        authClient={authClient}
+        subscriptionCardProps={{
+          onManageSubscription: handleManageSubscription
+        }}
+      />
+    </div>
+  );
+}
+```
+
+## Next Steps
+
+- [Quick Start Guide](/docs/getting-started/quick-start) - Build your first feature
+- [Components](/docs/components) - Explore all available components
+- [Customization](/docs/guides/customization) - Learn how to customize components
+# Convex
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+CONVEX_DEPLOY_KEY=your-deploy-key
+
+# Better Auth
+BETTER_AUTH_SECRET=your-secret-key-here
+BETTER_AUTH_URL=http://localhost:3000
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Resend (Optional - for emails)
+RESEND_API_KEY=re_...
+
+# GitHub OAuth (Optional)
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+
+# Google OAuth (Optional)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+### Generate Better Auth Secret
+
+```bash
+openssl rand -base64 32
+```
+
+### Get Stripe API Keys
+
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com/test/apikeys)
+2. Copy your **Publishable key** and **Secret key**
+3. For webhooks:
+   - Install Stripe CLI: [https://stripe.com/docs/stripe-cli](https://stripe.com/docs/stripe-cli)
+   - Run: `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
+   - Copy the webhook signing secret
+
+<Callout type="warning">
+  **Important:** Never commit `.env.local` to version control. It's already in `.gitignore`.
+</Callout>
+
+## Step 5: Configure Stripe Products
+
+Update the Stripe price IDs in `packages/convex/convex/subscriptionPlans.ts`:
+
+```typescript title="packages/convex/convex/subscriptionPlans.ts"
+export const subscriptionPlans = [
+  {
+    id: "free",
+    name: "Free",
+    price: 0,
+    interval: "month" as const,
+    stripePriceId: null, // Free tier has no Stripe price
+    limits: {
+      apiCalls: 10000,
+      // ... other limits
+    },
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    price: 29,
+    interval: "month" as const,
+    stripePriceId: "price_YOUR_PRO_PRICE_ID", // Replace with your Stripe price ID
+    limits: {
+      apiCalls: 100000,
+      // ... other limits
+    },
+  },
+  // ... more plans
+];
+```
+
+### Create Stripe Products
+
+1. Go to [Stripe Products](https://dashboard.stripe.com/test/products)
+2. Create products for each plan (Pro, Team, etc.)
+3. Create prices for each product
+4. Copy the price IDs and update `subscriptionPlans.ts`
+
+## Step 6: Start Development Server
+
+Return to the root directory and start the development server:
+
+```bash
+cd ../..
+pnpm dev
+```
+
+This will start:
+- **Next.js app** on [http://localhost:3000](http://localhost:3000)
+- **Turbopack** for fast refresh
+
+## Step 7: Verify Installation
+
+1. Open [http://localhost:3000](http://localhost:3000) in your browser
+2. You should see the BetterCone homepage
+3. Try signing up with email/password
+4. Check that the demo pages work:
+   - `/demo/account` - User profile
+   - `/demo/billing` - Billing dashboard
+   - `/demo/organization` - Team management
+
+<Callout type="info">
+  **Success!** If you can sign up and access the demo pages, your installation is complete.
+</Callout>
+
+## Troubleshooting
+
+### Convex connection errors
+
+**Problem:** `ConvexError: Could not reach Convex backend`
+
+**Solution:**
+1. Make sure Convex dev server is running: `cd packages/convex && pnpm convex dev`
+2. Verify `NEXT_PUBLIC_CONVEX_URL` in `.env.local` is correct
+3. Check that you're not behind a firewall blocking Convex
+
+### Stripe webhook errors
+
+**Problem:** Stripe webhooks not working in development
+
+**Solution:**
+1. Install Stripe CLI: `brew install stripe/stripe-cli/stripe`
+2. Login: `stripe login`
+3. Forward webhooks: `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
+4. Copy the webhook signing secret to `STRIPE_WEBHOOK_SECRET`
+
+### Better Auth errors
+
+**Problem:** `Invalid session` or auth not working
+
+**Solution:**
+1. Verify `BETTER_AUTH_SECRET` is set (32 character string)
+2. Make sure `BETTER_AUTH_URL` matches your dev server URL
+3. Clear browser cookies and try again
+
+### Build errors
+
+**Problem:** TypeScript errors or build failures
+
+**Solution:**
+```bash
+# Clean everything and reinstall
+rm -rf node_modules pnpm-lock.yaml
+rm -rf apps/web/.next
+rm -rf apps/web/node_modules
+pnpm install
+```
+
+## Next Steps
+
+Now that BetterCone is installed, you can:
+
+- [Follow the Quick Start guide](/docs/getting-started/quick-start) to build your first feature
+- [Learn about authentication](/docs/guides/authentication)
+- [Set up Stripe integration](/docs/guides/stripe-integration)
+- [Explore the components](/docs/components)
+
+## Need Help?
+
+- 📧 Email: support@bettercone.com
+- 💬 GitHub Issues: [github.com/vncsleal/bettercone/issues](https://github.com/vncsleal/bettercone/issues)
+- 📚 Documentation: [docs.bettercone.com](https://docs.bettercone.com)

@@ -1,0 +1,224 @@
+---
+title: Account Components
+description: User account management and settings
+---
+
+# Account Components
+
+5 production-ready components for managing user account settings.
+
+## Components
+
+### AccountSettingsCards
+Complete account settings dashboard with all account management features.
+
+```tsx
+import { AccountSettingsCards } from '@bettercone/ui';
+<AccountSettingsCards authClient={authClient} />
+```
+
+**Features:** Profile information, avatar, email, security, and account deletion
+
+---
+
+### SecuritySettingsCards
+Complete security dashboard (also available in Security category).
+
+```tsx
+import { SecuritySettingsCards } from '@bettercone/ui';
+<SecuritySettingsCards authClient={authClient} />
+```
+
+**Features:** 2FA, passkeys, sessions, password change, phone number, providers
+
+**Note:** This component is shared with the Security category.
+
+---
+
+### UpdateAvatarCard
+Upload and manage user avatar.
+
+```tsx
+import { UpdateAvatarCard } from '@bettercone/ui';
+<UpdateAvatarCard authClient={authClient} />
+```
+
+**Features:** Image upload, crop/resize, remove avatar
+
+---
+
+### ChangeEmailCard
+Change user email address with verification.
+
+```tsx
+import { ChangeEmailCard } from '@bettercone/ui';
+<ChangeEmailCard authClient={authClient} />
+```
+
+**Features:** Email input, verification code, change confirmation
+
+---
+
+### DeleteAccountCard
+Delete user account with confirmation.
+
+```tsx
+import { DeleteAccountCard } from '@bettercone/ui';
+<DeleteAccountCard authClient={authClient} />
+```
+
+**Safety:** Requires typing "DELETE" or account email to confirm
+
+#### Included Sub-component
+
+- **DeleteAccountDialog** - Modal version of account deletion
+
+---
+
+## Quick Start
+
+### Complete Account Page
+
+```tsx
+import { AccountSettingsCards } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function AccountPage() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1>Account Settings</h1>
+        <p className="text-muted-foreground">
+          Manage your account information and preferences
+        </p>
+      </div>
+      
+      <AccountSettingsCards authClient={authClient} />
+    </div>
+  );
+}
+```
+
+### Individual Components
+
+If you need more control, use individual components:
+
+```tsx
+import {
+  UpdateAvatarCard,
+  ChangeEmailCard,
+  DeleteAccountCard
+} from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function AccountPage() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1>Account Settings</h1>
+      </div>
+      
+      <UpdateAvatarCard authClient={authClient} />
+      <ChangeEmailCard authClient={authClient} />
+      
+      <div className="border-t pt-8">
+        <h2>Danger Zone</h2>
+        <DeleteAccountCard authClient={authClient} />
+      </div>
+    </div>
+  );
+}
+```
+
+## Advanced Usage
+
+### With Callbacks
+
+```tsx
+<ChangeEmailCard 
+  authClient={authClient}
+  onSuccess={(newEmail) => {
+    toast.success(`Email changed to ${newEmail}`);
+  }}
+/>
+
+<DeleteAccountCard 
+  authClient={authClient}
+  onAccountDeleted={() => {
+    // Redirect or cleanup
+    router.push('/');
+  }}
+/>
+```
+
+### Tabbed Settings Layout
+
+```tsx
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+
+<Tabs defaultValue="profile">
+  <TabsList>
+    <TabsTrigger value="profile">Profile</TabsTrigger>
+    <TabsTrigger value="security">Security</TabsTrigger>
+    <TabsTrigger value="account">Account</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="profile">
+    <UpdateAvatarCard authClient={authClient} />
+  </TabsContent>
+  
+  <TabsContent value="security">
+    <SecuritySettingsCards authClient={authClient} />
+  </TabsContent>
+  
+  <TabsContent value="account">
+    <ChangeEmailCard authClient={authClient} />
+    <DeleteAccountCard authClient={authClient} />
+  </TabsContent>
+</Tabs>
+```
+
+## Features
+
+### AccountSettingsCards
+- ✅ Complete account overview
+- ✅ All account features in one dashboard
+- ✅ Consistent layout and styling
+- ✅ Automatic feature detection
+
+### UpdateAvatarCard
+- ✅ Image upload (drag & drop or browse)
+- ✅ Crop and resize
+- ✅ Preview before upload
+- ✅ Remove current avatar
+- ✅ File size validation
+
+### ChangeEmailCard
+- ✅ Email input with validation
+- ✅ Verification code sent to new email
+- ✅ Current email display
+- ✅ Change confirmation
+- ✅ Error handling
+
+### DeleteAccountCard
+- ✅ Requires confirmation typing
+- ✅ Warning about data loss
+- ✅ Permanent action indicator
+- ✅ Cancel button
+- ✅ Callback after deletion
+
+## Props Reference
+
+| Component | Key Props | Description |
+|-----------|-----------|-------------|
+| `AccountSettingsCards` | `authClient` | Complete account dashboard |
+| `SecuritySettingsCards` | `authClient` | Complete security dashboard |
+| `UpdateAvatarCard` | `authClient`, `onSuccess` | Avatar management |
+| `ChangeEmailCard` | `authClient`, `onSuccess` | Email change |
+| `DeleteAccountCard` | `authClient`, `onAccountDeleted` | Account deletion |
+
+## Related
+
+- [Security Components](/docs/components/security) - 2FA, sessions, passkeys
+- [Authentication Components](/docs/components/authentication) - Sign in, sign up
+- [Organization Components](/docs/components/organization) - Multi-tenancy

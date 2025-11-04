@@ -1,0 +1,250 @@
+---
+title: Organizations
+description: Multi-tenant organizations in BetterCone with role-based access control
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+BetterCone includes multi-tenant organization support with Better Auth's organization plugin, enabling team-based B2B SaaS features.
+
+## What's Included
+
+- **Organizations** - Create and manage teams
+- **Members** - Invite users with role-based access
+- **Invitations** - Email-based team invitations
+- **Roles** - owner, admin, member permissions
+- **Subscriptions** - Organization-level Stripe billing
+
+## Quick Start
+
+### Client Setup
+
+```typescript
+// apps/web/src/lib/auth-client.ts
+import { createAuthClient } from "better-auth/react";
+import { organizationClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({
+  plugins: [
+    organizationClient(),
+    // ... other plugins
+  ],
+});
+```
+
+### Server Setup
+
+```typescript
+// packages/convex/convex/auth.ts
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
+
+export const createAuth = (ctx) => {
+  return betterAuth({
+    plugins: [
+      organization({
+        sendInvitationEmail: async (data) => {
+          // Send email with invitation link
+          console.log(`Invite ${data.email} to ${data.organization.name}`);
+          console.log(`Link: /auth/accept-invitation?invitationId=${data.invitation.id}`);
+        },
+      }),
+    ],
+  });
+};
+```
+
+## Creating Organizations
+
+```typescript
+import { authClient } from "@/lib/auth-client";
+
+// Create organization
+const { data: org } = await authClient.organization.create({
+  name: "Acme Corp",
+  slug: "acme-corp",
+});
+
+// Returns:
+// {
+//   id: "org_123",
+//   name: "Acme Corp",
+//   slug: "acme-corp",
+//   createdAt: Date,
+//   metadata: {}
+// }
+```
+
+## Managing Members
+
+```typescript
+// Invite member
+await authClient.organization.inviteMember({
+  organizationId: org.id,
+  email: "member@example.com",
+  role: "member", // "owner" | "admin" | "member"
+});
+
+// List members
+const { data: members } = await authClient.organization.listMembers({
+  organizationId: org.id,
+});
+
+// Update member role
+await authClient.organization.updateMemberRole({
+  organizationId: org.id,
+  userId: member.id,
+  role: "admin",
+});
+
+// Remove member
+await authClient.organization.removeMember({
+  organizationId: org.id,
+  userId: member.id,
+});
+```
+
+## Roles & Permissions
+
+BetterCone uses three roles:
+
+| Role | Permissions |
+|------|-------------|
+| **owner** | Full access, delete org, manage billing |
+| **admin** | Manage members, invite users, settings |
+| **member** | Read-only, basic features |
+
+Check permissions in components:
+
+```typescript
+import { useActiveOrganization } from "@/lib/auth-client";
+
+const { data: org } = useActiveOrganization();
+
+if (org?.role === "owner" || org?.role === "admin") {
+  // Show admin features
+}
+```
+
+## Server-Side Usage
+
+```typescript
+// In API routes or server components
+import { auth } from "@repo/convex/convex/auth";
+
+export async function GET(req: Request) {
+  const session = await auth.api.getSession({ headers: req.headers });
+  
+  if (!session?.session.activeOrganizationId) {
+    return Response.json({ error: "No active organization" }, { status: 401 });
+  }
+  
+  const orgId = session.session.activeOrganizationId;
+  // Use orgId for queries
+}
+```
+
+## Switching Organizations
+
+```typescript
+// Set active organization
+await authClient.organization.setActive({
+  organizationId: org.id,
+});
+
+// Get active organization
+const { data: activeOrg } = useActiveOrganization();
+```
+
+## Organization Subscriptions
+
+Organizations have Stripe subscriptions:
+
+```typescript
+import { useQuery } from "convex/react";
+import { api } from "@repo/convex";
+
+const features = useQuery(api.usage.getFeatureAccess, {
+  organizationId: org.id,
+});
+
+// Returns:
+// {
+//   advancedAnalytics: false,
+//   apiAccess: true,
+//   customIntegrations: false,
+//   planId: "free"
+// }
+```
+
+See [Stripe Guide](/docs/guides/stripe) for billing setup.
+
+## Usage Tracking
+
+Track usage per organization:
+
+```typescript
+const usage = useQuery(api.usage.getCurrentUsage, {
+  userId: user.id,
+  organizationId: org.id,
+});
+
+// Returns:
+// {
+//   apiCalls: 1543,
+//   apiLimit: 10000,  // Based on subscription plan
+//   period: "2024-10"
+// }
+```
+
+## Invitation Flow
+
+1. **Admin invites member**:
+```typescript
+await authClient.organization.inviteMember({
+  organizationId: org.id,
+  email: "newuser@example.com",
+  role: "member",
+});
+```
+
+2. **BetterCone sends invitation email** (configure in `auth.ts`):
+```typescript
+sendInvitationEmail: async (data) => {
+  await sendEmail({
+    to: data.email,
+    subject: `Join ${data.organization.name}`,
+    html: `Click to accept: ${siteUrl}/auth/accept-invitation?invitationId=${data.invitation.id}`,
+  });
+}
+```
+
+3. **User accepts invitation**:
+```typescript
+// Navigate to /auth/accept-invitation?invitationId=inv_123
+await authClient.organization.acceptInvitation({
+  invitationId: "inv_123",
+});
+```
+
+## Best Practices
+
+1. **Always check organization context** - Most queries should include `organizationId`
+2. **Enforce permissions** - Check roles before sensitive operations
+3. **Use organization-scoped data** - Index tables by `organizationId`
+4. **Set active organization** - Users with multiple orgs need active selection
+5. **Handle invitation emails** - Configure email service in production
+
+## Environment Variables
+
+```bash
+# In production, configure email service
+RESEND_API_KEY=re_...
+SITE_URL=https://yourdomain.com
+```
+
+## Learn More
+
+- [Better Auth Organization Plugin](https://www.better-auth.com/docs/plugins/organization)
+- [Stripe Integration](/docs/guides/stripe)
+- [Convex Usage Tracking](/docs/guides/convex)

@@ -1,0 +1,354 @@
+---
+title: Billing & Subscriptions
+description: Integrate @bettercone/ui with Stripe billing
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Billing & Subscriptions
+
+Learn how to integrate @bettercone/ui components with Stripe for subscription management.
+
+## Setup Billing Portal API
+
+Create an API route to generate Stripe portal sessions:
+
+```typescript title="app/api/billing/portal/route.ts"
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+import { auth } from "@/lib/auth";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-12-18.acacia",
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { organizationId } = await request.json();
+    
+    // Get customer ID from your database
+    // This example uses Convex
+    const customerId = await getCustomerId(organizationId);
+
+    const portalSession = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
+    });
+    
+    return NextResponse.json({ url: portalSession.url });
+  } catch (error) {
+    console.error("Error creating portal session:", error);
+    return NextResponse.json(
+      { error: "Failed to create portal session" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Using with BillingDashboard
+
+```tsx title="app/billing/page.tsx"
+"use client";
+
+import { BillingDashboard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function BillingPage() {
+  const handleManageSubscription = async (subscription, organization) => {
+    const response = await fetch("/api/billing/portal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ organizationId: organization?.id })
+    });
+    
+    const { url } = await response.json();
+    window.location.href = url;
+  };
+
+  return (
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">Billing</h1>
+      
+      <BillingDashboard
+        authClient={authClient}
+        subscriptionCardProps={{
+          onManageSubscription: handleManageSubscription
+        }}
+        paymentMethodCardProps={{
+          onManagePayment: handleManageSubscription
+        }}
+        invoiceHistoryCardProps={{
+          onViewInvoices: handleManageSubscription
+        }}
+      />
+    </div>
+  );
+}
+```
+
+## Fetching Subscription Data
+
+### With Convex
+
+```typescript title="convex/billing.ts"
+import { query } from "./_generated/server";
+
+export const getSubscription = query({
+  args: { organizationId: v.optional(v.id("organizations")) },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    
+    const org = args.organizationId
+      ? await ctx.db.get(args.organizationId)
+      : await ctx.db
+          .query("organizations")
+          .withIndex("by_owner", (q) => q.eq("ownerId", identity.subject))
+          .first();
+    
+    if (!org) return null;
+    
+    return {
+      status: org.subscriptionStatus,
+      currentPeriodEnd: org.currentPeriodEnd,
+      cancelAtPeriodEnd: org.cancelAtPeriodEnd,
+      planId: org.planId,
+    };
+  },
+});
+```
+
+### Display Subscription
+
+```tsx
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+
+export function SubscriptionCard() {
+  const subscription = useQuery(api.organizations.getSubscription);
+  
+  if (!subscription) return <div>No active subscription</div>;
+  
+  return (
+    <div>
+      <h3>Current Plan: {subscription.plan}</h3>
+      <p>Status: {subscription.status}</p>
+      {subscription.currentPeriodEnd && (
+        <p>
+          Renews on: {new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString()}
+        </p>
+      )}
+      {subscription.cancelAtPeriodEnd && (
+        <p className="text-red-600">
+          Subscription will cancel at end of period
+        </p>
+      )}
+      <ManageSubscriptionButton />
+    </div>
+  );
+}
+```
+
+## Usage-Based Billing
+
+Report usage for metered billing:
+
+```typescript
+export const reportUsage = action({
+  args: {
+    organizationId: v.id("organizations"),
+    quantity: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const org = await ctx.runQuery(internal.organizations.get, {
+      id: args.organizationId,
+    });
+    
+    if (!org?.stripeSubscriptionId) {
+      throw new Error("No subscription");
+    }
+    
+    // Get subscription item
+    const subscription = await stripe.subscriptions.retrieve(
+      org.stripeSubscriptionId
+    );
+    
+    const subscriptionItemId = subscription.items.data[0].id;
+    
+    // Create usage record
+    await stripe.subscriptionItems.createUsageRecord(
+      subscriptionItemId,
+      {
+        quantity: args.quantity,
+        timestamp: Math.floor(Date.now() / 1000),
+        action: 'increment',
+      }
+    );
+  },
+});
+```
+
+## Invoices
+
+### List Invoices
+
+```typescript
+export const listInvoices = action({
+  handler: async (ctx) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) throw new Error("Unauthorized");
+    
+    const org = await ctx.runQuery(internal.organizations.getCurrent);
+    if (!org?.stripeCustomerId) return [];
+    
+    const invoices = await stripe.invoices.list({
+      customer: org.stripeCustomerId,
+      limit: 12,
+    });
+    
+    return invoices.data.map(invoice => ({
+      id: invoice.id,
+      amount: invoice.amount_paid,
+      currency: invoice.currency,
+      status: invoice.status,
+      created: invoice.created,
+      invoicePdf: invoice.invoice_pdf,
+    }));
+  },
+});
+```
+
+### Display Invoices
+
+```tsx
+export function InvoicesList() {
+  const invoices = useQuery(api.stripe.listInvoices);
+  
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        {invoices?.map(invoice => (
+          <tr key={invoice.id}>
+            <td>{new Date(invoice.created * 1000).toLocaleDateString()}</td>
+            <td>${(invoice.amount / 100).toFixed(2)}</td>
+            <td>{invoice.status}</td>
+            <td>
+              <a href={invoice.invoicePdf} target="_blank">PDF</a>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+```
+
+## Upgrade/Downgrade
+
+```typescript
+export const changePlan = action({
+  args: {
+    newPriceId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) throw new Error("Unauthorized");
+    
+    const org = await ctx.runQuery(internal.organizations.getCurrent);
+    if (!org?.stripeSubscriptionId) {
+      throw new Error("No subscription");
+    }
+    
+    const subscription = await stripe.subscriptions.retrieve(
+      org.stripeSubscriptionId
+    );
+    
+    await stripe.subscriptions.update(org.stripeSubscriptionId, {
+      items: [{
+        id: subscription.items.data[0].id,
+        price: args.newPriceId,
+      }],
+      proration_behavior: 'create_prorations',
+    });
+  },
+});
+```
+
+## Cancel Subscription
+
+```typescript
+export const cancelSubscription = action({
+  args: {
+    immediately: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) throw new Error("Unauthorized");
+    
+    const org = await ctx.runQuery(internal.organizations.getCurrent);
+    if (!org?.stripeSubscriptionId) {
+      throw new Error("No subscription");
+    }
+    
+    if (args.immediately) {
+      // Cancel immediately
+      await stripe.subscriptions.cancel(org.stripeSubscriptionId);
+    } else {
+      // Cancel at period end
+      await stripe.subscriptions.update(org.stripeSubscriptionId, {
+        cancel_at_period_end: true,
+      });
+    }
+  },
+});
+```
+
+## Reactivate Subscription
+
+```typescript
+export const reactivateSubscription = action({
+  handler: async (ctx) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) throw new Error("Unauthorized");
+    
+    const org = await ctx.runQuery(internal.organizations.getCurrent);
+    if (!org?.stripeSubscriptionId) {
+      throw new Error("No subscription");
+    }
+    
+    await stripe.subscriptions.update(org.stripeSubscriptionId, {
+      cancel_at_period_end: false,
+    });
+  },
+});
+```
+
+## Tax Handling
+
+Stripe Tax is automatically applied when enabled:
+
+```typescript
+automatic_tax: {
+  enabled: true,
+},
+```
+
+## Next Steps
+
+- [Track Usage](/docs/guides/api-tracking)
+- [Handle Failed Payments](/docs/guides/failed-payments)
+- [Analytics & Reporting](/docs/guides/analytics)

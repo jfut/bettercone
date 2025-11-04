@@ -1,0 +1,9 @@
+{
+  "title": "Usage",
+  "pages": [
+    "usage-dashboard",
+    "api-usage-card",
+    "storage-usage-card",
+    "feature-access-card"
+  ]
+}

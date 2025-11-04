@@ -1,0 +1,109 @@
+---
+title: Custom Domains
+description: Set up custom domain and SSL
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Custom Domains
+
+<Steps>
+
+<Step>
+### Add Domain in Vercel
+
+1. Go to **Settings** → **Domains**
+2. Enter your domain: `yourdomain.com`
+3. Click **Add**
+</Step>
+
+<Step>
+### Configure DNS
+
+Add these records to your DNS provider:
+
+**A Records** (for root domain):
+```
+Type: A
+Name: @
+Value: 76.76.21.21
+```
+
+**CNAME** (for www):
+```
+Type: CNAME
+Name: www
+Value: cname.vercel-dns.com
+```
+</Step>
+
+<Step>
+### Verify Domain
+
+Wait 24-48 hours for DNS propagation. Vercel automatically provisions SSL certificate.
+</Step>
+
+</Steps>
+
+## Redirect www to Root
+
+In Vercel **Settings** → **Domains**, set redirect:
+```
+www.yourdomain.com → yourdomain.com
+```
+
+## Subdomains
+
+For `app.yourdomain.com`:
+
+```
+Type: CNAME
+Name: app
+Value: cname.vercel-dns.com
+```
+
+## SSL Certificate
+
+Vercel automatically provides free SSL from Let's Encrypt. No configuration needed.
+
+## Environment Variables
+
+Update site URLs:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+BETTER_AUTH_URL=https://yourdomain.com
+```
+
+## DNS Providers
+
+<Callout type="tip">
+  Popular DNS providers: Cloudflare, Namecheap, GoDaddy, Route 53
+</Callout>
+
+### Cloudflare
+
+If using Cloudflare:
+1. Set SSL/TLS mode to **Full**
+2. Disable proxy (orange cloud) for verification
+3. Re-enable after verification
+
+## Troubleshooting
+
+### Domain Not Verifying
+
+- Check DNS records with `dig yourdomain.com`
+- Wait up to 48 hours
+- Ensure no conflicting records
+
+### SSL Certificate Not Provisioning
+
+- Verify DNS is correct
+- Remove any existing CAA records
+- Contact Vercel support
+
+## Resources
+
+- [Vercel Domains](https://vercel.com/docs/concepts/projects/domains)
+- [DNS Checker](https://dnschecker.org/)

@@ -1,0 +1,221 @@
+---
+title: Authentication Components
+description: Complete authentication UI components for Better Auth
+---
+
+# Authentication Components
+
+Production-ready components for building complete authentication flows with multiple auth methods.
+
+## Components
+
+### AuthView
+Complete authentication experience with auto-routing between sign-in, sign-up, and password reset.
+
+```tsx
+import { AuthView } from '@bettercone/ui';
+<AuthView authClient={authClient} />
+```
+
+**Features:** All auth flows, OAuth support, passkeys, 2FA, magic links, phone authentication
+
+#### Included Sub-components
+
+`AuthView` is a comprehensive component that internally uses:
+
+- **SignInForm** - Email/password sign-in form
+- **SignUpForm** - Email/password registration form
+- **ForgotPasswordForm** - Password reset request form
+- **PhoneSignInForm** - Phone number + password sign-in
+- **PhoneSignUpForm** - Phone number + OTP sign-up
+- **ProviderButton** - OAuth provider buttons (Google, GitHub, Discord, etc.)
+- **PasskeyButton** - WebAuthn/passkey authentication
+- **MagicLinkButton** - Passwordless magic link
+- **EmailOTPButton** - Email OTP verification
+- **OneTap** - Google One Tap sign-in
+
+These sub-components are included and work automatically within `AuthView`. You can also import them individually if you need custom layouts.
+
+---
+
+### UserButton
+User menu dropdown with profile information and sign-out.
+
+```tsx
+import { UserButton } from '@bettercone/ui';
+<UserButton authClient={authClient} />
+```
+
+**Features:** Avatar display, user info, account settings link, sign out
+
+---
+
+### SignedIn / SignedOut
+Conditional rendering components based on authentication state.
+
+```tsx
+import { SignedIn, SignedOut } from '@bettercone/ui';
+
+<SignedIn authClient={authClient}>
+  <DashboardContent />
+</SignedIn>
+
+<SignedOut authClient={authClient}>
+  <LandingPage />
+</SignedOut>
+```
+
+**Use Cases:** Show/hide content, navigation items, protected pages
+
+
+## Quick Start
+
+### Complete Auth Page
+
+```tsx
+// Minimal setup - complete auth in 3 lines
+import { AuthView } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function SignInPage() {
+  return <AuthView authClient={authClient} />;
+}
+```
+
+### Protected Layout
+
+```tsx
+import { SignedIn, SignedOut } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function Layout({ children }) {
+  return (
+    <>
+      <SignedIn authClient={authClient}>
+        <DashboardLayout>{children}</DashboardLayout>
+      </SignedIn>
+      <SignedOut authClient={authClient}>
+        <AuthView authClient={authClient} />
+      </SignedOut>
+    </>
+  );
+}
+```
+
+## Advanced Usage
+
+### Custom Auth Forms
+
+If you need custom layouts beyond `AuthView`, you can import individual sub-components:
+
+```tsx
+import { SignInForm, ProviderButton } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function CustomSignIn() {
+  return (
+    <div className="grid md:grid-cols-2 gap-8">
+      <div>
+        <h1>Welcome Back</h1>
+        <SignInForm authClient={authClient} />
+      </div>
+      <div>
+        <h2>Or continue with</h2>
+        <ProviderButton authClient={authClient} provider="google" />
+        <ProviderButton authClient={authClient} provider="github" />
+      </div>
+    </div>
+  );
+}
+```
+
+## Props Reference
+
+### AuthView
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `onSuccess` | `() => void` | Callback after successful auth |
+| `className` | `string` | CSS classes |
+
+### UserButton
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `className` | `string` | CSS classes |
+
+### SignedIn / SignedOut
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `children` | `ReactNode` | Content to render conditionally |
+
+## Related
+
+- [Security Components](/docs/components/security) - 2FA, sessions, passkeys
+- [Account Components](/docs/components/account) - Profile management
+- [Organization Components](/docs/components/organization) - Multi-tenancy
+```
+
+## Common Patterns
+
+### Sign In with OAuth
+
+```tsx
+<AuthView 
+  authClient={authClient}
+  socialProviders={["google", "github", "discord"]}
+/>
+```
+
+### Custom Success Handler
+
+```tsx
+"use client";
+import { useRouter } from 'next/navigation';
+
+export default function SignInPage() {
+  const router = useRouter();
+  
+  return (
+    <AuthView 
+      authClient={authClient}
+      onSuccess={() => {
+        router.push('/dashboard');
+        router.refresh();
+      }}
+    />
+  );
+}
+```
+
+### Passkey + Email/Password
+
+```tsx
+<div className="space-y-4">
+  <PasskeyButton authClient={authClient} />
+  <div className="text-center text-sm text-muted-foreground">or</div>
+  <SignInForm authClient={authClient} />
+</div>
+```
+
+## Props Reference
+
+### Common Props (All Components)
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `authClient` | `AnyAuthClient` | Better Auth client (required) |
+| `onSuccess` | `() => void` | Success callback |
+| `onError` | `(error) => void` | Error callback |
+| `className` | `string` | CSS classes |
+| `labels` | `object` | i18n labels |
+
+## Related
+
+- [Security Components](/docs/components/security) - 2FA, sessions, passkeys
+- [Account Components](/docs/components/account) - User profile, settings
+- [Utility Components](/docs/components/utility) - SignedIn, SignedOut, redirects

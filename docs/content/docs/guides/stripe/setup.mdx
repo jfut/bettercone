@@ -1,0 +1,218 @@
+---
+title: Stripe Setup
+description: Initial Stripe configuration and API key setup
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Stripe Setup
+
+Get started with Stripe integration by setting up your API keys and verifying the configuration.
+
+## Quick Start
+
+<Steps>
+
+<Step>
+### Get Your Stripe Keys
+
+1. Create a [Stripe account](https://dashboard.stripe.com/register)
+2. Go to [API Keys](https://dashboard.stripe.com/apikeys)
+3. Copy your **Publishable key** and **Secret key**
+</Step>
+
+<Step>
+### Add Environment Variables
+
+```bash title=".env.local"
+# Stripe Keys
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+# Webhook Secret (after webhook setup)
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+</Step>
+
+<Step>
+### Verify Configuration
+
+The Stripe plugin is already configured in `packages/auth/src/index.ts`:
+
+```typescript
+import { stripe } from "@better-auth/stripe";
+
+export const auth = betterAuth({
+  plugins: [
+    stripe({
+      stripeSecretKey: process.env.STRIPE_SECRET_KEY!,
+    }),
+  ],
+});
+```
+</Step>
+
+</Steps>
+
+## Test Mode vs Live Mode
+
+Stripe has two modes:
+
+### Test Mode
+
+- API keys start with `sk_test_` and `pk_test_`
+- Use test card numbers (e.g., `4242 4242 4242 4242`)
+- No real charges occur
+- Perfect for development
+
+### Live Mode
+
+- API keys start with `sk_live_` and `pk_live_`
+- Real charges to real cards
+- Use only in production
+- Requires business verification
+
+<Callout type="warning">
+  Never commit API keys to version control. Always use environment variables.
+</Callout>
+
+## Test Cards
+
+Use these test cards in test mode:
+
+| Card Number | Description |
+|------------|-------------|
+| `4242 4242 4242 4242` | Successful payment |
+| `4000 0000 0000 0341` | Requires authentication (3D Secure) |
+| `4000 0000 0000 9995` | Declined (insufficient funds) |
+| `4000 0000 0000 0069` | Expired card |
+
+Use any future expiry date and any 3-digit CVC.
+
+## Switching to Live Mode
+
+<Steps>
+
+<Step>
+### Complete Business Activation
+
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
+2. Complete your business profile
+3. Provide required documentation
+4. Wait for approval
+</Step>
+
+<Step>
+### Get Live API Keys
+
+1. Toggle to **Live mode** (top right)
+2. Go to [API Keys](https://dashboard.stripe.com/apikeys)
+3. Copy live **Publishable key** and **Secret key**
+</Step>
+
+<Step>
+### Update Production Environment
+
+Update your production environment variables:
+
+```bash
+STRIPE_SECRET_KEY=sk_live_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+```
+</Step>
+
+</Steps>
+
+## Configuration Options
+
+Advanced Stripe plugin configuration:
+
+```typescript title="packages/auth/src/index.ts"
+stripe({
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY!,
+  
+  // Optional: Custom configuration
+  apiVersion: '2023-10-16', // Lock API version
+  
+  // Optional: Retry configuration
+  maxNetworkRetries: 2,
+  
+  // Optional: Timeout
+  timeout: 30000, // 30 seconds
+})
+```
+
+## Verification
+
+Test your setup with a simple API call:
+
+```typescript title="app/api/test-stripe/route.ts"
+import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+export async function GET() {
+  try {
+    // Test API call
+    const account = await stripe.account.retrieve();
+    
+    return NextResponse.json({
+      success: true,
+      account: {
+        id: account.id,
+        email: account.email,
+        type: account.type,
+      },
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}
+```
+
+Visit `/api/test-stripe` to verify your setup.
+
+## Troubleshooting
+
+### Invalid API Key
+
+<Callout type="error">
+  **Error**: "Invalid API Key provided"
+</Callout>
+
+- Check that the key matches the mode (test/live)
+- Ensure no extra spaces or quotes
+- Verify environment variable is loaded
+
+### CORS Errors
+
+<Callout type="error">
+  **Error**: "CORS policy: No 'Access-Control-Allow-Origin' header"
+</Callout>
+
+- Use Stripe publishable key on client-side only
+- Secret key must stay server-side
+- Use server actions or API routes
+
+### Network Errors
+
+<Callout type="error">
+  **Error**: "Network request failed"
+</Callout>
+
+- Check firewall settings
+- Verify internet connection
+- Stripe might be down (check [status.stripe.com](https://status.stripe.com))
+
+## Next Steps
+
+Now that Stripe is configured, proceed to:
+
+- [Create Products & Pricing](/docs/guides/stripe/products)
+- [Implement Checkout](/docs/guides/stripe/checkout)
+- [Set Up Webhooks](/docs/guides/stripe/webhooks)

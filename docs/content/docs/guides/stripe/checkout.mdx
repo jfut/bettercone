@@ -1,0 +1,258 @@
+---
+title: Checkout Sessions
+description: Create checkout flows and handle payments
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# Checkout Sessions
+
+## Creating Checkout Session
+
+```typescript title="convex/stripe.ts"
+import { action } from "./_generated/server";
+import { v } from "convex/values";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-12-18.acacia",
+});
+
+export const createCheckout = action({
+  args: {
+    priceId: v.string(),
+    organizationId: v.optional(v.id("organizations")),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) throw new Error("Unauthorized");
+    
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      line_items: [
+        {
+          price: args.priceId,
+          quantity: 1,
+        },
+      ],
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
+      customer_email: user.email,
+      metadata: {
+        userId: user.subject,
+        organizationId: args.organizationId,
+      },
+    });
+    
+    return session.url;
+  },
+});
+```
+
+## Client-Side Integration
+
+```tsx
+'use client';
+
+import { useAction } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+
+export function CheckoutButton({ priceId }: { priceId: string }) {
+  const createCheckout = useAction(api.stripe.createCheckout);
+  const [loading, setLoading] = useState(false);
+  
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const url = await createCheckout({ priceId });
+      window.location.href = url;
+    } catch (error) {
+      console.error('Checkout failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  return (
+    <button onClick={handleCheckout} disabled={loading}>
+      {loading ? 'Loading...' : 'Subscribe Now'}
+    </button>
+  );
+}
+```
+
+## One-Time Payments
+
+```typescript
+const session = await stripe.checkout.sessions.create({
+  mode: 'payment', // One-time payment
+  line_items: [
+    {
+      price: args.priceId,
+      quantity: 1,
+    },
+  ],
+  success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
+  cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
+});
+```
+
+## Success Page
+
+```tsx title="app/dashboard/page.tsx"
+'use client';
+
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function DashboardPage() {
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get('session_id');
+  
+  useEffect(() => {
+    if (sessionId) {
+      // Show success message
+      toast.success('Subscription activated!');
+      
+      // Clean URL
+      window.history.replaceState({}, '', '/dashboard');
+    }
+  }, [sessionId]);
+  
+  return <div>Dashboard</div>;
+}
+```
+
+## Customization Options
+
+### Payment Methods
+
+```typescript
+payment_method_types: ['card', 'us_bank_account', 'cashapp'],
+```
+
+### Billing Address Collection
+
+```typescript
+billing_address_collection: 'required',
+```
+
+### Discount Codes
+
+```typescript
+allow_promotion_codes: true,
+```
+
+### Trial Period
+
+```typescript
+subscription_data: {
+  trial_period_days: 14,
+},
+```
+
+### Tax Collection
+
+```typescript
+automatic_tax: {
+  enabled: true,
+},
+tax_id_collection: {
+  enabled: true,
+},
+```
+
+## Complete Example
+
+```typescript
+export const createCheckout = action({
+  args: {
+    priceId: v.string(),
+    organizationId: v.optional(v.id("organizations")),
+    coupon: v.optional(v.string()),
+    trialDays: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) throw new Error("Unauthorized");
+    
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      
+      // Line Items
+      line_items: [{
+        price: args.priceId,
+        quantity: 1,
+      }],
+      
+      // Customer
+      customer_email: user.email,
+      
+      // URLs
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
+      
+      // Features
+      allow_promotion_codes: true,
+      billing_address_collection: 'required',
+      payment_method_types: ['card'],
+      
+      // Tax
+      automatic_tax: { enabled: true },
+      
+      // Trial
+      subscription_data: args.trialDays ? {
+        trial_period_days: args.trialDays,
+      } : undefined,
+      
+      // Discount
+      discounts: args.coupon ? [{ coupon: args.coupon }] : undefined,
+      
+      // Metadata
+      metadata: {
+        userId: user.subject,
+        organizationId: args.organizationId,
+      },
+    });
+    
+    return session.url;
+  },
+});
+```
+
+## Error Handling
+
+```tsx
+const handleCheckout = async () => {
+  setLoading(true);
+  setError(null);
+  
+  try {
+    const url = await createCheckout({ priceId });
+    if (!url) throw new Error('Failed to create checkout session');
+    window.location.href = url;
+  } catch (err) {
+    setError(err.message);
+    toast.error('Checkout failed. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+## Testing
+
+Use test card numbers:
+
+```
+Success: 4242 4242 4242 4242
+Decline: 4000 0000 0000 0002
+3D Secure: 4000 0027 6000 3184
+```
+
+## Next Steps
+
+- [Handle Webhooks](/docs/guides/stripe/webhooks)
+- [Manage Subscriptions](/docs/guides/stripe/billing)
+- [Customer Portal](/docs/guides/stripe/portal)

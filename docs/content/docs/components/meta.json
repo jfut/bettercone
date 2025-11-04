@@ -1,0 +1,16 @@
+{
+  "title": "Components",
+  "pages": [
+    "authentication",
+    "organization",
+    "security",
+    "account",
+    "developer",
+    "user",
+    "utility",
+    "billing",
+    "pricing",
+    "team",
+    "usage"
+  ]
+}

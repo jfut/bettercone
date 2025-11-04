@@ -1,0 +1,336 @@
+---
+title: PhoneNumberCard
+description: Manage phone number in user settings with verification
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# PhoneNumberCard
+
+Settings card for managing user phone number with OTP verification for updates.
+
+## Usage
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    ```tsx
+    import { PhoneNumberCard, AuthUIProvider } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function SecuritySettings() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <PhoneNumberCard />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab value="Code">
+    Full working example with all features.
+  </Tab>
+</Tabs>
+
+## Features
+
+- **Current Phone Display** - Shows existing phone number
+- **Verification Badge** - Visual indicator of verification status
+- **Update Flow** - Secure phone number change with OTP
+- **OTP Verification** - SMS verification for changes
+- **Resend Functionality** - Resend OTP with countdown timer
+- **Error Handling** - Automatic error display and retry
+
+## Flow
+
+1. **Display Current Phone**
+   - Shows existing phone number (if set)
+   - Displays verification status badge
+
+2. **Update Phone Number**
+   - User enters new phone number
+   - OTP sent to new number
+   - Modal dialog for OTP entry
+
+3. **Verify OTP**
+   - User enters 6-digit code
+   - Verification and update
+   - Success confirmation
+
+## Props
+
+### PhoneNumberCardProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | - | Optional CSS class for the card |
+| `classNames` | `SettingsCardClassNames` | - | Custom class names for card elements |
+| `localization` | `Partial<AuthLocalization>` | - | Custom text labels |
+
+## Requirements
+
+### Better Auth Configuration
+
+The `phoneNumber` plugin must be configured with SMS capability:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { phoneNumber } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    phoneNumber({
+      sendOtp: async (phoneNumber, code) => {
+        // Send OTP via your SMS provider
+        await sendSMS(phoneNumber, `Your code: ${code}`);
+      }
+    })
+  ]
+});
+```
+
+## Customization
+
+### Custom Styling
+
+```tsx
+<PhoneNumberCard
+  className="max-w-2xl"
+  classNames={{
+    card: "border-2",
+    header: "bg-gray-50",
+    title: "text-lg font-bold",
+    description: "text-gray-600",
+    content: "space-y-4",
+    label: "text-sm font-medium",
+    input: "border-2 rounded-lg",
+    error: "text-red-600",
+    button: "px-6 py-2"
+  }}
+/>
+```
+
+### Custom Localization
+
+```tsx
+<PhoneNumberCard
+  localization={{
+    PHONE_NUMBER: "Mobile Number",
+    CURRENT_PHONE: "Your Current Number",
+    NEW_PHONE: "New Phone Number",
+    UPDATE_PHONE: "Update Number",
+    VERIFY_PHONE: "Verify",
+    PHONE_VERIFIED: "Verified",
+    OTP_CODE: "Verification Code",
+    RESEND_CODE: "Resend Code"
+  }}
+/>
+```
+
+## Examples
+
+### In Settings Page
+
+```tsx
+import { PhoneNumberCard, ChangePasswordCard, TwoFactorCard, AuthUIProvider } from '@bettercone/ui';
+
+export default function SecuritySettings() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="container mx-auto max-w-4xl py-8 space-y-6">
+        <h1 className="text-3xl font-bold">Security Settings</h1>
+        
+        <PhoneNumberCard />
+        <ChangePasswordCard />
+        <TwoFactorCard />
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### With Custom Success Handler
+
+```tsx
+import { PhoneNumberCard, AuthUIProvider } from '@bettercone/ui';
+
+export default function PhoneSettings() {
+  return (
+    <AuthUIProvider 
+      authClient={authClient}
+      toast={({ variant, message }) => {
+        if (variant === 'success') {
+          // Custom success notification
+          console.log('Phone updated:', message);
+        }
+      }}
+    >
+      <PhoneNumberCard />
+    </AuthUIProvider>
+  );
+}
+```
+
+### Standalone Phone Management
+
+```tsx
+import { PhoneNumberCard, AuthUIProvider } from '@bettercone/ui';
+
+export default function ManagePhone() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="container mx-auto max-w-md py-8">
+        <h1 className="text-2xl font-bold mb-6">Phone Number</h1>
+        <p className="text-gray-600 mb-6">
+          Keep your phone number up to date for account recovery and notifications.
+        </p>
+        <PhoneNumberCard />
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+## State Management
+
+### Phone Number States
+
+```tsx
+// The component displays different UI based on state:
+
+// 1. No phone number set
+<PhoneNumberCard /> // Shows "Add phone number" form
+
+// 2. Phone number set but not verified
+<PhoneNumberCard /> // Shows number with "Unverified" badge
+
+// 3. Phone number verified
+<PhoneNumberCard /> // Shows number with "Verified" badge
+
+// 4. Updating phone number
+<PhoneNumberCard /> // Shows update form with OTP dialog
+```
+
+## Security Features
+
+### Verification Required
+
+All phone number changes require OTP verification:
+
+```tsx
+// User flow:
+// 1. Enter new phone number
+// 2. OTP sent to NEW number (not old one)
+// 3. Verify OTP to confirm ownership
+// 4. Phone number updated
+```
+
+### Rate Limiting
+
+Built-in protection against abuse:
+
+- 60-second cooldown between OTP requests
+- Maximum attempts per verification session
+- Automatic lockout on excessive failures
+
+## Verification Badge
+
+The component shows verification status:
+
+```tsx
+// Verified phone number
+<Badge variant="outline" className="gap-1">
+  <ShieldCheck className="h-3 w-3" />
+  Verified
+</Badge>
+
+// Custom badge styling
+<PhoneNumberCard
+  classNames={{
+    badge: "bg-green-50 text-green-700"
+  }}
+/>
+```
+
+## Integration
+
+### With Profile Settings
+
+```tsx
+import { 
+  PhoneNumberCard, 
+  AccountView,
+  AuthUIProvider 
+} from '@bettercone/ui';
+
+export default function ProfilePage() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="grid gap-6">
+        <AccountView /> {/* Email, name, avatar */}
+        <PhoneNumberCard /> {/* Phone number */}
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### With Authentication Context
+
+```tsx
+import { PhoneNumberCard, AuthUIProvider } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function Settings() {
+  const { data: session } = authClient.useSession();
+  
+  if (!session?.user?.phoneNumberVerified) {
+    return (
+      <div className="bg-yellow-50 p-4 rounded mb-4">
+        Please verify your phone number for account recovery.
+      </div>
+    );
+  }
+
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <PhoneNumberCard />
+    </AuthUIProvider>
+  );
+}
+```
+
+## Troubleshooting
+
+### OTP Dialog Not Appearing
+
+Ensure `AuthUIProvider` wraps the component:
+
+```tsx
+// ❌ Wrong
+<PhoneNumberCard />
+
+// ✅ Correct
+<AuthUIProvider authClient={authClient}>
+  <PhoneNumberCard />
+</AuthUIProvider>
+```
+
+### Phone Number Not Updating
+
+Check Better Auth configuration:
+
+```ts
+// Ensure phoneNumber plugin is enabled
+phoneNumber({
+  sendOtp: async (phoneNumber, code) => {
+    // Must implement SMS sending
+  }
+})
+```
+
+## Related Components
+
+- [PhoneSignInForm](/docs/components/authentication/phone-sign-in-form) - Sign in with phone
+- [PhoneSignUpForm](/docs/components/authentication/phone-sign-up-form) - Sign up with phone
+- [ChangePasswordCard](/docs/components/security/change-password-card) - Password management
+- [TwoFactorCard](/docs/components/security/two-factor-card) - 2FA settings

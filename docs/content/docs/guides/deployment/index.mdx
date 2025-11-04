@@ -1,0 +1,99 @@
+---
+title: Deployment
+description: Deploy BetterCone to production
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Deployment Guide
+
+Deploy BetterCone to production on Vercel with proper configuration and best practices.
+
+<Callout type="info">
+  BetterCone is optimized for Vercel with automatic CI/CD and edge functions.
+</Callout>
+
+## Deployment Steps
+
+<Cards>
+  <Card
+    title="Vercel Setup"
+    description="Quick deploy from GitHub to Vercel"
+    href="/docs/guides/deployment/vercel"
+  />
+  <Card
+    title="Service Configuration"
+    description="Configure Convex, Stripe, and email services"
+    href="/docs/guides/deployment/services"
+  />
+  <Card
+    title="Custom Domains"
+    description="Set up custom domain and SSL"
+    href="/docs/guides/deployment/domains"
+  />
+  <Card
+    title="Production Checklist"
+    description="CI/CD, monitoring, security, and optimization"
+    href="/docs/guides/deployment/production"
+  />
+</Cards>
+
+## Prerequisites
+
+Before deploying:
+
+- [ ] GitHub repository
+- [ ] [Vercel account](https://vercel.com/signup)
+- [ ] [Stripe account](https://dashboard.stripe.com/register)
+- [ ] [Convex account](https://convex.dev)
+- [ ] Domain name (optional)
+
+## Quick Start
+
+1. **Push to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Deploy to Vercel**
+   - Go to [vercel.com/new](https://vercel.com/new)
+   - Import your repository
+   - Add environment variables
+   - Deploy
+
+3. **Configure Services**
+   - Set up Convex production
+   - Configure Stripe webhooks
+   - Test payment flow
+
+4. **Custom Domain**
+   - Add domain in Vercel
+   - Update DNS records
+   - Enable SSL
+
+## Environment Variables
+
+```bash
+# Core
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+BETTER_AUTH_SECRET=your-secret
+
+# Convex (Production)
+CONVEX_DEPLOYMENT=prod:your-deployment
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+
+# Stripe (Live)
+STRIPE_SECRET_KEY=sk_live_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Email
+RESEND_API_KEY=re_...
+```
+
+## Resources
+
+- [Vercel Documentation](https://vercel.com/docs)
+- [Convex Production](https://docs.convex.dev/production)
+- [Stripe Go Live](https://stripe.com/docs/account/activate)

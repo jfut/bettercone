@@ -1,0 +1,243 @@
+---
+title: Production Best Practices
+description: CI/CD, monitoring, security, and optimization
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Production Best Practices
+
+## Deployment Checklist
+
+Before going live:
+
+### Configuration
+- [ ] All environment variables set
+- [ ] Custom domain configured
+- [ ] SSL certificate active
+- [ ] Webhook endpoints configured
+
+### Testing
+- [ ] Sign up/sign in flows work
+- [ ] Stripe checkout completes
+- [ ] Webhooks receive events
+- [ ] Email delivery works
+- [ ] Database queries fast
+
+### Security
+- [ ] BETTER_AUTH_SECRET is strong
+- [ ] No secrets in git
+- [ ] CORS configured correctly
+- [ ] Rate limiting enabled
+
+### Performance
+- [ ] Images optimized
+- [ ] Fonts optimized
+- [ ] Bundle size acceptable
+- [ ] Core Web Vitals passing
+
+## CI/CD Pipeline
+
+Vercel provides automatic CI/CD:
+
+- **Push to main** → Production deploy
+- **Pull request** → Preview deploy
+- **Merge PR** → Auto-deploy to production
+
+## Monitoring
+
+### Vercel Analytics
+
+Enable in **Settings** → **Analytics**:
+- Real User Monitoring
+- Web Vitals
+- Traffic insights
+
+### Error Tracking (Sentry)
+
+<Callout type="info">
+Sentry is **already integrated** in BetterCone! Just add your DSN.
+</Callout>
+
+Sentry error monitoring is pre-configured with:
+- ✅ Server-side error tracking (`sentry.server.config.ts`)
+- ✅ Client-side error tracking (`instrumentation-client.ts`)
+- ✅ Edge runtime support (`sentry.edge.config.ts`)
+- ✅ Global error boundary (`global-error.tsx`)
+- ✅ Automatic request error capture
+
+**Setup Steps:**
+
+1. Sign up at [sentry.io](https://sentry.io/signup)
+2. Create a new Next.js project
+3. Copy your DSN from **Settings** → **Client Keys (DSN)**
+4. Add to `.env.local`:
+
+```bash
+NEXT_PUBLIC_SENTRY_DSN=https://your-dsn@sentry.io/your-project-id
+```
+
+5. Deploy to Vercel and add the environment variable in **Settings** → **Environment Variables**
+
+See [Analytics & Monitoring](/docs/guides/analytics) for detailed setup guide.
+
+### User Analytics (PostHog)
+
+<Callout type="info">
+PostHog is **already integrated** in BetterCone! Just add your API key.
+</Callout>
+
+PostHog analytics is pre-configured with:
+- ✅ Automatic page view tracking
+- ✅ User identification
+- ✅ Custom event tracking
+- ✅ Subscription lifecycle events
+
+**To enable PostHog:**
+
+1. Sign up at [app.posthog.com](https://app.posthog.com)
+2. Get your project API key from **Settings** → **Project API Key**
+3. Add to `.env.local`:
+
+```bash
+NEXT_PUBLIC_POSTHOG_KEY=phc_your_key_here
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+```
+
+See [Analytics & Monitoring](/docs/guides/analytics) for usage examples.
+
+### Stripe Dashboard
+
+Monitor in [Stripe Dashboard](https://dashboard.stripe.com):
+- Failed payments
+- Subscription churns
+- Revenue metrics
+
+## Security
+
+### Environment Variables
+
+Never commit:
+```bash
+# .gitignore
+.env*.local
+```
+
+### Rate Limiting
+
+```typescript title="middleware.ts"
+import { Ratelimit } from '@upstash/ratelimit';
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(10, '10 s'),
+});
+
+export async function middleware(request: Request) {
+  const { success } = await ratelimit.limit(request.ip);
+  
+  if (!success) {
+    return new Response('Too Many Requests', { status: 429 });
+  }
+}
+```
+
+### Content Security Policy
+
+```typescript title="next.config.mjs"
+const securityHeaders = [
+  {
+    key: 'X-DNS-Prefetch-Control',
+    value: 'on',
+  },
+  {
+    key: 'X-Frame-Options',
+    value: 'SAMEORIGIN',
+  },
+  {
+    key: 'X-Content-Type-Options',
+    value: 'nosniff',
+  },
+];
+
+export default {
+  async headers() {
+    return [{ source: '/:path*', headers: securityHeaders }];
+  },
+};
+```
+
+## Performance Optimization
+
+### Image Optimization
+
+```tsx
+import Image from 'next/image';
+
+<Image
+  src="/hero.jpg"
+  alt="Hero"
+  width={1200}
+  height={600}
+  priority
+  quality={85}
+/>
+```
+
+### Bundle Analysis
+
+```bash
+ANALYZE=true pnpm build
+```
+
+### Edge Functions
+
+Move API routes to edge:
+
+```typescript
+export const runtime = 'edge';
+```
+
+## Rollback
+
+Instant rollback in Vercel:
+
+1. Go to **Deployments**
+2. Find working deployment
+3. Click **︙** → **Promote to Production**
+
+## Backup Strategy
+
+### Database Backups
+
+Convex automatically backs up your data. Export snapshots:
+
+```bash
+npx convex export --deployment prod:your-deployment
+```
+
+### Code Backups
+
+Git is your backup. Tag releases:
+
+```bash
+git tag -a v1.0.0 -m "Production release"
+git push origin v1.0.0
+```
+
+<Callout type="tip">
+  Set up staging environment to test changes before production.
+</Callout>
+
+## Scaling
+
+Vercel auto-scales. Monitor:
+- **Function executions**: Serverless limits
+- **Bandwidth**: Edge network usage
+- **Convex**: Query performance
+
+## Resources
+
+- [Vercel Security](https://vercel.com/docs/security)
+- [Next.js Performance](https://nextjs.org/docs/app/building-your-application/optimizing)
+- [Sentry Next.js](https://docs.sentry.io/platforms/javascript/guides/nextjs/)

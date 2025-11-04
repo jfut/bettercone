@@ -1,0 +1,273 @@
+---
+title: PhoneSignUpForm
+description: Sign up with phone number and OTP verification
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# PhoneSignUpForm
+
+Sign up users with phone number and OTP (one-time password) verification. Two-step process with SMS code validation.
+
+## Usage
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    ```tsx
+    import { PhoneSignUpForm, AuthUIProvider } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function PhoneSignUp() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <PhoneSignUpForm
+            redirectTo="/onboarding"
+            localization={{}}
+          />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab value="Code">
+    Full working example with all features.
+  </Tab>
+</Tabs>
+
+## Features
+
+- **Two-Step Verification** - Phone number entry → OTP verification
+- **International Format** - E.164 phone validation (+1234567890)
+- **OTP Code Delivery** - SMS delivery via your configured provider
+- **Resend Functionality** - Resend code with 60-second countdown timer
+- **Rate Limiting** - Built-in protection against abuse
+- **Error Handling** - Automatic retry and error messages
+- **Loading States** - Visual feedback during verification
+
+## Flow
+
+1. **Step 1: Enter Phone Number**
+   - User enters phone number in international format
+   - Client-side validation
+   - OTP sent via SMS
+
+2. **Step 2: Verify OTP**
+   - User enters 6-digit code
+   - Code verification
+   - Account creation on success
+   - Auto sign-in after verification
+
+## Props
+
+### PhoneSignUpFormProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | - | Optional CSS class for styling |
+| `classNames` | `AuthFormClassNames` | - | Custom class names for form elements |
+| `isSubmitting` | `boolean` | - | External loading state control |
+| `localization` | `Partial<AuthLocalization>` | - | Custom text labels |
+| `redirectTo` | `string` | - | Redirect URL after successful sign-up |
+| `setIsSubmitting` | `(value: boolean) => void` | - | Callback for loading state |
+
+## Requirements
+
+### Better Auth Configuration
+
+Configure the `phoneNumber` plugin with an SMS provider:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { phoneNumber } from "better-auth/plugins";
+import twilio from "twilio";
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+export const auth = betterAuth({
+  plugins: [
+    phoneNumber({
+      sendOtp: async (phoneNumber, code) => {
+        // Send OTP via Twilio
+        await twilioClient.messages.create({
+          to: phoneNumber,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          body: `Your verification code is: ${code}`
+        });
+      },
+      // Optional: Customize OTP settings
+      otpLength: 6,
+      expiresIn: 300, // 5 minutes
+    })
+  ]
+});
+```
+
+### SMS Provider Options
+
+**Twilio** (Recommended)
+```bash
+npm install twilio
+```
+
+**AWS SNS**
+```bash
+npm install @aws-sdk/client-sns
+```
+
+**Other Providers**: Vonage, Plivo, MessageBird, etc.
+
+## Customization
+
+### Custom Styling
+
+```tsx
+<PhoneSignUpForm
+  className="max-w-md mx-auto"
+  classNames={{
+    base: "space-y-6",
+    label: "text-sm font-medium",
+    input: "border-2 rounded-lg",
+    error: "text-red-600 text-sm",
+    button: "w-full py-3",
+    primaryButton: "bg-blue-600 hover:bg-blue-700"
+  }}
+/>
+```
+
+### Custom Localization
+
+```tsx
+<PhoneSignUpForm
+  localization={{
+    PHONE_NUMBER: "Mobile Number",
+    PHONE_PLACEHOLDER: "+1 (555) 123-4567",
+    SEND_CODE: "Send Code",
+    VERIFY_CODE: "Verify",
+    RESEND_CODE: "Resend Code",
+    CHANGE_PHONE: "Use Different Number"
+  }}
+/>
+```
+
+## Examples
+
+### Basic Sign-Up
+
+```tsx
+import { PhoneSignUpForm, AuthUIProvider } from '@bettercone/ui';
+
+export default function SignUpPage() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="container mx-auto max-w-md py-8">
+        <h1 className="text-2xl font-bold mb-6">Create Account</h1>
+        <PhoneSignUpForm redirectTo="/onboarding" />
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### With Terms Acceptance
+
+```tsx
+import { PhoneSignUpForm, AuthUIProvider } from '@bettercone/ui';
+import { useState } from 'react';
+
+export default function SignUpPage() {
+  const [accepted, setAccepted] = useState(false);
+
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <PhoneSignUpForm 
+        redirectTo="/onboarding"
+        className={!accepted ? 'opacity-50 pointer-events-none' : ''}
+      />
+      
+      <label className="flex items-center gap-2 mt-4">
+        <input 
+          type="checkbox" 
+          checked={accepted}
+          onChange={(e) => setAccepted(e.target.checked)}
+        />
+        <span>I accept the Terms of Service</span>
+      </label>
+    </AuthUIProvider>
+  );
+}
+```
+
+### With Custom Success Handler
+
+```tsx
+import { PhoneSignUpForm, AuthUIProvider } from '@bettercone/ui';
+import { useRouter } from 'next/navigation';
+
+export default function SignUpPage() {
+  const router = useRouter();
+
+  return (
+    <AuthUIProvider 
+      authClient={authClient}
+      onSessionChange={async () => {
+        // Custom logic after sign-up
+        await trackSignUp();
+        router.push('/onboarding');
+      }}
+    >
+      <PhoneSignUpForm />
+    </AuthUIProvider>
+  );
+}
+```
+
+## Security Features
+
+### Rate Limiting
+
+The component automatically handles rate limiting:
+
+- Maximum 3 verification attempts per OTP code
+- 60-second cooldown between resend requests
+- Automatic lockout after too many failed attempts
+
+### Error Handling
+
+```tsx
+// The component handles these errors automatically:
+// - Invalid phone number format
+// - Invalid OTP code
+// - Expired OTP code
+// - Too many attempts
+// - Network errors
+```
+
+## Troubleshooting
+
+### OTP Not Received
+
+1. Verify SMS provider credentials
+2. Check phone number format (must include country code)
+3. Verify SMS provider has international coverage
+4. Check spam/blocked messages on device
+
+### Rate Limiting Issues
+
+```ts
+// Adjust rate limits in Better Auth config
+phoneNumber({
+  rateLimit: {
+    window: 60, // seconds
+    max: 5 // requests per window
+  }
+})
+```
+
+## Related Components
+
+- [PhoneSignInForm](/docs/components/authentication/phone-sign-in-form) - Sign in with phone and password
+- [PhoneNumberCard](/docs/components/security/phone-number-card) - Manage phone number in settings
+- [AuthView](/docs/components/authentication/auth-view) - Complete auth flow including phone auth

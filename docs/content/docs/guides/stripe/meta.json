@@ -1,0 +1,11 @@
+{
+  "title": "Stripe Integration",
+  "pages": [
+    "index",
+    "setup",
+    "products",
+    "checkout",
+    "webhooks",
+    "billing"
+  ]
+}

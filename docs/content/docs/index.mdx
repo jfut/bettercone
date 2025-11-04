@@ -1,0 +1,243 @@
+---
+title: "@bettercone/ui Documentation"
+description: Comprehensive, backend-agnostic component library for Better Auth
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# Welcome to @bettercone/ui 🍦
+
+**Production-ready components for Better Auth**
+
+@bettercone/ui is a comprehensive, backend-agnostic component library built for Better Auth. Ship authentication, organizations, security, billing, and team features in minutes, not weeks.
+
+<div className="flex gap-2 my-4">
+  <a href="https://www.npmjs.com/package/@bettercone/ui" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/npm/v/@bettercone/ui.svg" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@bettercone/ui" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/npm/dm/@bettercone/ui.svg" alt="npm downloads" />
+  </a>
+  <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License" />
+  </a>
+</div>
+
+## What's New in v0.2.0
+
+**Production-ready components** - Complete authentication, security, organizations, billing, and team management
+
+- ✅ **Authentication** (3): Complete auth flows with AuthView, UserButton, and conditional rendering
+- ✅ **Security** (7): 2FA, sessions, passkeys, phone numbers, password management, providers
+- ✅ **Organizations** (4): Full multi-tenant org management with switcher and settings
+- ✅ **Account** (5): User profile, security settings, avatar, email, and account deletion
+- ✅ **Developer Tools** (1): API key management
+- ✅ **Utility** (1): PasswordInput component
+- ✅ **Billing** (4): Subscription, payment methods, invoices, dashboard
+- ✅ **Pricing** (2): Pricing dashboard and cards
+- ✅ **Team** (3): Seat allocation, team billing, dashboard
+- ✅ **Usage** (4): API usage, storage, feature access, dashboard
+
+### New in v0.2.0 - Phone Authentication 📱
+
+- **PhoneSignInForm** - Sign in with phone + password
+- **PhoneSignUpForm** - Sign up with phone + OTP verification
+- **PhoneNumberCard** - Manage phone number in settings
+
+## Why @bettercone/ui?
+
+- **⚛️ Framework-Agnostic** - Works with Next.js, Vite, Remix, or any React framework
+- **🔌 Backend-Agnostic** - Works with Convex, Prisma, Supabase, Drizzle, or any Better Auth backend
+- **⚡ Production-Ready** - Battle-tested components used in real SaaS applications
+- **🎨 Fully Customizable** - Built with Tailwind CSS, customize every aspect
+- **🌍 i18n Ready** - Complete localization support
+- **📱 Responsive** - Mobile-first design that works everywhere
+- **🔒 Type-Safe** - Full TypeScript support with comprehensive types
+- **♿ Accessible** - WCAG 2.1 compliant components
+
+## Features
+
+<Cards>
+  <Card
+    title="� Billing Components"
+    description="Subscription cards, payment methods, invoice history, billing dashboards"
+    href="/docs/components/billing"
+  />
+  <Card
+    title="� Pricing Components"
+    description="Beautiful pricing cards with monthly/yearly toggle"
+    href="/docs/components/pricing"
+  />
+  <Card
+    title="� Usage Tracking"
+    description="API usage, storage monitoring, feature access cards"
+    href="/docs/components/usage"
+  />
+  <Card
+    title="� Team Components"
+    description="Seat allocation, team billing, member management"
+    href="/docs/components/team"
+  />
+</Cards>
+
+## Quick Start
+
+Get started with @bettercone/ui in minutes:
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab value="pnpm">
+    ```bash
+    # Install the package
+    pnpm add @bettercone/ui better-auth
+    
+    # Add to Tailwind config
+    # content: ['./node_modules/@bettercone/ui/**/*.{js,ts,jsx,tsx}']
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    # Install the package
+    npm install @bettercone/ui better-auth
+    
+    # Add to Tailwind config
+    # content: ['./node_modules/@bettercone/ui/**/*.{js,ts,jsx,tsx}']
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    # Install the package
+    yarn add @bettercone/ui better-auth
+    
+    # Add to Tailwind config
+    # content: ['./node_modules/@bettercone/ui/**/*.{js,ts,jsx,tsx}']
+    ```
+  </Tab>
+</Tabs>
+
+## Example Usage
+
+```tsx
+import { BillingDashboard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function BillingPage() {
+  const handleManageSubscription = async (subscription, organization) => {
+    const response = await fetch("/api/billing/portal", {
+      method: "POST",
+      body: JSON.stringify({ organizationId: organization?.id })
+    });
+    const { url } = await response.json();
+    window.location.href = url;
+  };
+
+  return (
+    <BillingDashboard
+      authClient={authClient}
+      subscriptionCardProps={{
+        onManageSubscription: handleManageSubscription
+      }}
+    />
+  );
+}
+```
+
+## Components
+
+@bettercone/ui includes Production-ready components organized by functionality:
+
+### Authentication Components (3)
+- **AuthView** - Complete auth experience with sign-in, sign-up, and password reset
+- **UserButton** - User menu with profile and sign out
+- **SignedIn/SignedOut** - Conditional rendering based on auth state
+
+### Security Components (7)
+- **SecuritySettingsCards** - Complete security dashboard
+- **TwoFactorCard** - 2FA setup and management
+- **PasskeysCard** - Passkey/WebAuthn management
+- **SessionsCard** - Active session management
+- **ChangePasswordCard** - Password change form
+- **PhoneNumberCard** - Phone number management
+- **ProvidersCard** - Connected OAuth providers
+
+### Organization Components (4)
+- **OrganizationSwitcher** - Switch between organizations
+- **OrganizationSettingsCards** - Organization settings dashboard
+- **OrganizationMembersCard** - Member management with roles
+- **OrganizationInvitationsCard** - Pending invitations
+
+### Account Components (5)
+- **AccountSettingsCards** - Account settings dashboard
+- **SecuritySettingsCards** - Security settings (also in Security)
+- **UpdateAvatarCard** - Avatar upload and management
+- **ChangeEmailCard** - Email change with verification
+- **DeleteAccountCard** - Account deletion
+
+### Developer Components (1)
+- **ApiKeysCard** - API key management
+
+### Utility Components (1)
+- **PasswordInput** - Password input with show/hide toggle
+
+### Billing Components
+- **SubscriptionCard** - Display current subscription with management actions
+- **PaymentMethodCard** - Payment method management via Stripe portal
+- **InvoiceHistoryCard** - Invoice viewing and download
+- **BillingDashboard** - Complete billing overview (composition)
+
+### Pricing Components
+- **PricingCard** - Beautiful pricing cards with features and CTAs
+
+### Usage Components
+- **ApiUsageCard** - API call tracking with warnings
+- **StorageUsageCard** - Storage usage monitoring
+- **FeatureAccessCard** - Feature flag display
+- **UsageDashboard** - Complete usage overview (composition)
+
+### Team Components
+- **SeatAllocationCard** - Team seat management
+- **TeamBillingCard** - Organization billing summary
+- **TeamDashboard** - Complete team management (composition)
+
+## Backend Support
+
+Works with any Better Auth backend:
+
+| Backend | Status | Guide |
+|---------|--------|-------|
+| **Convex** | ✅ Supported | [Convex Guide](/docs/guides/convex) |
+| **Prisma** | ✅ Supported | [Prisma Guide](/docs/guides/prisma) |
+| **Supabase** | ✅ Supported | Coming soon |
+| **Drizzle** | ✅ Supported | Coming soon |
+| **MongoDB** | ✅ Supported | Coming soon |
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Installation"
+    description="Get @bettercone/ui installed in minutes"
+    href="/docs/getting-started/installation"
+  />
+  <Card
+    title="Quick Start"
+    description="Build your first billing page in 5 minutes"
+    href="/docs/getting-started/quick-start"
+  />
+  <Card
+    title="Components"
+    description="Explore all available components"
+    href="/docs/components"
+  />
+  <Card
+    title="Customization"
+    description="Learn how to customize and theme components"
+    href="/docs/guides/customization"
+  />
+</Cards>
+
+---
+
+**Made with 🍦 by @bettercone/ui**
+
+*Beautiful components for Better Auth*

@@ -1,0 +1,299 @@
+---
+title: Database
+description: Using Convex with @bettercone/ui - usage tracking, rate limiting, and subscription features
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+@bettercone/ui works seamlessly with [Convex](https://convex.dev) for real-time, type-safe data storage with built-in usage tracking, rate limiting, and subscription management.
+
+## What You'll Build
+
+When using @bettercone/ui with Convex, you can implement:
+
+- **Usage Tracking** - API calls and storage per user/organization
+- **Rate Limiting** - Sliding window limits based on subscription plan
+- **Feature Access** - Plan-based feature flags
+- **Subscription Plans** - Free, Pro, Team configs with Stripe integration
+- **API Call Logs** - Detailed request logging for analytics
+
+## Schema
+
+```typescript
+// packages/convex/convex/schema.ts
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  usage: defineTable({
+    userId: v.string(),
+    organizationId: v.optional(v.string()),
+    apiCalls: v.number(),
+    apiLimit: v.number(),
+    storageBytes: v.number(),
+    storageLimit: v.number(),
+    period: v.string(), // "2024-10"
+  })
+    .index("by_user", ["userId"])
+    .index("by_organization", ["organizationId"]),
+  
+  apiRateLimit: defineTable({
+    organizationId: v.string(),
+    requestCount: v.number(),
+    windowStart: v.number(),
+    maxRequestsPerMinute: v.number(),
+  })
+    .index("by_org_window", ["organizationId", "windowStart"]),
+  
+  featureAccess: defineTable({
+    organizationId: v.optional(v.string()),
+    advancedAnalytics: v.boolean(),
+    apiAccess: v.boolean(),
+    customIntegrations: v.boolean(),
+    planId: v.string(),
+  }),
+});
+```
+
+## Using Queries
+
+```typescript
+import { useQuery } from "convex/react";
+import { api } from "@repo/convex";
+
+// Get current usage
+const usage = useQuery(api.usage.getCurrentUsage, {
+  userId: user.id,
+  organizationId: org?.id,
+});
+
+// Returns:
+// {
+//   apiCalls: 1543,
+//   apiLimit: 10000,
+//   storageBytes: 1024000,
+//   storageLimit: 5368709120,
+//   period: "2024-10"
+// }
+```
+
+## Using Mutations
+
+```typescript
+import { useMutation } from "convex/react";
+import { api } from "@repo/convex";
+
+// Track API usage
+const increment = useMutation(api.usage.incrementApiUsage);
+
+await increment({
+  userId: user.id,
+  organizationId: org?.id,
+});
+```
+
+## Rate Limiting
+
+Check rate limits per organization before processing requests:
+
+```typescript
+// packages/convex/convex/rateLimit.ts
+const result = await ctx.runMutation(api.rateLimit.checkRateLimit, {
+  organizationId: org.id,
+  planName: subscription.plan, // "free" | "pro" | "team"
+});
+
+if (!result.allowed) {
+  throw new Error(`Rate limit exceeded. Try again in ${result.resetIn}ms`);
+}
+
+// result:
+// {
+//   allowed: true,
+//   remaining: 450,
+//   limit: 500,
+//   resetIn: 32000
+// }
+```
+
+**Plan limits** (from `subscriptionPlans.ts`):
+- **Free**: 100 requests/min
+- **Pro**: 500 requests/min
+- **Team**: 1000 requests/min
+
+## Subscription Plans
+
+Plans are defined in `packages/convex/convex/subscriptionPlans.ts`:
+
+```typescript
+export const subscriptionPlans = [
+  {
+    name: "free",
+    priceId: process.env.STRIPE_PRICE_FREE_MONTHLY || "price_free_monthly",
+    annualDiscountPriceId: process.env.STRIPE_PRICE_FREE_YEARLY,
+    limits: {
+      projects: 1,
+      storage: 1, // GB
+      members: 1,
+      apiCallsPerMonth: 10000,
+      apiRateLimitPerMinute: 100,
+    },
+  },
+  {
+    name: "pro",
+    priceId: process.env.STRIPE_PRICE_PRO_MONTHLY,
+    limits: {
+      projects: 10,
+      storage: 50, // GB
+      members: 5,
+      apiCallsPerMonth: 100000,
+      apiRateLimitPerMinute: 500,
+    },
+  },
+  // ... team plan
+];
+```
+
+Update these in your `.env`:
+
+```bash
+STRIPE_PRICE_FREE_MONTHLY=price_xxx
+STRIPE_PRICE_PRO_MONTHLY=price_xxx
+STRIPE_PRICE_TEAM_MONTHLY=price_xxx
+```
+
+## Feature Access
+
+Check subscription features:
+
+```typescript
+const features = useQuery(api.usage.getFeatureAccess, {
+  organizationId: org?.id,
+});
+
+if (features?.advancedAnalytics) {
+  // Show analytics dashboard
+}
+```
+
+## API Call Logs
+
+View detailed request logs:
+
+```typescript
+const logs = useQuery(api.usage.getApiCallLogs, {
+  userId: user.id,
+  organizationId: org?.id,
+  limit: 100,
+});
+
+// Returns array of:
+// {
+//   endpoint: "/api/data",
+//   method: "GET",
+//   statusCode: 200,
+//   responseTime: 45,
+//   timestamp: 1234567890
+// }
+```
+
+## Setup
+
+```bash
+# Install Convex CLI
+npm install -g convex
+
+# Login and initialize
+npx convex dev
+
+# Deploy to production
+npx convex deploy
+```
+
+Environment variables:
+
+```bash
+CONVEX_DEPLOYMENT=dev:...
+NEXT_PUBLIC_CONVEX_URL=https://...
+SITE_URL=http://localhost:3000
+```
+
+## Project Structure
+
+```
+packages/convex/convex/
+├── schema.ts              # Tables: usage, apiRateLimit, featureAccess
+├── auth.ts                # Better Auth + Convex integration
+├── usage.ts               # Usage tracking queries/mutations
+├── rateLimit.ts           # Rate limit enforcement
+├── subscriptionPlans.ts   # Plan configs with Stripe prices
+├── http.ts                # Webhook endpoints
+└── _generated/            # Auto-generated types
+```
+
+## Extending
+
+Add your own tables to `schema.ts`:
+
+```typescript
+export default defineSchema({
+  // ... existing tables
+  
+  projects: defineTable({
+    name: v.string(),
+    organizationId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_org", ["organizationId"]),
+});
+```
+
+Create queries/mutations:
+
+```typescript
+// convex/projects.ts
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
+
+export const list = query({
+  args: { organizationId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("projects")
+      .withIndex("by_org", (q) => q.eq("organizationId", args.organizationId))
+      .collect();
+  },
+});
+
+export const create = mutation({
+  args: {
+    name: v.string(),
+    organizationId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("projects", {
+      ...args,
+      createdAt: Date.now(),
+    });
+  },
+});
+```
+
+Use in React:
+
+```typescript
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@repo/convex";
+
+const projects = useQuery(api.projects.list, { organizationId: org.id });
+const create = useMutation(api.projects.create);
+
+await create({ name: "New Project", organizationId: org.id });
+```
+
+## Learn More
+
+- [Convex Documentation](https://docs.convex.dev)
+- [Better Auth Convex Plugin](https://github.com/convex-dev/better-auth-convex)
+- [Stripe Integration](/docs/guides/stripe)
+- [Organization Guide](/docs/guides/organization)

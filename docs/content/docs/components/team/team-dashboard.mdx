@@ -1,0 +1,413 @@
+---
+title: TeamDashboard
+description: Complete team management interface with seat allocation and billing
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# TeamDashboard
+
+The `TeamDashboard` component provides a complete team management interface with seat allocation tracking and team billing information for organization-based subscriptions.
+
+<Callout type="info">
+  This component is designed for B2B SaaS applications with multi-tenant organization support. It requires an active organization context.
+</Callout>
+
+## Installation
+
+```tsx
+import { TeamDashboard } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Seat Allocation** - Track used and available team seats
+- ✅ **Member Management** - View and manage team members
+- ✅ **Team Billing** - Organization subscription details
+- ✅ **Role-Based Access** - Different views for owners, admins, and members
+- ✅ **Upgrade Prompts** - Automatic upgrade suggestions when seats are full
+- ✅ **Organization Context** - Automatically uses active organization
+- ✅ **Responsive Layout** - Grid layout adapts to screen size
+- ✅ **Type-Safe** - Full TypeScript support
+
+## Usage
+
+<Tabs items={['Basic', 'No Member List', 'With Callbacks', 'Custom Container']}>
+  <Tab value="Basic">
+    ```tsx
+    import { TeamDashboard } from '@/components';
+
+    export default function TeamPage() {
+      return (
+        <div className="container mx-auto py-8">
+          <h1 className="text-3xl font-bold mb-6">Team Management</h1>
+          <TeamDashboard />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="No Member List">
+    ```tsx
+    import { TeamDashboard } from '@/components';
+
+    export default function TeamPage() {
+      return (
+        <div className="container mx-auto py-8">
+          <h1 className="text-3xl font-bold mb-6">Team Overview</h1>
+          
+          {/* Hide detailed member list */}
+          <TeamDashboard showMemberList={false} />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Callbacks">
+    ```tsx
+    import { TeamDashboard } from '@/components';
+    import { useRouter } from 'next/navigation';
+
+    export default function TeamPage() {
+      const router = useRouter();
+
+      return (
+        <div className="container mx-auto py-8">
+          <h1 className="text-3xl font-bold mb-6">Team</h1>
+          
+          <TeamDashboard 
+            onUpgrade={() => router.push('/upgrade')}
+            onManageBilling={() => router.push('/billing')}
+          />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Container">
+    ```tsx
+    import { TeamDashboard } from '@/components';
+
+    export default function TeamPage() {
+      return (
+        <div className="container mx-auto py-8">
+          <TeamDashboard 
+            className="max-w-6xl mx-auto space-y-6"
+          />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+<TypeTable
+  type={{
+    className: {
+      type: 'string',
+      description: 'Additional CSS classes for the root container',
+    },
+    showMemberList: {
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show the detailed member list in seat allocation card',
+    },
+    onUpgrade: {
+      type: '() => void',
+      description: 'Callback function when user clicks upgrade (e.g., navigate to pricing)',
+    },
+    onManageBilling: {
+      type: '() => void',
+      description: 'Callback function when user clicks manage billing',
+    },
+  }}
+/>
+
+## Organization Requirement
+
+The `TeamDashboard` component requires an active organization:
+
+```tsx
+// ✅ Good - User has an organization
+<TeamDashboard />
+
+// ⚠️ Shows "No Active Organization" message if user has no org
+<TeamDashboard />
+```
+
+<Callout type="warning">
+  Users without an active organization will see a message prompting them to create one. Ensure your app has an organization creation flow.
+</Callout>
+
+## Examples
+
+### Example 1: Protected Team Page
+
+```tsx
+'use client';
+
+import { TeamDashboard } from '@/components';
+import { SignedIn, SignedOut } from '@daveyplate/better-auth-ui';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+
+export default function TeamPage() {
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <SignedOut>
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold mb-4">Sign in to manage your team</h1>
+          <Button asChild>
+            <Link href="/auth/sign-in">Sign In</Link>
+          </Button>
+        </div>
+      </SignedOut>
+
+      <SignedIn>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Team Management</h1>
+          <p className="text-muted-foreground">
+            Manage your team members, seats, and billing
+          </p>
+        </div>
+
+        <TeamDashboard />
+      </SignedIn>
+    </div>
+  );
+}
+```
+
+### Example 2: With Organization Selector
+
+```tsx
+import { TeamDashboard } from '@/components';
+import { OrganizationSelector } from '@/components';
+
+export default function TeamPage() {
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Team</h1>
+        
+        {/* Allow switching between organizations */}
+        <OrganizationSelector />
+      </div>
+
+      <TeamDashboard />
+    </div>
+  );
+}
+```
+
+### Example 3: Embedded in Settings
+
+```tsx
+import { TeamDashboard } from '@/components';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+export default function SettingsPage() {
+  return (
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-6">Settings</h1>
+      
+      <Tabs defaultValue="team">
+        <TabsList>
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="team">Team</TabsTrigger>
+          <TabsTrigger value="billing">Billing</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="team" className="mt-6">
+          <TeamDashboard showMemberList={true} />
+        </TabsContent>
+        
+        {/* Other tabs... */}
+      </Tabs>
+    </div>
+  );
+}
+```
+
+### Example 4: With Custom Actions
+
+```tsx
+import { TeamDashboard } from '@/components';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { UserPlus } from 'lucide-react';
+
+export default function TeamPage() {
+  const router = useRouter();
+
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Team Management</h1>
+          <p className="text-muted-foreground">
+            Manage your team members and seats
+          </p>
+        </div>
+        
+        <Button onClick={() => router.push('/team/invite')}>
+          <UserPlus className="mr-2 h-4 w-4" />
+          Invite Member
+        </Button>
+      </div>
+
+      <TeamDashboard 
+        onUpgrade={() => router.push('/pricing?plan=team')}
+        onManageBilling={() => router.push('/billing')}
+      />
+    </div>
+  );
+}
+```
+
+## Component Composition
+
+The `TeamDashboard` is composed of two main cards:
+
+1. **SeatAllocationCard** - Shows seat usage and member list
+2. **TeamBillingCard** - Displays team subscription and billing info
+
+You can use these cards individually for custom layouts:
+
+```tsx
+import { 
+  SeatAllocationCard,
+  TeamBillingCard 
+} from '@/components';
+
+export default function CustomTeamPage() {
+  return (
+    <div className="space-y-6">
+      {/* Full width seat allocation */}
+      <SeatAllocationCard showMemberList={true} />
+      
+      {/* Sidebar billing info */}
+      <aside className="lg:col-span-1">
+        <TeamBillingCard />
+      </aside>
+    </div>
+  );
+}
+```
+
+## Seat Management
+
+### Seat Allocation
+
+The component tracks:
+- **Used Seats:** Number of active team members
+- **Total Seats:** Maximum seats allowed by subscription plan
+- **Available Seats:** Remaining seats (Total - Used)
+
+```tsx
+// Visual representation
+// 8 of 10 seats used
+// Progress bar: 80% filled
+// 2 seats available
+```
+
+### Upgrade Flow
+
+When all seats are used:
+1. Component shows upgrade prompt
+2. Clicking upgrade triggers `onUpgrade` callback
+3. Default behavior: Suggests upgrading plan
+4. Custom behavior: Navigate to pricing or contact sales
+
+```tsx
+<TeamDashboard 
+  onUpgrade={() => {
+    // Custom upgrade flow
+    router.push('/pricing?upgrade=seats');
+  }}
+/>
+```
+
+## Team Roles
+
+The component respects organization roles:
+
+- **Owner:** Full access to all team management features
+- **Admin:** Can manage members and seats
+- **Member:** View-only access to team info
+
+<Callout type="info">
+  Role-based permissions are automatically enforced by Better Auth and Convex queries.
+</Callout>
+
+## Member Management
+
+Features in the member list:
+- Display member name and email
+- Show member role (Owner, Admin, Member)
+- Remove member action (for owners/admins)
+- Invite status for pending invitations
+
+```tsx
+<TeamDashboard showMemberList={true} />
+```
+
+## Loading States
+
+The component shows skeleton loading during:
+- Organization data fetch
+- Member list load
+- Billing information retrieval
+
+```tsx
+// Automatically shown during loading
+<TeamDashboardSkeleton />
+```
+
+## Error States
+
+### No Organization
+
+```tsx
+// Shows this message when user has no org:
+"No Active Organization
+You need to create or select an organization 
+to view team management features."
+```
+
+### Insufficient Permissions
+
+Users without proper permissions will see limited functionality based on their role.
+
+## Notes
+
+<Callout type="warning">
+  **Organization Context Required:** This component only works within an organization context. Ensure users have created or been invited to an organization.
+</Callout>
+
+- Seat usage updates in real-time via Convex
+- Team plan subscriptions are organization-scoped
+- Member invitations are handled via email
+- Removing a member frees up a seat immediately
+- Downgrading a plan may require removing members first
+
+## Related Components
+
+- [SeatAllocationCard](/docs/components/team/seat-allocation-card) - Seat usage and member list
+- [TeamBillingCard](/docs/components/team/team-billing-card) - Team subscription details
+- [PricingDashboard](/docs/components/pricing/pricing-dashboard) - Upgrade to team plans
+- [BillingDashboard](/docs/components/billing/billing-dashboard) - Manage payment methods
+
+## Next Steps
+
+- [Learn about organization management](/docs/guides/organization-management)
+- [Set up team plan subscriptions](/docs/guides/team-subscriptions)
+- [Configure seat limits](/docs/guides/seat-configuration)
+- [View complete team example](/docs/examples/team-page)
