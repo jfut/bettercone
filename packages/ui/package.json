@@ -1,6 +1,6 @@
 {
   "name": "@bettercone/ui",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Comprehensive Better Auth components: authentication, security, organizations, billing, and team management for React",
   "keywords": [
     "better-auth",
@@ -35,7 +35,7 @@
   "bugs": {
     "url": "https://github.com/vncsleal/bettercone/issues"
   },
-  "homepage": "https://bettercone.dev",
+  "homepage": "https://bettercone.com",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
