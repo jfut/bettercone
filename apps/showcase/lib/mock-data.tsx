@@ -342,10 +342,9 @@ export const mockSubscription = {
   plan: "pro", // Plan ID matching mockPlans
   referenceId: "org_demo_123", // Organization ID for org subscriptions
   status: "active" as const,
-  currentPeriodStart: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
-  currentPeriodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+  periodStart: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+  periodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
   cancelAtPeriodEnd: false,
-  cancelAt: null,
   seats: 10, // Seat limit for team plans
   trialStart: new Date("2024-01-01"),
   trialEnd: new Date("2024-01-15"),
@@ -361,10 +360,9 @@ export const mockPersonalSubscription = {
   plan: "pro",
   referenceId: "user_demo_123", // User ID for personal subscriptions
   status: "active" as const,
-  currentPeriodStart: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
-  currentPeriodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+  periodStart: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+  periodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
   cancelAtPeriodEnd: false,
-  cancelAt: null,
   stripeCustomerId: "cus_demo_456",
   stripeSubscriptionId: "sub_stripe_456",
   createdAt: new Date("2024-01-01"),
