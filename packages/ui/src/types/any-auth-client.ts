@@ -36,4 +36,8 @@ export interface AnyAuthClient {
     resetPassword: any;
     signUp: any;
     phoneNumber: any;
+    siwe: {
+        nonce: (params: { walletAddress: string; chainId?: number }) => Promise<{ data?: { nonce: string }; error?: any }>;
+        verify: (params: { message: string; signature: string; walletAddress: string; chainId?: number; email?: string; fetchOptions?: any }, callbacks?: { onSuccess?: () => void; onError?: (ctx: any) => void }) => Promise<any>;
+    };
 }

@@ -205,6 +205,21 @@ export { FormError } from "./components/utility/form-error";
 export type { ProviderIcon } from "./components/utility/provider-icons";
 
 // ============================================================================
+// Web3/SIWE Components
+// ============================================================================
+export { SiweSignInButton } from "./components/web3/siwe-sign-in-button";
+export type {
+  SiweSignInButtonProps,
+  SiweSignInButtonClassNames
+} from "./components/web3/siwe-sign-in-button";
+
+export { WalletConnectionCard } from "./components/web3/wallet-connection-card";
+export type {
+  WalletConnectionCardProps,
+  WalletConnectionCardClassNames
+} from "./components/web3/wallet-connection-card";
+
+// ============================================================================
 // Hooks
 // ============================================================================
 export { useIsHydrated } from "./hooks/use-hydrated";

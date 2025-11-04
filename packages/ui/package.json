@@ -1,6 +1,6 @@
 {
   "name": "@bettercone/ui",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Comprehensive Better Auth components: authentication, security, organizations, billing, and team management for React",
   "keywords": [
     "better-auth",
@@ -16,6 +16,9 @@
     "passkeys",
     "phone-auth",
     "otp",
+    "siwe",
+    "web3",
+    "ethereum",
     "organizations",
     "billing",
     "stripe",
