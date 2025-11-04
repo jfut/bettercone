@@ -646,13 +646,16 @@ export const mockWalletConnections = [
     address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
     chainId: 1, // Ethereum Mainnet
     ensName: "alexjohnson.eth",
+    provider: "MetaMask",
     connectedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     lastUsed: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    isPrimary: true,
   },
   {
     id: "wallet_2",
     address: "0x1234567890123456789012345678901234567890",
     chainId: 137, // Polygon
+    provider: "WalletConnect",
     connectedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
     lastUsed: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
   },

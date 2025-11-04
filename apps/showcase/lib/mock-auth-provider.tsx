@@ -149,5 +149,18 @@ export const mockAuthClient = {
     error: undefined,
   }),
   
-  $fetch: async () => ({ data: null, error: null }),
+  $fetch: async (url: string) => {
+    // Mock wallet API endpoints
+    if (url === "/api/auth/wallets") {
+      const { mockWalletConnections } = await import("./mock-data");
+      return { wallets: mockWalletConnections };
+    }
+    if (url === "/api/auth/wallets/connect") {
+      return { data: null, error: null };
+    }
+    if (url === "/api/auth/wallets/disconnect") {
+      return { data: null, error: null };
+    }
+    return { data: null, error: null };
+  },
 };
