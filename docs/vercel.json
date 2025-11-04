@@ -1,7 +1,3 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm turbo build --filter=docs",
-  "installCommand": "pnpm install",
-  "framework": null,
-  "outputDirectory": "docs/.next"
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }
