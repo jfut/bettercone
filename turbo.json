@@ -4,15 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "env": [
-        "CONVEX_DEPLOYMENT",
-        "GITHUB_CLIENT_ID",
-        "GITHUB_CLIENT_SECRET",
-        "NEXT_PUBLIC_CONVEX_URL",
-        "NEXT_PUBLIC_CONVEX_SITE_URL",
-        "SITE_URL"
-      ]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "dev": {
       "cache": false,
@@ -28,10 +20,5 @@
     "clean": {
       "cache": false
     }
-  },
-  "globalEnv": [
-    "NODE_ENV",
-    "CONVEX_DEPLOYMENT",
-    "NEXT_PUBLIC_CONVEX_URL"
-  ]
+  }
 }

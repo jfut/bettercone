@@ -1,26 +1,55 @@
-# BetterCone
+# @bettercone/ui
 
-A production-ready B2B SaaS starter template built with Better Auth, Convex, and Next.js.
+The complete React component library for Better Auth applications.
 
-## @bettercone/ui Component Library
+[![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
+[![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 
-**Now published on npm!** Use our production-ready components in any React + Better Auth project:
+**Production-ready components for modern authentication workflows:**
 
 ```bash
 npm install @bettercone/ui better-auth
 ```
 
-[![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
-[![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
-
 **Features:**
-- ⚛️ Framework-agnostic (Next.js, Vite, Remix, any React framework)
+- ⚛️ Framework-agnostic (Next.js, Vite, Remix, any React framework)  
 - 🔌 Backend-agnostic (Convex, Prisma, Supabase, Drizzle)
-- 🎨 12 production-ready components (billing, pricing, usage, team management)
+- 🎨 12+ production-ready components for auth, billing, and teams
 - 🔒 Fully typed with TypeScript
-- 🎨 Customizable with Tailwind CSS
+- 🎨 Customizable with Tailwind CSS and CSS variables
+- 📱 Mobile-first responsive design
 
-[View Documentation](https://docs.bettercone.com) • [npm Package](https://www.npmjs.com/package/@bettercone/ui)
+**Links:**
+- 🌐 [Component Showcase](https://bettercone.com)
+- 📚 [Full Documentation](https://docs.bettercone.com)
+- 📦 [npm Package](https://www.npmjs.com/package/@bettercone/ui)
+
+## Quick Start
+
+1. **Install the package:**
+   ```bash
+   npm install @bettercone/ui better-auth
+   ```
+
+2. **Set up Better Auth** (if you haven't already):
+   ```bash
+   npm install better-auth
+   ```
+
+3. **Import and use components:**
+   ```tsx
+   import { SignInForm, SignUpForm } from "@bettercone/ui"
+   
+   export default function AuthPage() {
+     return (
+       <div className="max-w-md mx-auto">
+         <SignInForm />
+       </div>
+     )
+   }
+   ```
+
+## Component Library
 
 ## What's Included
 
@@ -48,78 +77,123 @@ pnpm install
 Copy the example environment file:
 
 ```bash
-cp apps/web/.env.example apps/web/.env.local
-```
+All components are designed to work seamlessly with Better Auth:
 
-Configure the required variables:
+**Authentication Components:**
+- `<SignInForm />` - Complete sign-in form with email/password and OAuth
+- `<SignUpForm />` - Registration form with validation
+- `<TwoFactorForm />` - Two-factor authentication setup
+- `<PasskeyForm />` - Modern passkey authentication
+- `<ForgotPasswordForm />` - Password reset workflow
+- `<UserMenu />` - Dropdown menu with user actions
 
-- **Convex**: Run `pnpm convex dev` and copy the deployment URL
-- **Better Auth**: Set `BETTER_AUTH_SECRET` (generate with `openssl rand -base64 32`)
-- **OAuth**: Add Google/GitHub client IDs and secrets
-- **Stripe**: Add your Stripe secret key and webhook secret
-- **Resend**: Add your Resend API key for emails
+**Billing & Subscription Components:**
+- `<PricingCards />` - Professional pricing display
+- `<BillingManagement />` - Subscription management interface
+- `<UsageProgress />` - Visual usage tracking
+- `<InvoicesList />` - Customer invoice history
 
-### 3. Run Development Server
+**Team Management Components:**
+- `<TeamSettings />` - Team configuration panel
+- `<MembersList />` - Team member management
+- `<InviteForm />` - Send team invitations
 
-```bash
-pnpm dev
-```
+## Repository Structure
 
-Open [http://localhost:3000](http://localhost:3000) to see your app.
-
-### 4. Deploy Convex
-
-```bash
-cd packages/db
-pnpm convex deploy
-```
-
-## Project Structure
+This monorepo contains:
 
 ```
 bettercone/
 ├── apps/
-│   └── web/              # Next.js application
+│   └── showcase/         # Component showcase (bettercone.com)
 ├── packages/
-│   ├── auth/             # Better Auth configuration
-│   ├── db/               # Convex database and functions
-│   ├── emails/           # Email templates with React Email
-│   ├── i18n/             # Internationalization
-│   ├── stripe/           # Stripe integration
-│   └── ui/               # Shared UI components
-└── scripts/              # Utility scripts
+│   └── ui/               # @bettercone/ui source code
+└── docs/                 # Documentation source
 ```
 
-## Configuration
+## Development
 
-### Stripe Products
+To contribute or customize the library:
 
-1. Create products in Stripe Dashboard
-2. Update `packages/stripe/src/config.ts` with your product IDs
-3. Configure webhook endpoint: `https://yourdomain.com/api/stripe/webhook`
+```bash
+# Clone the repository
+git clone https://github.com/vncsleal/bettercone.git
+cd bettercone
 
-### OAuth Providers
+# Install dependencies
+pnpm install
 
-Configure callback URLs in your OAuth apps:
-- **Google**: `https://yourdomain.com/api/auth/callback/google`
-- **GitHub**: `https://yourdomain.com/api/auth/callback/github`
+# Start development
+pnpm dev
+```
 
-### Customization
+This will start:
+- Component showcase at `http://localhost:3000`
+- Documentation at `http://localhost:3001`
 
-- **Branding**: Edit `apps/web/src/config/site.ts`
-- **Theming**: Modify `apps/web/src/app/globals.css`
-- **Components**: Extend components in `packages/ui/`
-- **Database**: Add Convex schemas in `packages/db/convex/schema.ts`
+## Framework Integration
+
+### Next.js
+
+```tsx
+// app/auth/page.tsx
+import { SignInForm } from "@bettercone/ui"
+
+export default function AuthPage() {
+  return <SignInForm />
+}
+```
+
+### Vite/React
+
+```tsx
+// src/components/Auth.tsx
+import { SignUpForm } from "@bettercone/ui"
+
+export function Auth() {
+  return <SignUpForm />
+}
+```
+
+### Remix
+
+```tsx
+// app/routes/auth.tsx
+import { SignInForm } from "@bettercone/ui"
+
+export default function AuthRoute() {
+  return <SignInForm />
+}
+```
+
+## Customization
+
+All components support full customization via CSS variables and Tailwind CSS:
+
+```css
+/* globals.css */
+:root {
+  --primary: 210 40% 50%;
+  --primary-foreground: 210 40% 98%;
+  /* ... */
+}
+```
 
 ## Documentation
 
-Full documentation available at: [docs.bettercone.com](https://docs.bettercone.com)
+Complete documentation and examples:
 
-- [Authentication Guide](https://docs.bettercone.com/docs/guides/authentication)
-- [Billing & Stripe](https://docs.bettercone.com/docs/guides/stripe)
-- [Teams & Organizations](https://docs.bettercone.com/docs/guides/teams)
-- [Deployment](https://docs.bettercone.com/docs/guides/deployment)
-- [Customization](https://docs.bettercone.com/docs/guides/customization)
+- 📚 [Full Documentation](https://docs.bettercone.com)
+- 🌐 [Component Showcase](https://bettercone.com)
+- 📦 [npm Package](https://www.npmjs.com/package/@bettercone/ui)
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
+
+## License
+
+MIT License - see [LICENSE](./LICENSE) for details.
 
 ## Tech Stack
 
