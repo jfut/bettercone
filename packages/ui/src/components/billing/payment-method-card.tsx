@@ -1,128 +1,109 @@
 /**
  * PaymentMethodCard Component
- * Displays and manages payment methods
- * Backend-agnostic - works with any Better Auth implementation
+ * Displays payment method information and billing portal access
+ * 
+ * Better Auth Stripe plugin manages payment methods through the billing portal.
+ * This component provides UI to access that portal.
  */
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { CreditCard, Loader2, Plus } from "lucide-react";
+import { useState, useContext } from "react";
+import { CreditCard, ExternalLink, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
-import type { BetterAuthClient, BetterAuthSubscription, BetterAuthOrganization } from "../../types/auth";
+import { AuthUIContext } from "../../lib/auth-ui-provider";
+import type { PaymentMethod } from "../../types/subscription";
 import type { BillingLocalization } from "../../types/localization";
 
 export interface PaymentMethodCardProps {
-  /** Better Auth client instance */
-  authClient: BetterAuthClient;
-  
-  /** Optional CSS class name */
+  data?: PaymentMethod;
+  referenceId?: string;
   className?: string;
-  
-  /** CSS class names for specific parts */
   classNames?: {
     base?: string;
     header?: string;
     content?: string;
     footer?: string;
   };
-  
-  /** Localization strings */
   localization?: Partial<BillingLocalization>;
-  
-  /** Show action buttons */
   showActions?: boolean;
-  
-  /** Callback when manage payment is clicked */
-  onManagePayment?: (subscription?: BetterAuthSubscription, organization?: BetterAuthOrganization) => Promise<void> | void;
+  onBeforeManage?: () => Promise<void> | void;
 }
 
 const defaultPaymentLocalization = {
   paymentMethod: "Payment Method",
   managePaymentDescription: "Manage your payment methods and billing information",
-  configuredInStripe: "Configured in Stripe",
-  manageViaPortal: "Manage via billing portal",
+  configuredInStripe: "Managed via Stripe",
+  manageViaPortal: "Update payment methods in the billing portal",
   stripe: "Stripe",
-  organizationBilling: "Payment method for",
-  updatePaymentMethod: "Update Payment Method",
+  updatePaymentMethod: "Manage Payment Methods",
+  noBillingPortal: "Billing portal not configured",
 } as const;
 
 export function PaymentMethodCard({
-  authClient,
+  data: paymentMethod,
+  referenceId,
   className,
   classNames,
   localization,
   showActions = true,
-  onManagePayment,
+  onBeforeManage,
 }: PaymentMethodCardProps) {
+  const context = useContext(AuthUIContext);
   const loc = { ...defaultPaymentLocalization, ...localization };
-  const [isLoading, setIsLoading] = useState(false);
-  const [subscriptions, setSubscriptions] = useState<BetterAuthSubscription[] | undefined>(undefined);
-
-  // Better Auth hooks
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
-  const { data: organizations, isPending: isOrgsPending } = authClient.useListOrganizations();
-
-  // Fetch subscriptions
-  useEffect(() => {
-    if (!session?.user || !authClient.subscription?.list) return;
-    
-    authClient.subscription
-      .list()
-      .then(({ data, error }) => {
-        if (error) {
-          console.error("[PaymentMethodCard] Error fetching subscriptions:", error);
-          setSubscriptions([]);
-        } else {
-          setSubscriptions(data || []);
-        }
-      })
-      .catch((err) => {
-        console.error("[PaymentMethodCard] Exception fetching subscriptions:", err);
-        setSubscriptions([]);
-      });
-  }, [session?.user, authClient]);
-
-  // Show skeleton while loading
-  if (isSessionPending || isOrgsPending || subscriptions === undefined) {
-    return <PaymentMethodCardSkeleton className={cn(className, classNames?.base)} />;
-  }
-
-  // Build complete list of valid reference IDs (user + all orgs)
-  const validReferenceIds = [
-    ...(session?.user?.id ? [session.user.id] : []),
-    ...(organizations || []).map((org) => org.id),
-  ];
-
-  // Find active subscription
-  const subscription =
-    subscriptions?.find(
-      (sub) =>
-        validReferenceIds.includes(sub.referenceId) &&
-        (sub.status === "active" || sub.status === "trialing")
-    ) ||
-    subscriptions?.find((sub) => validReferenceIds.includes(sub.referenceId));
-
-  // Determine which org this subscription belongs to
-  const activeOrg = subscription
-    ? organizations?.find((org) => org.id === subscription.referenceId)
-    : organizations?.[0];
-
+  const [isPortalLoading, setIsPortalLoading] = useState(false);
+  
+  const session = context?.hooks?.useSession?.()?.data;
+  const actualReferenceId = referenceId || session?.user?.id;
+  
   const handleManagePayment = async () => {
-    if (!onManagePayment) return;
-    
-    setIsLoading(true);
+    if (!context?.authClient?.subscription?.billingPortal) {
+      console.error("[PaymentMethodCard] Billing portal not available");
+      return;
+    }
+
+    setIsPortalLoading(true);
     try {
-      await onManagePayment(subscription, activeOrg || undefined);
+      if (onBeforeManage) {
+        await onBeforeManage();
+      }
+
+      const { data, error } = await context.authClient.subscription.billingPortal({
+        referenceId: actualReferenceId,
+        returnUrl: window.location.href
+      });
+
+      if (error) {
+        context.toast?.({
+          variant: "error",
+          message: "Failed to open billing portal"
+        });
+      } else if (data?.url) {
+        window.location.href = data.url;
+      }
     } catch (error) {
       console.error("Failed to manage payment:", error);
+      context?.toast?.({
+        variant: "error",
+        message: "Failed to open billing portal"
+      });
     } finally {
-      setIsLoading(false);
+      setIsPortalLoading(false);
     }
+  };
+
+  const formatCardBrand = (brand?: string) => {
+    if (!brand) return "";
+    return brand.charAt(0).toUpperCase() + brand.slice(1);
+  };
+
+  const formatExpiry = (month?: number, year?: number) => {
+    if (!month || !year) return "";
+    return `${month.toString().padStart(2, "0")}/${year.toString().slice(-2)}`;
   };
 
   return (
@@ -144,40 +125,63 @@ export function PaymentMethodCard({
               <CreditCard className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium">
-                {loc.configuredInStripe}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {loc.manageViaPortal}
-              </p>
+              {paymentMethod ? (
+                <>
+                  <p className="text-sm font-medium">
+                    {formatCardBrand(paymentMethod.brand)} •••• {paymentMethod.last4}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {paymentMethod.expiryMonth && paymentMethod.expiryYear
+                      ? `Expires ${formatExpiry(paymentMethod.expiryMonth, paymentMethod.expiryYear)}`
+                      : loc.manageViaPortal
+                    }
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium">
+                    {loc.configuredInStripe}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {loc.manageViaPortal}
+                  </p>
+                </>
+              )}
             </div>
           </div>
-          <Badge variant="secondary">
-            {loc.stripe}
-          </Badge>
-        </div>
-
-        {activeOrg && (
-          <div className="text-xs text-muted-foreground">
-            {loc.organizationBilling} {activeOrg.name}
+          <div className="flex gap-2">
+            <Badge variant="secondary">
+              {loc.stripe}
+            </Badge>
+            {paymentMethod?.isDefault && (
+              <Badge variant="default">Default</Badge>
+            )}
           </div>
-        )}
+        </div>
       </CardContent>
 
-      {showActions && onManagePayment && (
+      {showActions && context?.authClient?.subscription?.billingPortal && (
         <CardFooter className={classNames?.footer}>
           <Button
             onClick={handleManagePayment}
-            disabled={isLoading}
+            disabled={isPortalLoading}
             className="w-full flex items-center gap-2"
           >
-            {isLoading ? (
+            {isPortalLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Plus className="h-4 w-4" />
+              <ExternalLink className="h-4 w-4" />
             )}
             {loc.updatePaymentMethod}
           </Button>
+        </CardFooter>
+      )}
+      
+      {showActions && !context?.authClient?.subscription?.billingPortal && (
+        <CardFooter className={classNames?.footer}>
+          <div className="w-full text-center text-sm text-muted-foreground">
+            {loc.noBillingPortal}
+          </div>
         </CardFooter>
       )}
     </Card>
@@ -197,6 +201,32 @@ export function PaymentMethodCardSkeleton({ className }: { className?: string })
       <CardFooter>
         <Skeleton className="h-10 w-full" />
       </CardFooter>
+    </Card>
+  );
+}
+
+export function PaymentMethodCardError({ 
+  error, 
+  message,
+  className 
+}: { 
+  error?: Error
+  message?: string
+  className?: string 
+}) {
+  return (
+    <Card className={cn("w-full", className)}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-destructive">
+          <AlertCircle className="h-5 w-5" />
+          Error Loading Payment Method
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          {message || error?.message || "Failed to load payment method data"}
+        </p>
+      </CardContent>
     </Card>
   );
 }

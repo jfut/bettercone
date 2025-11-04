@@ -1,43 +1,38 @@
 /**
  * InvoiceHistoryCard Component
- * Displays past invoices with download functionality
- * Backend-agnostic - works with any Better Auth implementation
+ * Displays invoice history with billing portal access
+ * 
+ * Better Auth Stripe plugin manages invoices through the billing portal.
+ * This component provides UI to access invoice history.
  */
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { FileText, ExternalLink } from "lucide-react";
+import { useState, useContext } from "react";
+import { FileText, ExternalLink, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
-import type { BetterAuthClient, BetterAuthSubscription, BetterAuthOrganization } from "../../types/auth";
+import { AuthUIContext } from "../../lib/auth-ui-provider";
+import type { Invoice, InvoiceStatus } from "../../types/subscription";
 import type { BillingLocalization } from "../../types/localization";
 
 export interface InvoiceHistoryCardProps {
-  /** Better Auth client instance */
-  authClient: BetterAuthClient;
-  
-  /** Optional CSS class name */
+  data?: Invoice[];
+  referenceId?: string;
   className?: string;
-  
-  /** CSS class names for specific parts */
   classNames?: {
     base?: string;
     header?: string;
     content?: string;
-    invoice?: string;
+    footer?: string;
   };
-  
-  /** Localization strings */
   localization?: Partial<BillingLocalization>;
-  
-  /** Maximum number of invoices to display */
   maxInvoices?: number;
-  
-  /** Callback when view invoices is clicked */
-  onViewInvoices?: (subscription?: BetterAuthSubscription, organization?: BetterAuthOrganization) => Promise<void> | void;
+  showActions?: boolean;
+  onBeforeManage?: () => Promise<void> | void;
 }
 
 const defaultInvoiceLocalization = {
@@ -45,77 +40,93 @@ const defaultInvoiceLocalization = {
   viewDownloadInvoices: "View and download your invoices",
   noInvoices: "No invoices yet",
   invoicesAppearHere: "Invoices will appear here after your first payment",
-  viewAllInvoices: "Open Billing Portal",
+  viewAllInvoices: "View All Invoices",
+  noBillingPortal: "Billing portal not configured",
+  paid: "Paid",
+  open: "Open",
+  draft: "Draft",
+  void: "Void",
+  uncollectible: "Uncollectible",
 } as const;
 
+const statusVariants: Record<InvoiceStatus, "default" | "secondary" | "destructive" | "outline"> = {
+  paid: "default",
+  open: "secondary",
+  draft: "outline",
+  void: "destructive",
+  uncollectible: "destructive",
+};
+
 export function InvoiceHistoryCard({
-  authClient,
+  data: invoices,
+  referenceId,
   className,
   classNames,
   localization,
   maxInvoices = 5,
-  onViewInvoices,
+  showActions = true,
+  onBeforeManage,
 }: InvoiceHistoryCardProps) {
+  const context = useContext(AuthUIContext);
   const loc = { ...defaultInvoiceLocalization, ...localization };
-  const [subscriptions, setSubscriptions] = useState<BetterAuthSubscription[] | undefined>(undefined);
+  const [isPortalLoading, setIsPortalLoading] = useState(false);
+  
+  const session = context?.hooks?.useSession?.()?.data;
+  const actualReferenceId = referenceId || session?.user?.id;
 
-  // Better Auth hooks
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
-  const { data: organizations, isPending: isOrgsPending } = authClient.useListOrganizations();
-
-  // Fetch subscriptions
-  useEffect(() => {
-    if (!session?.user || !authClient.subscription?.list) return;
-    
-    authClient.subscription
-      .list()
-      .then(({ data, error }) => {
-        if (error) {
-          console.error("[InvoiceHistoryCard] Error fetching subscriptions:", error);
-          setSubscriptions([]);
-        } else {
-          setSubscriptions(data || []);
-        }
-      })
-      .catch((err) => {
-        console.error("[InvoiceHistoryCard] Exception fetching subscriptions:", err);
-        setSubscriptions([]);
-      });
-  }, [session?.user, authClient]);
-
-  // Show skeleton while loading
-  if (isSessionPending || isOrgsPending || subscriptions === undefined) {
-    return <InvoiceHistoryCardSkeleton className={cn(className, classNames?.base)} />;
-  }
-
-  // Build complete list of valid reference IDs (user + all orgs)
-  const validReferenceIds = [
-    ...(session?.user?.id ? [session.user.id] : []),
-    ...(organizations || []).map((org) => org.id),
-  ];
-
-  // Find active subscription
-  const subscription =
-    subscriptions?.find(
-      (sub) =>
-        validReferenceIds.includes(sub.referenceId) &&
-        (sub.status === "active" || sub.status === "trialing")
-    ) ||
-    subscriptions?.find((sub) => validReferenceIds.includes(sub.referenceId));
-
-  // Determine which org this subscription belongs to
-  const activeOrg = subscription
-    ? organizations?.find((org) => org.id === subscription.referenceId)
-    : undefined;
+  const displayInvoices = invoices?.slice(0, maxInvoices) || [];
 
   const handleViewInvoices = async () => {
-    if (!onViewInvoices) return;
-    
-    try {
-      await onViewInvoices(subscription, activeOrg);
-    } catch (error) {
-      console.error("[InvoiceHistoryCard] Exception opening billing portal:", error);
+    if (!context?.authClient?.subscription?.billingPortal) {
+      console.error("[InvoiceHistoryCard] Billing portal not available");
+      return;
     }
+
+    setIsPortalLoading(true);
+    try {
+      if (onBeforeManage) {
+        await onBeforeManage();
+      }
+
+      const { data, error } = await context.authClient.subscription.billingPortal({
+        referenceId: actualReferenceId,
+        returnUrl: window.location.href
+      });
+
+      if (error) {
+        context.toast?.({
+          variant: "error",
+          message: "Failed to open billing portal"
+        });
+      } else if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Failed to view invoices:", error);
+      context?.toast?.({
+        variant: "error",
+        message: "Failed to open billing portal"
+      });
+    } finally {
+      setIsPortalLoading(false);
+    }
+  };
+
+  const formatDate = (date?: Date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const formatAmount = (amount?: number, currency?: string) => {
+    if (amount === undefined) return "";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency || "USD",
+    }).format(amount / 100);
   };
 
   return (
@@ -131,10 +142,10 @@ export function InvoiceHistoryCard({
       </CardHeader>
 
       <CardContent className={cn("space-y-3", classNames?.content)}>
-        {!subscription ? (
+        {displayInvoices.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <FileText className="h-12 w-12 text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm font-medium">
               {loc.noInvoices}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
@@ -142,23 +153,66 @@ export function InvoiceHistoryCard({
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              View and manage your invoices, payment history, and billing details in the billing portal.
-            </p>
-            {onViewInvoices && (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleViewInvoices}
+          <div className="space-y-2">
+            {displayInvoices.map((invoice) => (
+              <div
+                key={invoice.id}
+                className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
               >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                {loc.viewAllInvoices}
-              </Button>
-            )}
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-muted rounded">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {formatDate(invoice.createdAt)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {invoice.number || invoice.id}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-sm font-medium">
+                      {formatAmount(invoice.amount, invoice.currency)}
+                    </p>
+                    <Badge variant={statusVariants[invoice.status]} className="text-xs">
+                      {loc[invoice.status] || invoice.status}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>
+
+      {showActions && context?.authClient?.subscription?.billingPortal && (
+        <CardFooter className={classNames?.footer}>
+          <Button
+            variant="outline"
+            onClick={handleViewInvoices}
+            disabled={isPortalLoading}
+            className="w-full flex items-center gap-2"
+          >
+            {isPortalLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ExternalLink className="h-4 w-4" />
+            )}
+            {loc.viewAllInvoices}
+          </Button>
+        </CardFooter>
+      )}
+
+      {showActions && !context?.authClient?.subscription?.billingPortal && (
+        <CardFooter className={classNames?.footer}>
+          <div className="w-full text-center text-sm text-muted-foreground">
+            {loc.noBillingPortal}
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 }
@@ -174,6 +228,35 @@ export function InvoiceHistoryCardSkeleton({ className }: { className?: string }
         {[...Array(3)].map((_, i) => (
           <Skeleton key={i} className="h-16 w-full" />
         ))}
+      </CardContent>
+      <CardFooter>
+        <Skeleton className="h-10 w-full" />
+      </CardFooter>
+    </Card>
+  );
+}
+
+export function InvoiceHistoryCardError({ 
+  error, 
+  message,
+  className 
+}: { 
+  error?: Error
+  message?: string
+  className?: string 
+}) {
+  return (
+    <Card className={cn("w-full", className)}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-destructive">
+          <AlertCircle className="h-5 w-5" />
+          Error Loading Invoices
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          {message || error?.message || "Failed to load invoice data"}
+        </p>
       </CardContent>
     </Card>
   );
