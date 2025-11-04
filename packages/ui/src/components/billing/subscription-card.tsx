@@ -1,29 +1,49 @@
 /**
  * SubscriptionCard Component
  * Displays current subscription with management actions
- * Backend-agnostic - works with any Better Auth implementation
+ * 
+ * Supports three modes:
+ * 1. Auto-fetch: Uses Better Auth Stripe plugin (authClient.subscription.list())
+ * 2. Custom backend: Uses custom authClient.subscription implementation
+ * 3. Presentational: Manual data passing via props
+ * 
+ * @see https://www.better-auth.com/docs/plugins/stripe
  */
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { CreditCard, ExternalLink, Settings, Loader2 } from "lucide-react";
+import { useState, useEffect, useContext } from "react";
+import { CreditCard, ExternalLink, Settings, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
-import type { BetterAuthClient, BetterAuthSubscription, BetterAuthOrganization } from "../../types/auth";
+import { AuthUIContext } from "../../lib/auth-ui-provider";
+import type { Subscription } from "../../types/subscription";
 import type { BillingLocalization } from "../../types/localization";
 
 export interface SubscriptionCardProps {
-  /** Better Auth client instance */
-  authClient: BetterAuthClient;
+  /**
+   * Subscription data (optional)
+   * If not provided, component will auto-fetch using authClient.subscription.list()
+   */
+  data?: Subscription;
   
-  /** Optional CSS class name */
+  /**
+   * Reference ID to fetch subscription for
+   * Defaults to current user ID
+   */
+  referenceId?: string;
+  
+  /**
+   * Optional CSS class name
+   */
   className?: string;
   
-  /** CSS class names for specific parts */
+  /**
+   * CSS class names for specific parts
+   */
   classNames?: {
     base?: string;
     header?: string;
@@ -34,19 +54,29 @@ export interface SubscriptionCardProps {
     actions?: string;
   };
   
-  /** Localization strings */
+  /**
+   * Localization strings
+   */
   localization?: Partial<BillingLocalization>;
   
-  /** Show action buttons */
+  /**
+   * Show action buttons
+   */
   showActions?: boolean;
   
-  /** Callback when manage subscription is clicked */
-  onManageSubscription?: (subscription: BetterAuthSubscription, organization?: BetterAuthOrganization) => Promise<void> | void;
+  /**
+   * Callback before opening billing portal
+   */
+  onBeforeManage?: (subscription: Subscription) => Promise<void> | void;
   
-  /** Callback for action buttons */
-  onAction?: (action: "manage" | "cancel" | "upgrade", subscription?: BetterAuthSubscription) => void;
+  /**
+   * Callback for action buttons
+   */
+  onAction?: (action: "manage" | "cancel" | "upgrade", subscription?: Subscription) => void;
   
-  /** Custom URL for viewing plans */
+  /**
+   * Custom URL for viewing plans
+   */
   viewPlansUrl?: string;
 }
 
@@ -64,86 +94,119 @@ const defaultSubscriptionLocalization = {
   billingPortal: "Billing Portal",
 } as const;
 
-export function SubscriptionCard({
-  authClient,
+/**
+ * SubscriptionCard - Main component with auto-detection
+ */
+export function SubscriptionCard(props: SubscriptionCardProps) {
+  const context = useContext(AuthUIContext);
+  
+  // Check if auto-fetch is possible
+  const hasSubscriptionAPI = context?.authClient?.subscription?.list;
+  const shouldAutoFetch = hasSubscriptionAPI && !props.data;
+  
+  if (shouldAutoFetch) {
+    return <SubscriptionCardAutoFetch {...props} />;
+  }
+  
+  return <SubscriptionCardPresentational {...props} />;
+}
+
+/**
+ * Auto-fetch implementation
+ */
+function SubscriptionCardAutoFetch(props: SubscriptionCardProps) {
+  const context = useContext(AuthUIContext);
+  
+  if (!context) {
+    return <SubscriptionCardError 
+      message="AuthUIContext not found. Wrap component in AuthUIProvider." 
+      className={props.className}
+    />;
+  }
+  
+  const { authClient, toast, hooks } = context;
+  const [subscriptions, setSubscriptions] = useState<Subscription[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  
+  const { data: session } = hooks.useSession();
+  const referenceId = props.referenceId || session?.user?.id;
+  
+  useEffect(() => {
+    if (!authClient.subscription?.list) {
+      setError(new Error("authClient.subscription.list not available"));
+      setIsLoading(false);
+      return;
+    }
+    
+    const fetchSubscriptions = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error: fetchError } = await authClient.subscription!.list({
+          referenceId
+        });
+        
+        if (fetchError) {
+          setError(fetchError);
+          toast({
+            variant: "error",
+            message: "Failed to load subscription"
+          });
+        } else {
+          setSubscriptions(data || []);
+        }
+      } catch (err) {
+        const error = err as Error;
+        setError(error);
+        toast({
+          variant: "error",
+          message: "Failed to load subscription"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchSubscriptions();
+  }, [referenceId, authClient, toast]);
+  
+  if (isLoading) {
+    return <SubscriptionCardSkeleton className={props.className} />;
+  }
+  
+  if (error) {
+    return <SubscriptionCardError error={error} className={props.className} />;
+  }
+  
+  const activeSubscription = subscriptions?.find(
+    sub => sub.status === "active" || sub.status === "trialing"
+  );
+  
+  return (
+    <SubscriptionCardPresentational 
+      {...props} 
+      data={activeSubscription || undefined}
+    />
+  );
+}
+
+/**
+ * Presentational implementation
+ */
+function SubscriptionCardPresentational({
+  data: subscription,
   className,
   classNames,
   localization,
   showActions = true,
-  onManageSubscription,
+  onBeforeManage,
   onAction,
   viewPlansUrl = "/pricing",
 }: SubscriptionCardProps) {
+  const context = useContext(AuthUIContext);
   const loc = { ...defaultSubscriptionLocalization, ...localization };
   const [isPortalLoading, setIsPortalLoading] = useState(false);
-  const [subscriptions, setSubscriptions] = useState<BetterAuthSubscription[] | undefined>(undefined);
-
-  // Better Auth hooks
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
-  const { data: organizations, isPending: isOrgsPending } = authClient.useListOrganizations();
-
-  // Fetch subscriptions
-  useEffect(() => {
-    if (!session?.user || !authClient.subscription?.list) return;
-    
-    authClient.subscription
-      .list()
-      .then(({ data, error }) => {
-        if (error) {
-          console.error("[SubscriptionCard] Error fetching subscriptions:", error);
-          setSubscriptions([]);
-        } else {
-          setSubscriptions(data || []);
-        }
-      })
-      .catch((err) => {
-        console.error("[SubscriptionCard] Exception fetching subscriptions:", err);
-        setSubscriptions([]);
-      });
-  }, [session?.user, authClient]);
-
-  // Build complete list of valid reference IDs (user + all orgs)
-  const validReferenceIds = [
-    ...(session?.user?.id ? [session.user.id] : []),
-    ...(organizations || []).map((org) => org.id),
-  ];
-
-  // Find active subscription
-  const subscription =
-    subscriptions?.find(
-      (sub) =>
-        validReferenceIds.includes(sub.referenceId) &&
-        (sub.status === "active" || sub.status === "trialing")
-    ) ||
-    subscriptions?.find((sub) => validReferenceIds.includes(sub.referenceId));
-
-  // Determine which org this subscription belongs to
-  const activeOrg = subscription
-    ? organizations?.find((org) => org.id === subscription.referenceId)
-    : organizations?.[0];
-
-  // Show skeleton while loading
-  if (isSessionPending || isOrgsPending || subscriptions === undefined) {
-    return <SubscriptionCardSkeleton className={cn(className, classNames?.base)} />;
-  }
-
-  // Helper functions
-  const handleManageSubscription = async () => {
-    if (!subscription) return;
-
-    setIsPortalLoading(true);
-    try {
-      if (onManageSubscription) {
-        await onManageSubscription(subscription, activeOrg || undefined);
-      }
-      onAction?.("manage", subscription);
-    } catch (error) {
-      console.error("Failed to manage subscription:", error);
-    } finally {
-      setIsPortalLoading(false);
-    }
-  };
-
+  
   const getStatusVariant = (
     status?: string
   ): "default" | "secondary" | "destructive" | "outline" => {
@@ -170,7 +233,41 @@ export function SubscriptionCard({
     });
   };
 
-  // No subscription state
+  const handleManageSubscription = async () => {
+    if (!subscription || !context?.authClient?.subscription?.billingPortal) return;
+
+    setIsPortalLoading(true);
+    try {
+      if (onBeforeManage) {
+        await onBeforeManage(subscription);
+      }
+
+      const { data, error } = await context.authClient.subscription.billingPortal({
+        referenceId: subscription.referenceId,
+        returnUrl: window.location.href
+      });
+
+      if (error) {
+        context.toast({
+          variant: "error",
+          message: "Failed to open billing portal"
+        });
+      } else if (data?.url) {
+        window.location.href = data.url;
+      }
+      
+      onAction?.("manage", subscription);
+    } catch (error) {
+      console.error("Failed to manage subscription:", error);
+      context?.toast({
+        variant: "error",
+        message: "Failed to open billing portal"
+      });
+    } finally {
+      setIsPortalLoading(false);
+    }
+  };
+
   if (!subscription) {
     return (
       <Card className={cn("w-full", className, classNames?.base)}>
@@ -189,9 +286,10 @@ export function SubscriptionCard({
               <p className="text-muted-foreground">
                 {loc.startSubscription}
               </p>
-              {showActions && (
+              {showActions && context?.navigate && (
                 <Button
                   onClick={() => {
+                    context.navigate(viewPlansUrl);
                     onAction?.("upgrade");
                   }}
                 >
@@ -213,20 +311,17 @@ export function SubscriptionCard({
           {loc.currentPlan}
         </CardTitle>
         <CardDescription className={classNames?.description}>
-          {activeOrg
-            ? `${activeOrg.name} subscription`
-            : "Your personal subscription"}
+          Subscription for {subscription.referenceId}
         </CardDescription>
       </CardHeader>
 
       <CardContent className={cn("space-y-4", classNames?.content)}>
-        {/* Plan Info */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Plan</span>
             <div className="flex items-center gap-2">
               <span className="text-lg font-semibold capitalize">
-                {subscription.planId?.replace(/-/g, " ") || "Unknown Plan"}
+                {subscription.plan?.replace(/-/g, " ") || "Unknown Plan"}
               </span>
               <Badge variant={getStatusVariant(subscription.status)}>
                 {subscription.status?.replace(/_/g, " ")}
@@ -234,17 +329,15 @@ export function SubscriptionCard({
             </div>
           </div>
 
-          {/* Next Billing Date */}
-          {subscription.currentPeriodEnd && subscription.status === "active" && (
+          {subscription.periodEnd && subscription.status === "active" && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Next billing date</span>
               <span className="text-sm font-medium">
-                {formatDate(subscription.currentPeriodEnd)}
+                {formatDate(subscription.periodEnd)}
               </span>
             </div>
           )}
 
-          {/* Trial End Date */}
           {subscription.status === "trialing" && subscription.trialEnd && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Trial ends</span>
@@ -254,28 +347,25 @@ export function SubscriptionCard({
             </div>
           )}
 
-          {/* Cancel at Period End Warning */}
-          {subscription.cancelAt && (
+          {subscription.cancelAtPeriodEnd && subscription.periodEnd && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Status</span>
               <span className="text-sm font-medium text-destructive">
-                Cancels on {formatDate(subscription.cancelAt)}
+                Cancels on {formatDate(subscription.periodEnd)}
               </span>
             </div>
           )}
-        </div>
 
-        {/* Reference Info */}
-        {activeOrg && subscription.referenceId === activeOrg.id && (
-          <div className="pt-4 border-t">
-            <p className="text-xs text-muted-foreground">
-              This is an organization subscription. All members have access to premium features.
-            </p>
-          </div>
-        )}
+          {subscription.seats && subscription.seats > 1 && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Seats</span>
+              <span className="text-sm font-medium">{subscription.seats}</span>
+            </div>
+          )}
+        </div>
       </CardContent>
 
-      {showActions && onManageSubscription && (
+      {showActions && context?.authClient?.subscription?.billingPortal && (
         <CardFooter className={cn("flex gap-2", classNames?.footer, classNames?.actions)}>
           <Button
             onClick={handleManageSubscription}
@@ -289,22 +379,25 @@ export function SubscriptionCard({
             )}
             {loc.manageSubscription}
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleManageSubscription}
-            disabled={isPortalLoading}
-            className="flex items-center gap-2"
-          >
-            <ExternalLink className="h-4 w-4" />
-            {loc.billingPortal}
-          </Button>
+          {context?.navigate && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                context.navigate(viewPlansUrl);
+                onAction?.("upgrade", subscription);
+              }}
+              className="flex items-center gap-2"
+            >
+              <ExternalLink className="h-4 w-4" />
+              {loc.viewPlans}
+            </Button>
+          )}
         </CardFooter>
       )}
     </Card>
   );
 }
 
-// Skeleton export
 export function SubscriptionCardSkeleton({ className }: { className?: string }) {
   return (
     <Card className={cn("w-full", className)}>
@@ -323,6 +416,32 @@ export function SubscriptionCardSkeleton({ className }: { className?: string }) 
         <Skeleton className="h-10 flex-1" />
         <Skeleton className="h-10 flex-1" />
       </CardFooter>
+    </Card>
+  );
+}
+
+export function SubscriptionCardError({ 
+  error, 
+  message,
+  className 
+}: { 
+  error?: Error
+  message?: string
+  className?: string 
+}) {
+  return (
+    <Card className={cn("w-full", className)}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-destructive">
+          <AlertCircle className="h-5 w-5" />
+          Error Loading Subscription
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          {message || error?.message || "Failed to load subscription data"}
+        </p>
+      </CardContent>
     </Card>
   );
 }

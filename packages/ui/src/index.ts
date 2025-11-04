@@ -10,6 +10,18 @@ export type {
 
 export type { BillingLocalization } from "./types/localization";
 
+export type { 
+  Subscription,
+  SubscriptionStatus,
+  SubscriptionPlan,
+  PaymentMethod,
+  PaymentMethodType,
+  Invoice,
+  InvoiceStatus,
+  CheckoutSessionParams,
+  BillingPortalParams
+} from "./types/subscription";
+
 // UI Primitives
 export { Button, buttonVariants } from "./components/ui/button";
 export { Badge, badgeVariants } from "./components/ui/badge";
