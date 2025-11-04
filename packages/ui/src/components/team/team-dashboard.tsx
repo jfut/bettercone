@@ -121,8 +121,7 @@ export function TeamDashboard({
 
         {/* Team Billing Card */}
         <TeamBillingCard
-          organization={organization}
-          subscription={subscription}
+          organizationId={organization?.id}
           className={classNames?.billingCard}
           {...teamBillingCardProps}
         />

@@ -16,7 +16,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
-import type { PricingLocalization } from "../../types/localization";
+import type { BillingLocalization } from "../../types/localization";
 
 export interface PricingPlan {
   id: string;
@@ -49,7 +49,7 @@ export interface PricingCardProps {
     footer?: string;
     button?: string;
   };
-  localization?: Partial<PricingLocalization>;
+  localization?: Partial<BillingLocalization>;
   onSubscribe?: (planId: string, interval: BillingInterval) => Promise<void> | void;
   onBeforeCheckout?: () => Promise<void> | void;
   successUrl?: string;
@@ -107,23 +107,11 @@ export function PricingCard({
 
       // Mode A: Auto-checkout with Better Auth Stripe plugin
       if (context?.authClient?.subscription?.upgrade) {
-        const stripePriceId =
-          billingInterval === "yearly" ? plan.stripePriceIdYearly : plan.stripePriceIdMonthly;
-
-        if (!stripePriceId) {
-          console.warn("[PricingCard] No Stripe price ID configured for this plan");
-          // Fall back to custom callback
-          if (onSubscribe) {
-            await onSubscribe(plan.id, billingInterval);
-          }
-          return;
-        }
-
         const { data, error } = await context.authClient.subscription.upgrade({
-          planId: plan.id,
-          stripePriceId,
+          plan: plan.id,
+          annual: billingInterval === "yearly",
           referenceId: actualReferenceId,
-          successUrl: successUrl || window.location.href,
+          successUrl: successUrl || `${window.location.origin}/billing?success=true`,
           cancelUrl: cancelUrl || window.location.href,
         });
 

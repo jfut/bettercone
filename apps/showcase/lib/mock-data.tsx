@@ -271,27 +271,32 @@ export const mockApiKeys = [
   },
 ];
 
-// Mock subscription plans
+// Mock subscription plans (Better Auth v0.3.0 format)
 export const mockPlans = [
   {
-    id: "plan_free",
+    id: "free",
     name: "Free",
-    price: 0,
+    description: "Perfect for trying out the platform",
+    priceMonthly: 0,
+    priceYearly: 0,
     currency: "USD",
-    interval: "month",
     features: [
       "Up to 1,000 API calls/month",
       "1 GB storage",
       "Community support",
       "Basic analytics",
     ],
+    maxUsers: 1,
+    maxProjects: 3,
+    storageGb: 1,
   },
   {
-    id: "plan_pro",
+    id: "pro",
     name: "Pro",
-    price: 49,
+    description: "For growing teams and businesses",
+    priceMonthly: 49,
+    priceYearly: 490,
     currency: "USD",
-    interval: "month",
     features: [
       "Up to 100,000 API calls/month",
       "10 GB storage",
@@ -300,13 +305,20 @@ export const mockPlans = [
       "Custom branding",
       "Priority queue",
     ],
+    popular: true,
+    maxUsers: 10,
+    maxProjects: 50,
+    storageGb: 10,
+    stripePriceIdMonthly: "price_pro_monthly_demo",
+    stripePriceIdYearly: "price_pro_yearly_demo",
   },
   {
-    id: "plan_enterprise",
+    id: "enterprise",
     name: "Enterprise",
-    price: 299,
+    description: "For large organizations with advanced needs",
+    priceMonthly: 299,
+    priceYearly: 2990,
     currency: "USD",
-    interval: "month",
     features: [
       "Unlimited API calls",
       "100 GB storage",
@@ -317,111 +329,109 @@ export const mockPlans = [
       "SLA guarantee",
       "Custom integrations",
     ],
+    maxUsers: 100,
+    storageGb: 100,
+    stripePriceIdMonthly: "price_enterprise_monthly_demo",
+    stripePriceIdYearly: "price_enterprise_yearly_demo",
   },
 ];
 
-// Mock subscription data (Better Auth format)
+// Mock subscription data (Better Auth v0.3.0 format)
 export const mockSubscription = {
   id: "sub_demo_123",
-  referenceId: "org_demo_123", // Must match organization ID for org subscriptions
-  organizationId: "org_demo_123",
-  userId: null,
+  plan: "pro", // Plan ID matching mockPlans
+  referenceId: "org_demo_123", // Organization ID for org subscriptions
   status: "active" as const,
-  planId: "plan_pro",
   currentPeriodStart: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
   currentPeriodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+  cancelAtPeriodEnd: false,
   cancelAt: null,
-  canceledAt: null,
+  seats: 10, // Seat limit for team plans
+  trialStart: new Date("2024-01-01"),
   trialEnd: new Date("2024-01-15"),
-  metadata: {
-    plan: mockPlans[1],
-    amount: 49,
-    currency: "USD",
-    interval: "month",
-  },
+  stripeCustomerId: "cus_demo_123",
+  stripeSubscriptionId: "sub_stripe_123",
   createdAt: new Date("2024-01-01"),
+  updatedAt: new Date(),
 };
 
-// Mock payment method
+// Mock personal subscription (for user-level billing)
+export const mockPersonalSubscription = {
+  id: "sub_demo_456",
+  plan: "pro",
+  referenceId: "user_demo_123", // User ID for personal subscriptions
+  status: "active" as const,
+  currentPeriodStart: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+  currentPeriodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+  cancelAtPeriodEnd: false,
+  cancelAt: null,
+  stripeCustomerId: "cus_demo_456",
+  stripeSubscriptionId: "sub_stripe_456",
+  createdAt: new Date("2024-01-01"),
+  updatedAt: new Date(),
+};
+
+// Mock payment method (Better Auth v0.3.0 format)
 export const mockPaymentMethod = {
   id: "pm_demo_123",
-  type: "card",
-  card: {
-    brand: "visa",
-    last4: "4242",
-    expMonth: 12,
-    expYear: 2026,
-    funding: "credit",
-  },
-  billingDetails: {
-    name: "Alex Johnson",
-    email: "demo@bettercone.com",
-    address: {
-      line1: "123 Main Street",
-      line2: "Apt 4B",
-      city: "San Francisco",
-      state: "CA",
-      postalCode: "94102",
-      country: "US",
-    },
-  },
+  type: "card" as const,
+  last4: "4242",
+  brand: "visa" as const,
+  expiryMonth: 12,
+  expiryYear: 2026,
   isDefault: true,
   createdAt: new Date("2024-01-15"),
 };
 
-// Mock invoices
+// Mock invoices (Better Auth v0.3.0 format)
 export const mockInvoices = [
   {
     id: "inv_2024_04",
     number: "INV-2024-0004",
-    amount: 49,
-    currency: "USD",
-    status: "paid",
-    description: "Pro Plan - April 2024",
+    amount: 4900, // Amount in cents
+    currency: "usd",
+    status: "paid" as const,
     createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
     dueDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
     paidAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    invoiceUrl: "#invoice-2024-04",
-    invoicePdf: "#invoice-2024-04.pdf",
+    pdfUrl: "https://stripe.com/invoices/inv_2024_04.pdf",
+    hostedInvoiceUrl: "https://stripe.com/invoices/inv_2024_04",
   },
   {
     id: "inv_2024_03",
     number: "INV-2024-0003",
-    amount: 49,
-    currency: "USD",
-    status: "paid",
-    description: "Pro Plan - March 2024",
+    amount: 4900,
+    currency: "usd",
+    status: "paid" as const,
     createdAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
     dueDate: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
     paidAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
-    invoiceUrl: "#invoice-2024-03",
-    invoicePdf: "#invoice-2024-03.pdf",
+    pdfUrl: "https://stripe.com/invoices/inv_2024_03.pdf",
+    hostedInvoiceUrl: "https://stripe.com/invoices/inv_2024_03",
   },
   {
     id: "inv_2024_02",
     number: "INV-2024-0002",
-    amount: 49,
-    currency: "USD",
-    status: "paid",
-    description: "Pro Plan - February 2024",
+    amount: 4900,
+    currency: "usd",
+    status: "paid" as const,
     createdAt: new Date(Date.now() - 65 * 24 * 60 * 60 * 1000),
     dueDate: new Date(Date.now() - 65 * 24 * 60 * 60 * 1000),
     paidAt: new Date(Date.now() - 65 * 24 * 60 * 60 * 1000),
-    invoiceUrl: "#invoice-2024-02",
-    invoicePdf: "#invoice-2024-02.pdf",
+    pdfUrl: "https://stripe.com/invoices/inv_2024_02.pdf",
+    hostedInvoiceUrl: "https://stripe.com/invoices/inv_2024_02",
   },
   {
     id: "inv_2024_01",
     number: "INV-2024-0001",
-    amount: 49,
-    currency: "USD",
-    status: "paid",
-    description: "Pro Plan - January 2024",
+    amount: 4900,
+    currency: "usd",
+    status: "paid" as const,
     createdAt: new Date(Date.now() - 95 * 24 * 60 * 60 * 1000),
     dueDate: new Date(Date.now() - 95 * 24 * 60 * 60 * 1000),
     paidAt: new Date(Date.now() - 95 * 24 * 60 * 60 * 1000),
-    invoiceUrl: "#invoice-2024-01",
-    invoicePdf: "#invoice-2024-01.pdf",
+    pdfUrl: "https://stripe.com/invoices/inv_2024_01.pdf",
+    hostedInvoiceUrl: "https://stripe.com/invoices/inv_2024_01",
   },
 ];
 
@@ -631,6 +641,25 @@ export const mockAccounts = [
   },
 ];
 
+// Mock wallet connections (Web3/SIWE)
+export const mockWalletConnections = [
+  {
+    id: "wallet_1",
+    address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+    chainId: 1, // Ethereum Mainnet
+    ensName: "alexjohnson.eth",
+    connectedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    lastUsed: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+  },
+  {
+    id: "wallet_2",
+    address: "0x1234567890123456789012345678901234567890",
+    chainId: 137, // Polygon
+    connectedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+    lastUsed: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+  },
+];
+
 // Context for mock data
 interface MockDataContextType {
   user: typeof mockUser;
@@ -656,6 +685,7 @@ interface MockDataContextType {
   seatAllocation: typeof mockSeatAllocation;
   activityLog: typeof mockActivityLog;
   accounts: typeof mockAccounts;
+  walletConnections: typeof mockWalletConnections;
 }
 
 const MockDataContext = createContext<MockDataContextType | null>(null);
@@ -685,6 +715,7 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
     seatAllocation: mockSeatAllocation,
     activityLog: mockActivityLog,
     accounts: mockAccounts,
+    walletConnections: mockWalletConnections,
   };
 
   return (
@@ -727,5 +758,6 @@ export const mockData = {
   seatAllocation: mockSeatAllocation,
   activityLog: mockActivityLog,
   accounts: mockAccounts,
+  walletConnections: mockWalletConnections,
 };
 

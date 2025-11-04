@@ -153,9 +153,9 @@ function TeamBillingCardPresentational({
   const activeOrg = context?.hooks?.useActiveOrganization?.()?.data;
   const actualOrgId = organizationId || activeOrg?.id;
 
-  const planName = subscription?.plan?.name || "Free";
-  const nextBillingDate = subscription?.currentPeriodEnd
-    ? new Date(subscription.currentPeriodEnd).toLocaleDateString()
+  const planName = subscription?.plan || "Free";
+  const nextBillingDate = subscription?.periodEnd
+    ? new Date(subscription.periodEnd).toLocaleDateString()
     : "N/A";
 
   const handleManageBilling = async () => {
@@ -270,7 +270,7 @@ function TeamBillingCardPresentational({
                     {loc[subscription.status as keyof typeof loc] || subscription.status}
                   </Badge>
                 </div>
-                {subscription.cancelAt && (
+                {subscription.cancelAtPeriodEnd && (
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">{loc.cancellation}</span>
                     <span className="font-medium text-destructive">

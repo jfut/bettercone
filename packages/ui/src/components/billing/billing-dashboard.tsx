@@ -9,12 +9,9 @@ import { cn } from "../../lib/utils";
 import { SubscriptionCard, SubscriptionCardProps } from "./subscription-card";
 import { PaymentMethodCard, PaymentMethodCardProps } from "./payment-method-card";
 import { InvoiceHistoryCard, InvoiceHistoryCardProps } from "./invoice-history-card";
-import type { BetterAuthClient } from "../../types/auth";
 import type { BillingLocalization } from "../../types/localization";
 
 export interface BillingDashboardProps {
-  /** Better Auth client instance */
-  authClient: BetterAuthClient;
   /** Custom className for the container */
   className?: string;
   /** Custom classNames for individual elements */
@@ -30,11 +27,11 @@ export interface BillingDashboardProps {
   /** Layout type: grid or stack */
   layout?: "grid" | "stack";
   /** Props to pass to SubscriptionCard */
-  subscriptionCardProps?: Omit<SubscriptionCardProps, "authClient" | "localization">;
+  subscriptionCardProps?: Omit<SubscriptionCardProps, "localization">;
   /** Props to pass to PaymentMethodCard */
-  paymentMethodCardProps?: Omit<PaymentMethodCardProps, "authClient" | "localization">;
+  paymentMethodCardProps?: Omit<PaymentMethodCardProps, "localization">;
   /** Props to pass to InvoiceHistoryCard */
-  invoiceHistoryCardProps?: Omit<InvoiceHistoryCardProps, "authClient" | "localization">;
+  invoiceHistoryCardProps?: Omit<InvoiceHistoryCardProps, "localization">;
 }
 
 /**
@@ -45,9 +42,9 @@ export interface BillingDashboardProps {
  * 
  * @example
  * ```tsx
- * <BillingDashboard
- *   authClient={authClient}
- *   layout="grid"
+ * <AuthUIProvider authClient={authClient}>
+ *   <BillingDashboard layout="grid" />
+ * </AuthUIProvider>
  *   subscriptionCardProps={{
  *     onManageSubscription: handleManageSubscription
  *   }}
@@ -58,7 +55,6 @@ export interface BillingDashboardProps {
  * ```
  */
 export function BillingDashboard({
-  authClient,
   className,
   classNames,
   localization,
@@ -73,7 +69,6 @@ export function BillingDashboard({
     <div className={cn("space-y-6", className, classNames?.container)}>
       {/* Main Subscription Card - Full Width */}
       <SubscriptionCard
-        authClient={authClient}
         className={classNames?.subscriptionCard}
         localization={localization}
         {...subscriptionCardProps}
@@ -87,13 +82,11 @@ export function BillingDashboard({
         )}
       >
         <PaymentMethodCard
-          authClient={authClient}
           className={classNames?.paymentCard}
           localization={localization}
           {...paymentMethodCardProps}
         />
         <InvoiceHistoryCard
-          authClient={authClient}
           className={classNames?.invoiceCard}
           localization={localization}
           {...invoiceHistoryCardProps}

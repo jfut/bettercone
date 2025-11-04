@@ -12,6 +12,10 @@ export const componentsByCategory = {
     { name: "SignOut", description: "Sign out button component", slug: "sign-out" },
     { name: "OneTap", description: "Google One Tap sign in", slug: "one-tap" },
   ],
+  "Web3 & SIWE": [
+    { name: "SiweSignInButton", description: "Sign in with Ethereum (SIWE) button", slug: "siwe-sign-in-button" },
+    { name: "WalletConnectionCard", description: "Manage Web3 wallet connections", slug: "wallet-connection-card" },
+  ],
   "User & Account": [
     { name: "UserButton", description: "User profile dropdown menu", slug: "user-button" },
     { name: "UserView", description: "Complete user profile view", slug: "user-view" },
