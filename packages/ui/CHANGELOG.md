@@ -5,6 +5,76 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-11-04
+
+### 🚀 Major Update - Better Auth Stripe Plugin Integration
+
+Complete refactor of billing and pricing components to support auto-fetch mode with Better Auth Stripe plugin.
+
+### ⚠️ Breaking Changes
+
+#### Removed Props
+- **All billing components**: Removed `authClient` prop - now use `AuthUIProvider` wrapper instead
+- **SubscriptionCard, PaymentMethodCard, InvoiceHistoryCard**: No longer require `authClient` prop
+- **TeamBillingCard**: Changed from `organization` object prop to `organizationId` string
+- **BillingDashboard**: Removed `authClient` prop
+
+#### Changed Props
+- **Subscription type**: Renamed fields to match Better Auth schema
+  - `currentPeriodStart` → `periodStart`
+  - `currentPeriodEnd` → `periodEnd`
+  - Removed `cancelAt` (use `cancelAtPeriodEnd` instead)
+- **PricingCard**: Auto-checkout now uses `plan` + `annual` flag instead of `stripePriceId`
+
+### Added
+
+#### Auto-Fetch Mode
+All billing components now support automatic data fetching when wrapped with `AuthUIProvider`:
+- `SubscriptionCard` - Auto-fetches active subscription
+- `PaymentMethodCard` - Auto-opens billing portal
+- `InvoiceHistoryCard` - Auto-fetches invoice list
+- `TeamBillingCard` - Auto-fetches organization subscription
+- `SeatAllocationCard` - Auto-fetches seat limits from subscription
+- `PricingCard` - Auto-handles Stripe Checkout
+
+#### Component Modes
+All components now support 3 integration modes:
+1. **Auto-Fetch Mode**: Automatic data fetching via Better Auth Stripe plugin
+2. **Custom Backend Mode**: Same API shape with custom implementation
+3. **Presentational Mode**: Manual data passing via props
+
+#### Documentation
+- New comprehensive Better Auth Stripe integration guide
+- Updated all 6 component docs with v0.3.0 API examples
+- Added migration examples from v0.2.x
+- Troubleshooting section for common issues
+
+### Fixed
+- **BillingDashboard**: Now works with `AuthUIProvider` context
+- **TeamDashboard**: Fixed organization subscription detection
+- **PricingCard**: Fixed auto-checkout to use Better Auth upgrade() API correctly
+- **Package Build**: Added `styles.css` to dist folder (fixes CSS import errors)
+
+### Migration Guide
+
+#### Before (v0.2.x)
+```tsx
+<SubscriptionCard authClient={authClient} />
+<PaymentMethodCard authClient={authClient} />
+<BillingDashboard authClient={authClient} />
+```
+
+#### After (v0.3.0)
+```tsx
+<AuthUIProvider authClient={authClient}>
+  <SubscriptionCard />
+  <PaymentMethodCard />
+  <BillingDashboard />
+</AuthUIProvider>
+```
+
+For detailed migration instructions, see the [Better Auth Stripe Integration Guide](https://bettercone.com/docs/guides/authentication/better-auth-stripe).
+
 ## [0.2.1] - 2025-11-03
 
 ### Added
