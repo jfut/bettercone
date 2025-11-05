@@ -1,12 +1,35 @@
 # @bettercone/ui
 
-**Comprehensive Better Auth UI component library** with 76+ production-ready components for authentication, billing, teams, and more.
+**Comprehensive Better Auth UI component library** with 71 production-ready components for authentication, billing, teams, and Web3.
 
 [![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## What's New in v0.2.1 🎉
+## What's New in v0.3.1 🐛
+
+**Wallet Schema Fix** - Aligned WalletConnectionCard with Better Auth SIWE plugin schema:
+
+- ✅ **Schema Alignment**: Updated `WalletConnection` interface to match Better Auth exactly
+- ✅ **Required Fields**: Added `userId` and `chainId` fields
+- ✅ **Renamed Field**: `connectedAt` → `createdAt` to match Better Auth
+- ✅ **UI Enhancement**: Display chain name (Ethereum, Polygon, Arbitrum, Base, Optimism) instead of provider
+- ⚠️ **Breaking**: Removed non-schema fields: `provider`, `ensName`, `lastUsed`
+
+### What's in v0.3.0
+
+**Better Auth Stripe Plugin Integration** - Complete billing integration:
+
+- ✅ **Stripe Plugin**: Full integration with Better Auth's official Stripe plugin
+- ✅ **Pricing Components**: Auto-checkout with `createCheckoutSession()`
+- ✅ **Subscription Management**: Update/cancel with Stripe billing portal
+- ✅ **Payment Methods**: Card management via Stripe Elements
+- ✅ **Invoice History**: Customer invoice tracking
+- ✅ **SIWE Components**: Sign In With Ethereum (Web3 wallet authentication)
+  - `<SiweSignInButton />` - Connect and sign with Ethereum wallets
+  - `<WalletConnectionCard />` - Manage connected Web3 wallets
+
+### What's in v0.2.1
 
 **Phone Authentication Components** - Three new components for phone number authentication:
 
@@ -14,24 +37,13 @@
 - ✅ **PhoneSignUpForm** - Sign up with phone number and OTP verification
 - ✅ **PhoneNumberCard** - Manage phone number in user settings
 
-### What's in v0.2.0
-
-**76 Components** - Complete authentication, security, organizations, and more:
-
-- ✅ **Authentication**: Sign-in, sign-up, password reset, magic link, email OTP, 2FA, passkeys
-- ✅ **Security**: Sessions management, password changes, two-factor auth, backup codes
-- ✅ **Organizations**: Full org management with members, invitations, roles, settings
-- ✅ **Account**: User profile, avatar, email management, account deletion
-- ✅ **Developer Tools**: API key management, creation, deletion
-- ✅ **Billing**: Subscription cards, payment methods, invoices (existing)
-- ✅ **Usage Tracking**: API usage, storage, feature access (existing)
-- ✅ **Teams**: Seat allocation, team billing (existing)
-
 ## Features
 
-- 🎨 **76 Production-Ready Components** - Complete auth + billing solution
+- 🎨 **71 Production-Ready Components** - Complete auth + billing + Web3 solution
 - ⚛️ **Framework Agnostic** - Works with Next.js, Vite, Remix, or any React framework
 - 🔌 **Backend Agnostic** - Works with Convex, Prisma, Supabase, Drizzle, or any Better Auth backend
+- 💳 **Stripe Integration** - Full billing with Better Auth Stripe plugin
+- 🔗 **Web3 Ready** - SIWE (Sign In With Ethereum) components included
 - 🎨 **Fully Customizable** - Built with Tailwind CSS and shadcn/ui primitives
 - 🌍 **i18n Ready** - Full localization support
 - ♿ **Accessible** - WCAG 2.1 compliant components
@@ -197,31 +209,34 @@ export default function BillingPage() {
 - `FormError` - Form error display
 - Provider icons for social authentication
 
-### Billing Components (4 components)
+### 💳 Billing Components (4 components)
 
-### Billing Components (4 components)
-
-- `SubscriptionCard` - Current subscription display
+- `SubscriptionCard` - Current subscription display with Stripe integration
 - `PaymentMethodCard` - Payment methods management
 - `InvoiceHistoryCard` - Invoice list
 - `BillingDashboard` - Complete billing page
 
-### Usage Tracking (4 components)
+### 📊 Usage Tracking (4 components)
 
 - `ApiUsageCard` - API usage with charts
 - `StorageUsageCard` - Storage usage
 - `FeatureAccessCard` - Feature access by plan
 - `UsageDashboard` - Complete usage page
 
-### Team Management (3 components)
+### 👥 Team Management (3 components)
 
 - `SeatAllocationCard` - Team seat management
 - `TeamBillingCard` - Team billing overview
 - `TeamDashboard` - Complete team page
 
-### Pricing (1 component)
+### 💰 Pricing (1 component)
 
-- `PricingCard` - Plan selection with monthly/yearly toggle
+- `PricingCard` - Plan selection with monthly/yearly toggle and auto-checkout
+
+### 🔗 Web3/SIWE (2 components)
+
+- `SiweSignInButton` - **NEW** Sign In With Ethereum wallet connection
+- `WalletConnectionCard` - **NEW** Manage connected Web3 wallets (Ethereum, Polygon, Arbitrum, Base, Optimism)
 
 ## Detailed Component Examples
 
@@ -329,6 +344,77 @@ export const auth = betterAuth({
 });
 ```
 
+#### Web3/SIWE Components
+
+Sign In With Ethereum (SIWE) for Web3 wallet authentication.
+
+```tsx
+import { SiweSignInButton, WalletConnectionCard, AuthUIProvider } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+// SIWE Sign-In Button
+export function Web3SignIn() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <SiweSignInButton
+        onSuccess={(address) => {
+          console.log("Signed in with wallet:", address);
+        }}
+        onError={(error) => {
+          console.error("SIWE error:", error);
+        }}
+        className="w-full"
+      />
+    </AuthUIProvider>
+  );
+}
+
+// Wallet Connection Management
+export function WalletSettings() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <WalletConnectionCard
+        onConnect={() => {
+          console.log("Connect new wallet");
+        }}
+        onDisconnect={(walletId) => {
+          console.log("Disconnect wallet:", walletId);
+        }}
+      />
+    </AuthUIProvider>
+  );
+}
+```
+
+**Requirements:**
+- Better Auth `siwe` plugin configured
+- Wallet provider (MetaMask, WalletConnect, etc.)
+
+```ts
+// Better Auth configuration
+import { betterAuth } from "better-auth";
+import { siwe } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    siwe({
+      domain: process.env.NEXT_PUBLIC_APP_DOMAIN,
+      getNonce: async () => {
+        // Generate secure nonce
+        return crypto.randomBytes(16).toString("base64");
+      }
+    })
+  ]
+});
+```
+
+**Supported Chains:**
+- Ethereum (chainId: 1)
+- Polygon (chainId: 137)
+- Arbitrum (chainId: 42161)
+- Base (chainId: 8453)
+- Optimism (chainId: 10)
+
 #### Two-Factor Authentication
 
 ```tsx
@@ -343,6 +429,28 @@ import { TwoFactorCard } from "@bettercone/ui";
 ```
 
 ### Billing
+Displays current subscription with Stripe integration.
+
+**Requirements:**
+- Better Auth `stripe` plugin configured
+- Stripe account with products/prices set up
+
+```ts
+// Better Auth configuration
+import { betterAuth } from "better-auth";
+import { stripe } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    stripe({
+      publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
+      secretKey: process.env.STRIPE_SECRET_KEY!
+    })
+  ]
+});
+```
+
+#### SubscriptionCard
 Displays current subscription with management actions.
 
 ```tsx
@@ -396,7 +504,7 @@ import { InvoiceHistoryCard } from "@bettercone/ui";
 ### Pricing Components
 
 #### PricingCard
-Plan selection with monthly/yearly toggle.
+Plan selection with monthly/yearly toggle and automatic Stripe checkout.
 
 ```tsx
 import { PricingCard, type PricingPlan } from "@bettercone/ui";
@@ -407,6 +515,8 @@ const plan: PricingPlan = {
   description: "For growing teams",
   priceMonthly: 29,
   priceYearly: 290,
+  stripePriceIdMonthly: "price_xxx", // Stripe price ID
+  stripePriceIdYearly: "price_yyy",   // Stripe price ID
   features: [
     "Unlimited API calls",
     "Advanced analytics",
@@ -418,8 +528,16 @@ const plan: PricingPlan = {
 <PricingCard
   plan={plan}
   billingInterval="monthly"
-  onSubscribe={(planId, interval) => {
-    // Handle subscription
+  authClient={authClient}
+  onSubscribe={async (planId, interval) => {
+    // Automatic Stripe checkout via Better Auth
+    await authClient.stripe.createCheckoutSession({
+      priceId: interval === "monthly" 
+        ? plan.stripePriceIdMonthly 
+        : plan.stripePriceIdYearly,
+      successUrl: `${window.location.origin}/billing/success`,
+      cancelUrl: `${window.location.origin}/pricing`
+    });
   }}
 />
 ```
