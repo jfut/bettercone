@@ -135,6 +135,23 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
     componentProps.planName = "Pro Plan";
   }
 
+  // AnonymousSignInButton needs minimal props
+  if (componentName === 'AnonymousSignInButton') {
+    componentProps.onSuccess = () => console.log('Anonymous sign in successful');
+    componentProps.onError = (error: Error) => console.error('Sign in failed:', error);
+  }
+
+  // AnonymousUpgradeCard needs OAuth providers
+  if (componentName === 'AnonymousUpgradeCard') {
+    componentProps.showOAuthProviders = true;
+    componentProps.oauthProviders = [
+      { id: 'google', name: 'Google' },
+      { id: 'github', name: 'GitHub' },
+    ];
+    componentProps.onUpgradeWithEmail = () => console.log('Upgrade with email clicked');
+    componentProps.onLinkOAuth = (provider: string) => console.log(`Link ${provider} clicked`);
+  }
+
   return (
     <ComponentErrorBoundary componentName={componentName}>
       <MockAuthUIProvider>

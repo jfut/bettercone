@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "./mode-toggle";
-import { BookOpen, Github, Package } from "lucide-react";
+import { BookOpen, Github, Package, FileText } from "lucide-react";
 
 export function Header() {
   const pathname = usePathname();
@@ -33,6 +33,7 @@ export function Header() {
               <Package className="h-4 w-4" />
               <span className="hidden sm:inline">Components</span>
             </Link>
+            
             <Link
               href="https://docs.bettercone.com"
               target="_blank"
@@ -41,6 +42,17 @@ export function Header() {
             >
               <BookOpen className="h-4 w-4" />
               <span className="hidden sm:inline">Docs</span>
+            </Link>
+            <Link
+              href="/changelog"
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+                pathname === '/changelog'
+                  ? 'text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Changelog</span>
             </Link>
             <Link
               href="https://github.com/vncsleal/bettercone"

@@ -11,6 +11,7 @@ export const componentsByCategory = {
     { name: "RedirectToSignUp", description: "Redirect users to sign up page", slug: "redirect-to-sign-up" },
     { name: "SignOut", description: "Sign out button component", slug: "sign-out" },
     { name: "OneTap", description: "Google One Tap sign in", slug: "one-tap" },
+    { name: "AnonymousSignInButton", description: "Guest authentication without PII", slug: "anonymous-sign-in-button" },
   ],
   "Web3 & SIWE": [
     { name: "SiweSignInButton", description: "Sign in with Ethereum (SIWE) button", slug: "siwe-sign-in-button" },
@@ -23,6 +24,7 @@ export const componentsByCategory = {
     { name: "AccountView", description: "Account settings and management", slug: "account-view" },
     { name: "DeleteAccountCard", description: "Delete account with confirmation", slug: "delete-account-card" },
     { name: "DeleteAccountDialog", description: "Delete account confirmation dialog", slug: "delete-account-dialog" },
+    { name: "AnonymousUpgradeCard", description: "Prompt guests to upgrade account", slug: "anonymous-upgrade-card" },
   ],
   "Password & Security": [
     { name: "PasswordInput", description: "Password input with visibility toggle", slug: "password-input" },
