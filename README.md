@@ -14,7 +14,7 @@ npm install @bettercone/ui better-auth
 **Features:**
 - ⚛️ Framework-agnostic (Next.js, Vite, Remix, any React framework)  
 - 🔌 Backend-agnostic (Convex, Prisma, Supabase, Drizzle)
-- 🎨 12+ production-ready components for auth, billing, and teams
+- 🎨 Production-ready components for auth, billing, and teams
 - 🔒 Fully typed with TypeScript
 - 🎨 Customizable with Tailwind CSS and CSS variables
 - 📱 Mobile-first responsive design
@@ -38,7 +38,7 @@ npm install @bettercone/ui better-auth
 
 3. **Import and use components:**
    ```tsx
-   import { SignInForm, SignUpForm } from "@bettercone/ui"
+   import { SignInForm } from "@bettercone/ui"
    
    export default function AuthPage() {
      return (
@@ -51,52 +51,31 @@ npm install @bettercone/ui better-auth
 
 ## Component Library
 
-## What's Included
-
-- 🔐 **Authentication**: Better Auth with email/password, OAuth (Google, GitHub), passkeys
-- 💳 **Billing**: Stripe subscriptions, webhooks, customer portal
-- 👥 **Multi-tenancy**: Organizations with role-based access control
-- 📊 **Database**: Convex for real-time, type-safe data
-- 🎨 **UI Components**: Shadcn/UI with Radix primitives
-- 📧 **Emails**: Transactional emails via Resend
-- 🌐 **Internationalization**: Multi-language support ready
-- 🔒 **Security**: Rate limiting, CSRF protection, secure sessions
-
-## Getting Started
-
-### 1. Clone and Install
-
-```bash
-git clone https://github.com/vncsleal/bettercone.git
-cd bettercone
-pnpm install
-```
-
-### 2. Set Up Environment Variables
-
-Copy the example environment file:
-
-```bash
 All components are designed to work seamlessly with Better Auth:
 
 **Authentication Components:**
 - `<SignInForm />` - Complete sign-in form with email/password and OAuth
 - `<SignUpForm />` - Registration form with validation
-- `<TwoFactorForm />` - Two-factor authentication setup
-- `<PasskeyForm />` - Modern passkey authentication
+- `<TwoFactorCard />` - Two-factor authentication setup
+- `<PasskeyManager />` - Modern passkey authentication
 - `<ForgotPasswordForm />` - Password reset workflow
-- `<UserMenu />` - Dropdown menu with user actions
+- `<UserButton />` - Dropdown menu with user actions
+- `<SiweSignInButton />` - Sign in with Ethereum (SIWE)
+- `<WalletConnectionCard />` - Web3 wallet management
 
 **Billing & Subscription Components:**
-- `<PricingCards />` - Professional pricing display
-- `<BillingManagement />` - Subscription management interface
-- `<UsageProgress />` - Visual usage tracking
-- `<InvoicesList />` - Customer invoice history
+- `<PricingCard />` - Professional pricing display with auto-checkout
+- `<SubscriptionCard />` - Subscription management interface
+- `<PaymentMethodCard />` - Payment method management
+- `<InvoiceHistoryCard />` - Customer invoice history
+- `<BillingDashboard />` - Complete billing dashboard
 
 **Team Management Components:**
-- `<TeamSettings />` - Team configuration panel
-- `<MembersList />` - Team member management
-- `<InviteForm />` - Send team invitations
+- `<TeamDashboard />` - Complete team management dashboard
+- `<TeamBillingCard />` - Organization subscription management
+- `<SeatAllocationCard />` - Team seat limits and usage
+- `<OrganizationSwitcher />` - Switch between organizations
+- `<MemberList />` - Team member management
 
 ## Repository Structure
 
@@ -187,28 +166,19 @@ Complete documentation and examples:
 - 🌐 [Component Showcase](https://bettercone.com)
 - 📦 [npm Package](https://www.npmjs.com/package/@bettercone/ui)
 
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
-
-## License
-
-MIT License - see [LICENSE](./LICENSE) for details.
-
 ## Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/)
-- **Database**: [Convex](https://convex.dev/)
 - **Auth**: [Better Auth](https://better-auth.com/)
 - **Payments**: [Stripe](https://stripe.com/)
-- **Email**: [Resend](https://resend.com/)
 - **UI**: [Shadcn/UI](https://ui.shadcn.com/) + [Radix UI](https://radix-ui.com/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Monorepo**: [Turborepo](https://turbo.build/)
+- **Documentation**: [Fumadocs](https://fumadocs.dev)
 
 ## Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
 
 ## License
 
