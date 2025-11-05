@@ -5,6 +5,29 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2025-11-05
+
+### Added
+
+#### Anonymous Authentication Components
+- **AnonymousSignInButton**: Sign in users without requiring PII (email, password, OAuth)
+  - Integrates with Better Auth anonymous plugin
+  - Supports callbacks: `onSuccess`, `onError`
+  - Optional redirect after sign-in
+  - Customizable button variant and size
+  - Full localization support
+- **AnonymousUpgradeCard**: Encourage anonymous users to link authentication methods
+  - Displays benefits of upgrading from guest account
+  - Alert message about temporary guest accounts
+  - Email sign-up and OAuth linking options
+  - Fully customizable via `classNames` prop
+  - Complete localization support
+
+#### Better Auth Plugin Support
+- Added support for Better Auth `anonymous` plugin
+- Users can sign in without providing PII and later link accounts
+- Components follow established patterns from other auth components
+
 ## [0.3.2] - 2025-11-05
 
 ### Changed

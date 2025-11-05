@@ -149,6 +149,10 @@ export { SignOut } from "./components/auth/sign-out";
 export { PhoneSignInForm } from "./components/auth/forms/phone-sign-in-form";
 export { PhoneSignUpForm } from "./components/auth/forms/phone-sign-up-form";
 
+// Anonymous Authentication
+export { AnonymousSignInButton } from "./components/auth/anonymous-sign-in-button";
+export type { AnonymousSignInButtonProps } from "./components/auth/anonymous-sign-in-button";
+
 // ============================================================================
 // Security Components
 // ============================================================================
@@ -190,6 +194,12 @@ export { LeaveOrganizationDialog } from "./components/organization/leave-organiz
 export { AccountView } from "./components/account/account-view";
 export { DeleteAccountCard } from "./components/account/delete-account-card";
 export { DeleteAccountDialog } from "./components/account/delete-account-dialog";
+export { AnonymousUpgradeCard } from "./components/account/anonymous-upgrade-card";
+export type {
+  AnonymousUpgradeCardProps,
+  AnonymousUpgradeCardClassNames,
+  AnonymousUpgradeCardLocalization
+} from "./components/account/anonymous-upgrade-card";
 
 // ============================================================================
 // Developer Components

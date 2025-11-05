@@ -1,31 +1,50 @@
 # @bettercone/ui
 
-**Comprehensive Better Auth UI component library** with 71 production-ready components for authentication, billing, teams, and Web3.
+**Comprehensive Better Auth UI component library** with production-ready components for authentication, billing, teams, and Web3.
 
 [![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## What's New in v0.3.1 🐛
+## What's New in v0.3.3
+
+**Anonymous Authentication** - Sign in users without PII:
+
+- [x] **AnonymousSignInButton**: Allow users to sign in as guests without email, password, or OAuth
+- [x] **AnonymousUpgradeCard**: Encourage anonymous users to link authentication methods
+- [x] **Better Auth Integration**: Full support for Better Auth anonymous plugin
+- [x] **Account Linking**: Users can later link email, password, or OAuth to their anonymous account
+
+### What's New in v0.3.2
+
+**Documentation Updates** - Enhanced README with comprehensive feature documentation:
+
+- [x] **v0.3.0 & v0.3.1 Documentation**: Added detailed feature documentation for recent releases
+- [x] **Web3/SIWE Examples**: Complete code examples with Better Auth plugin configuration
+- [x] **Stripe Integration**: Enhanced billing section with automatic checkout implementation
+- [x] **Blockchain Networks**: Added supported chains documentation (Ethereum, Polygon, Arbitrum, Base, Optimism)
+- [x] **Better Auth Plugin Examples**: Configuration snippets for SIWE and Stripe plugins
+
+### What's New in v0.3.1
 
 **Wallet Schema Fix** - Aligned WalletConnectionCard with Better Auth SIWE plugin schema:
 
-- ✅ **Schema Alignment**: Updated `WalletConnection` interface to match Better Auth exactly
-- ✅ **Required Fields**: Added `userId` and `chainId` fields
-- ✅ **Renamed Field**: `connectedAt` → `createdAt` to match Better Auth
-- ✅ **UI Enhancement**: Display chain name (Ethereum, Polygon, Arbitrum, Base, Optimism) instead of provider
-- ⚠️ **Breaking**: Removed non-schema fields: `provider`, `ensName`, `lastUsed`
+- [x] **Schema Alignment**: Updated `WalletConnection` interface to match Better Auth exactly
+- [x] **Required Fields**: Added `userId` and `chainId` fields
+- [x] **Renamed Field**: `connectedAt` → `createdAt` to match Better Auth
+- [x] **UI Enhancement**: Display chain name (Ethereum, Polygon, Arbitrum, Base, Optimism) instead of provider
+- [ ] **Breaking**: Removed non-schema fields: `provider`, `ensName`, `lastUsed`
 
 ### What's in v0.3.0
 
 **Better Auth Stripe Plugin Integration** - Complete billing integration:
 
-- ✅ **Stripe Plugin**: Full integration with Better Auth's official Stripe plugin
-- ✅ **Pricing Components**: Auto-checkout with `createCheckoutSession()`
-- ✅ **Subscription Management**: Update/cancel with Stripe billing portal
-- ✅ **Payment Methods**: Card management via Stripe Elements
-- ✅ **Invoice History**: Customer invoice tracking
-- ✅ **SIWE Components**: Sign In With Ethereum (Web3 wallet authentication)
+- [x] **Stripe Plugin**: Full integration with Better Auth's official Stripe plugin
+- [x] **Pricing Components**: Auto-checkout with `createCheckoutSession()`
+- [x] **Subscription Management**: Update/cancel with Stripe billing portal
+- [x] **Payment Methods**: Card management via Stripe Elements
+- [x] **Invoice History**: Customer invoice tracking
+- [x] **SIWE Components**: Sign In With Ethereum (Web3 wallet authentication)
   - `<SiweSignInButton />` - Connect and sign with Ethereum wallets
   - `<WalletConnectionCard />` - Manage connected Web3 wallets
 
@@ -33,23 +52,23 @@
 
 **Phone Authentication Components** - Three new components for phone number authentication:
 
-- ✅ **PhoneSignInForm** - Sign in with phone number and password
-- ✅ **PhoneSignUpForm** - Sign up with phone number and OTP verification
-- ✅ **PhoneNumberCard** - Manage phone number in user settings
+- [x] **PhoneSignInForm** - Sign in with phone number and password
+- [x] **PhoneSignUpForm** - Sign up with phone number and OTP verification
+- [x] **PhoneNumberCard** - Manage phone number in user settings
 
 ## Features
 
-- 🎨 **71 Production-Ready Components** - Complete auth + billing + Web3 solution
-- ⚛️ **Framework Agnostic** - Works with Next.js, Vite, Remix, or any React framework
-- 🔌 **Backend Agnostic** - Works with Convex, Prisma, Supabase, Drizzle, or any Better Auth backend
-- 💳 **Stripe Integration** - Full billing with Better Auth Stripe plugin
-- 🔗 **Web3 Ready** - SIWE (Sign In With Ethereum) components included
-- 🎨 **Fully Customizable** - Built with Tailwind CSS and shadcn/ui primitives
-- 🌍 **i18n Ready** - Full localization support
-- ♿ **Accessible** - WCAG 2.1 compliant components
-- 📱 **Responsive** - Mobile-first design
-- 🔒 **Type Safe** - Written in TypeScript with full type definitions
-- ⚡ **Loading States** - Skeleton components included
+- **Production-Ready Components** - Complete auth + billing + Web3 solution
+- **Framework Agnostic** - Works with Next.js, Vite, Remix, or any React framework
+- **Backend Agnostic** - Works with Convex, Prisma, Supabase, Drizzle, or any Better Auth backend
+- **Stripe Integration** - Full billing with Better Auth Stripe plugin
+- **Web3 Ready** - SIWE (Sign In With Ethereum) components included
+- **Fully Customizable** - Built with Tailwind CSS and shadcn/ui primitives
+- **i18n Ready** - Full localization support
+- **Accessible** - WCAG 2.1 compliant components
+- **Responsive** - Mobile-first design
+- **Type Safe** - Written in TypeScript with full type definitions
+- **Loading States** - Skeleton components included
 
 ## Installation
 
@@ -138,7 +157,7 @@ export default function BillingPage() {
 
 ## Components Overview
 
-### 🔐 Authentication (11 components)
+### Authentication
 
 - `AuthView` - Complete authentication view with routing
 - `AuthForm` - Reusable form wrapper
@@ -149,10 +168,10 @@ export default function BillingPage() {
 - `EmailOTPButton` - Email OTP trigger
 - `OneTap` - Google One Tap
 - `SignOut` - Sign out component
-- `PhoneSignInForm` - **NEW** Sign in with phone number and password
-- `PhoneSignUpForm` - **NEW** Sign up with phone number and OTP verification
+- `PhoneSignInForm` - Sign in with phone number and password
+- `PhoneSignUpForm` - Sign up with phone number and OTP verification
 
-### 🔒 Security (9 components)
+### Security
 
 - `PasskeyCell` - Individual passkey display
 - `PasskeysCard` - Passkey management
@@ -162,9 +181,9 @@ export default function BillingPage() {
 - `ChangePasswordCard` - Password change form
 - `SessionsCard` - Active sessions list
 - `SessionCell` - Individual session display
-- `PhoneNumberCard` - **NEW** Manage phone number with OTP verification
+- `PhoneNumberCard` - Manage phone number with OTP verification
 
-### 🏢 Organizations (14 components)
+### Organizations
 
 - `OrganizationSwitcher` - Switch between organizations
 - `CreateOrganizationDialog` - Create new organization
@@ -181,24 +200,24 @@ export default function BillingPage() {
 - `OrganizationLogoCard` - Upload organization logo
 - `LeaveOrganizationDialog` - Leave organization
 
-### 👤 Account (3 components)
+### Account
 
 - `AccountView` - Account settings view
 - `DeleteAccountCard` - Account deletion
 - `DeleteAccountDialog` - Confirm deletion
 
-### 🛠️ Developer Tools (3 components)
+### Developer Tools
 
 - `ApiKeysCard` - API keys list
 - `ApiKeyCell` - Individual API key
 - `CreateApiKeyDialog` - Create new API key
 
-### 👥 User Components (2 components)
+### User Components
 
 - `UserButton` - User menu dropdown
 - `UserAvatar` - User avatar display
 
-### 🔧 Utility Components (8 components)
+### Utility Components
 
 - `SignedIn` - Conditional render when signed in
 - `SignedOut` - Conditional render when signed out
@@ -209,34 +228,34 @@ export default function BillingPage() {
 - `FormError` - Form error display
 - Provider icons for social authentication
 
-### 💳 Billing Components (4 components)
+### Billing Components
 
 - `SubscriptionCard` - Current subscription display with Stripe integration
 - `PaymentMethodCard` - Payment methods management
 - `InvoiceHistoryCard` - Invoice list
 - `BillingDashboard` - Complete billing page
 
-### 📊 Usage Tracking (4 components)
+### Usage Tracking
 
 - `ApiUsageCard` - API usage with charts
 - `StorageUsageCard` - Storage usage
 - `FeatureAccessCard` - Feature access by plan
 - `UsageDashboard` - Complete usage page
 
-### 👥 Team Management (3 components)
+### Team Management
 
 - `SeatAllocationCard` - Team seat management
 - `TeamBillingCard` - Team billing overview
 - `TeamDashboard` - Complete team page
 
-### 💰 Pricing (1 component)
+### Pricing
 
 - `PricingCard` - Plan selection with monthly/yearly toggle and auto-checkout
 
-### 🔗 Web3/SIWE (2 components)
+### Web3/SIWE
 
-- `SiweSignInButton` - **NEW** Sign In With Ethereum wallet connection
-- `WalletConnectionCard` - **NEW** Manage connected Web3 wallets (Ethereum, Polygon, Arbitrum, Base, Optimism)
+- `SiweSignInButton` - Sign In With Ethereum wallet connection
+- `WalletConnectionCard` - Manage connected Web3 wallets (Ethereum, Polygon, Arbitrum, Base, Optimism)
 
 ## Detailed Component Examples
 
