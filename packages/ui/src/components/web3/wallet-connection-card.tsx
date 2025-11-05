@@ -66,10 +66,11 @@ export interface WalletConnectionCardProps {
 
 interface WalletConnection {
     id: string
+    userId: string
     address: string
-    provider: string
-    connectedAt: Date
+    chainId: number
     isPrimary?: boolean
+    createdAt: Date
 }
 
 /**
@@ -232,6 +233,17 @@ export function WalletConnectionCard({
         return `${address.slice(0, 6)}...${address.slice(-4)}`
     }
 
+    function getChainName(chainId: number): string {
+        const chainNames: Record<number, string> = {
+            1: "Ethereum",
+            137: "Polygon",
+            42161: "Arbitrum",
+            8453: "Base",
+            10: "Optimism",
+        }
+        return chainNames[chainId] || `Chain ${chainId}`
+    }
+
     return (
         <>
             <Card className={cn("", className, classNames?.base)}>
@@ -278,7 +290,7 @@ export function WalletConnectionCard({
                                                 )}
                                             </div>
                                             <p className="text-xs text-muted-foreground">
-                                                Connected via {wallet.provider}
+                                                {getChainName(wallet.chainId)} • {new Date(wallet.createdAt).toLocaleDateString()}
                                             </p>
                                         </div>
                                     </div>

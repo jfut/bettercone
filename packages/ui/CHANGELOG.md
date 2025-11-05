@@ -5,6 +5,38 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2025-11-05
+
+### Fixed
+
+#### WalletConnectionCard Schema Alignment
+- **Breaking**: Updated `WalletConnection` interface to match Better Auth SIWE plugin schema
+  - Added `userId: string` field (required)
+  - Added `chainId: number` field (required)
+  - Renamed `connectedAt` → `createdAt` to match Better Auth schema
+  - Removed `provider: string` field (not in Better Auth schema)
+  - Removed `ensName` field (returned via `ensLookup` function, not stored)
+  - Removed `lastUsed` field (not in Better Auth schema)
+
+#### UI Improvements
+- Display chain name (Ethereum, Polygon, Arbitrum, Base, Optimism) instead of provider
+- Show wallet creation date alongside chain name
+- Added `getChainName()` helper function for common chains
+
+### Schema Reference
+
+Better Auth SIWE wallet table:
+```typescript
+interface WalletConnection {
+  id: string        // Primary key
+  userId: string    // Reference to user.id
+  address: string   // Ethereum wallet address
+  chainId: number   // Chain ID (1 for Ethereum, 137 for Polygon, etc.)
+  isPrimary: boolean // Whether this is the user's primary wallet
+  createdAt: Date   // Creation timestamp
+}
+```
+
 ## [0.3.0] - 2025-11-04
 
 ### 🚀 Major Update - Better Auth Stripe Plugin Integration
