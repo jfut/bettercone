@@ -1,0 +1,517 @@
+---
+title: Anonymous Authentication
+description: Enable guest access with seamless account linking
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# Anonymous Authentication
+
+Enable guest users to access your application without providing personal information, with the ability to upgrade to a full account later.
+
+## Overview
+
+Anonymous authentication (also known as guest authentication) allows users to:
+
+- **Try your app instantly** without signup friction
+- **Explore features** before committing to an account
+- **Upgrade later** by linking email or OAuth
+- **Preserve data** when converting from guest to registered user
+
+<Callout type="info">
+  This guide uses Better Auth's `anonymous` plugin for the backend and @bettercone/ui components for the frontend.
+</Callout>
+
+## Use Cases
+
+- **Free Trials**: Let users explore premium features before signing up
+- **E-commerce**: Guest checkout without account creation
+- **Content Platforms**: Browse content before registering
+- **Gaming**: Start playing immediately
+- **SaaS Apps**: Reduce onboarding friction
+
+## Setup
+
+<Steps>
+
+<Step>
+
+### Install Dependencies
+
+```bash
+npm install @bettercone/ui better-auth
+```
+
+</Step>
+
+<Step>
+
+### Configure Better Auth Server
+
+Add the `anonymous` plugin to your Better Auth configuration:
+
+<Tabs items={['Convex', 'Prisma', 'Drizzle']}>
+  <Tab value="Convex">
+    ```ts title="convex/auth.ts"
+    import { convexAuth } from "@convex-dev/auth/server";
+    import { anonymous } from "better-auth/plugins";
+
+    export const { auth, signIn, signOut, store } = convexAuth({
+      providers: [
+        // ... other providers
+      ],
+      plugins: [
+        anonymous({
+          // Optional: Handle account linking
+          onLinkAccount: async ({ user, account }) => {
+            console.log(`User ${user.id} linked ${account.providerId}`);
+            // Send welcome email, grant features, etc.
+          },
+          
+          // Optional: Email domain for anonymous users
+          emailDomainName: "guest.yourapp.com",
+          
+          // Optional: Keep anonymous user record after linking
+          disableDeleteAnonymousUser: false,
+        }),
+      ],
+    });
+    ```
+  </Tab>
+  <Tab value="Prisma">
+    ```ts title="lib/auth.ts"
+    import { betterAuth } from "better-auth";
+    import { prismaAdapter } from "better-auth/adapters/prisma";
+    import { anonymous } from "better-auth/plugins";
+    import { prisma } from "./prisma";
+
+    export const auth = betterAuth({
+      database: prismaAdapter(prisma, {
+        provider: "postgresql",
+      }),
+      plugins: [
+        anonymous({
+          onLinkAccount: async ({ user, account }) => {
+            console.log(`User ${user.id} linked ${account.providerId}`);
+          },
+          emailDomainName: "guest.yourapp.com",
+          disableDeleteAnonymousUser: false,
+        }),
+      ],
+    });
+    ```
+  </Tab>
+  <Tab value="Drizzle">
+    ```ts title="lib/auth.ts"
+    import { betterAuth } from "better-auth";
+    import { drizzleAdapter } from "better-auth/adapters/drizzle";
+    import { anonymous } from "better-auth/plugins";
+    import { db } from "./db";
+
+    export const auth = betterAuth({
+      database: drizzleAdapter(db, {
+        provider: "pg",
+      }),
+      plugins: [
+        anonymous({
+          onLinkAccount: async ({ user, account }) => {
+            console.log(`User ${user.id} linked ${account.providerId}`);
+          },
+          emailDomainName: "guest.yourapp.com",
+          disableDeleteAnonymousUser: false,
+        }),
+      ],
+    });
+    ```
+  </Tab>
+</Tabs>
+
+</Step>
+
+<Step>
+
+### Configure Better Auth Client
+
+Add the `anonymousClient` plugin to your auth client:
+
+```ts title="lib/auth-client.ts"
+import { createAuthClient } from "better-auth/react";
+import { anonymousClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_APP_URL,
+  plugins: [
+    anonymousClient(),
+    // ... other plugins
+  ],
+});
+```
+
+</Step>
+
+<Step>
+
+### Add Anonymous Sign-In Button
+
+Use the `AnonymousSignInButton` component to enable guest authentication:
+
+```tsx title="app/page.tsx"
+import { AnonymousSignInButton } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+
+export default function LandingPage() {
+  return (
+    <div className="flex flex-col gap-4">
+      <h1>Try Our App</h1>
+      <p>No signup required - start exploring now!</p>
+      
+      <AnonymousSignInButton
+        authClient={authClient}
+        redirectTo="/dashboard"
+      />
+      
+      <p className="text-sm text-muted-foreground">
+        You can create a full account later to save your progress
+      </p>
+    </div>
+  );
+}
+```
+
+</Step>
+
+<Step>
+
+### Add Upgrade Prompt
+
+Show the `AnonymousUpgradeCard` to encourage account linking:
+
+```tsx title="app/account/page.tsx"
+"use client";
+
+import { AnonymousUpgradeCard } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+import { useSession } from "@/lib/hooks";
+
+export default function AccountPage() {
+  const { data: session } = useSession();
+  
+  // Check if user is anonymous
+  const isAnonymous = session?.user?.email?.includes("@guest.");
+
+  if (!isAnonymous) {
+    return <div>Your account is fully set up!</div>;
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      <AnonymousUpgradeCard
+        authClient={authClient}
+        showOAuthProviders={true}
+        oauthProviders={[
+          { id: "google", name: "Google" },
+          { id: "github", name: "GitHub" },
+        ]}
+      />
+    </div>
+  );
+}
+```
+
+</Step>
+
+</Steps>
+
+## Plugin Options
+
+### `onLinkAccount`
+
+Callback when anonymous user links an authentication method:
+
+```ts
+onLinkAccount: async ({ user, account }) => {
+  // Send welcome email
+  await sendWelcomeEmail(user.email);
+  
+  // Grant premium features
+  await grantPremiumAccess(user.id);
+  
+  // Migrate guest data
+  await migrateGuestData(user.id);
+}
+```
+
+### `emailDomainName`
+
+Domain used for anonymous user emails (default: "better-auth.com"):
+
+```ts
+emailDomainName: "guest.yourapp.com"
+// Creates emails like: user-123@guest.yourapp.com
+```
+
+### `disableDeleteAnonymousUser`
+
+Keep anonymous user record after linking (default: false):
+
+```ts
+disableDeleteAnonymousUser: true
+// Preserves anonymous user data for auditing
+```
+
+## Complete Example
+
+Here's a complete implementation with all features:
+
+```tsx title="app/page.tsx"
+"use client";
+
+import { AnonymousSignInButton, SignedIn, SignedOut } from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+
+export default function HomePage() {
+  const router = useRouter();
+
+  return (
+    <>
+      <SignedOut authClient={authClient}>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="max-w-md space-y-6 text-center">
+            <h1 className="text-4xl font-bold">Welcome to MyApp</h1>
+            <p className="text-lg text-muted-foreground">
+              Try it now - no signup required
+            </p>
+            
+            <AnonymousSignInButton
+              authClient={authClient}
+              onSuccess={() => {
+                router.push("/dashboard");
+              }}
+              onError={(error) => {
+                console.error("Guest sign-in failed:", error);
+              }}
+            />
+            
+            <p className="text-sm text-muted-foreground">
+              Start exploring immediately. Create an account later to save your work.
+            </p>
+          </div>
+        </div>
+      </SignedOut>
+
+      <SignedIn authClient={authClient}>
+        <div className="min-h-screen">
+          {/* Your dashboard content */}
+        </div>
+      </SignedIn>
+    </>
+  );
+}
+```
+
+```tsx title="app/account/page.tsx"
+"use client";
+
+import { 
+  AnonymousUpgradeCard,
+  AccountSettingsCards 
+} from "@bettercone/ui";
+import { authClient } from "@/lib/auth-client";
+import { useSession } from "@/lib/hooks";
+
+export default function AccountPage() {
+  const { data: session } = useSession();
+  const isAnonymous = session?.user?.email?.includes("@guest.");
+
+  return (
+    <div className="container mx-auto py-8 space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold">Account Settings</h1>
+        <p className="text-muted-foreground">
+          Manage your account and preferences
+        </p>
+      </div>
+
+      {isAnonymous && (
+        <AnonymousUpgradeCard
+          authClient={authClient}
+          showOAuthProviders={true}
+          oauthProviders={[
+            { id: "google", name: "Google" },
+            { id: "github", name: "GitHub" },
+            { id: "discord", name: "Discord" },
+          ]}
+          localization={{
+            benefits: [
+              "Save your work across devices",
+              "Access premium features",
+              "Priority customer support",
+              "Collaborate with teams",
+            ],
+          }}
+        />
+      )}
+
+      <AccountSettingsCards authClient={authClient} />
+    </div>
+  );
+}
+```
+
+## Account Linking Flow
+
+1. **User signs in anonymously**
+   - Creates temporary account with generated email
+   - Can use app features immediately
+
+2. **User clicks "Upgrade Account"**
+   - Prompted to link email or OAuth
+   - Redirected to sign-up flow
+
+3. **User completes registration**
+   - Better Auth links accounts automatically
+   - `onLinkAccount` callback fires
+   - Anonymous data preserved
+
+4. **User has full account**
+   - All guest data migrated
+   - Full feature access granted
+   - Can sign in normally
+
+## Best Practices
+
+### 1. Clear Communication
+
+Always explain to users that they're using a guest account:
+
+```tsx
+<Alert>
+  <InfoIcon className="h-4 w-4" />
+  <AlertDescription>
+    You're using a guest account. Create an account to save your work permanently.
+  </AlertDescription>
+</Alert>
+```
+
+### 2. Strategic Upgrade Prompts
+
+Show upgrade prompts at key moments:
+
+- After significant progress/investment
+- When accessing premium features
+- Before important actions (payment, sharing)
+- In account settings
+
+### 3. Data Migration
+
+Implement proper data migration in `onLinkAccount`:
+
+```ts
+onLinkAccount: async ({ user, account }) => {
+  // Migrate user data
+  await db.update({
+    where: { userId: user.id },
+    data: { isPermanent: true }
+  });
+  
+  // Send confirmation
+  await sendEmail({
+    to: account.email,
+    subject: "Account upgraded successfully",
+  });
+}
+```
+
+### 4. Feature Restrictions
+
+Consider limiting guest features to encourage upgrades:
+
+```tsx
+const isAnonymous = session?.user?.email?.includes("@guest.");
+
+if (isAnonymous && isPremiumFeature) {
+  return <AnonymousUpgradeCard />;
+}
+```
+
+## Customization
+
+### Custom Button Styling
+
+```tsx
+<AnonymousSignInButton
+  authClient={authClient}
+  variant="outline"
+  size="lg"
+  localization={{
+    buttonText: "Try as Guest",
+    loadingText: "Creating guest session...",
+  }}
+/>
+```
+
+### Custom Upgrade Card
+
+```tsx
+<AnonymousUpgradeCard
+  authClient={authClient}
+  classNames={{
+    card: "border-blue-200 bg-blue-50",
+    title: "text-blue-900",
+    primaryButton: "bg-blue-600",
+  }}
+  localization={{
+    title: "Unlock Full Access",
+    description: "Create an account to unlock all features",
+    benefitsTitle: "What you'll get:",
+    benefits: [
+      "Cloud storage for your projects",
+      "Advanced collaboration tools",
+      "Priority support",
+    ],
+  }}
+/>
+```
+
+## Troubleshooting
+
+### Anonymous users can't sign in
+
+Verify the plugin is configured on both server and client:
+
+```ts
+// Server
+plugins: [anonymous()]
+
+// Client
+plugins: [anonymousClient()]
+```
+
+### Account linking fails
+
+Check the `onLinkAccount` callback:
+
+```ts
+onLinkAccount: async ({ user, account }) => {
+  console.log("Linking account:", { user, account });
+  // Debug linking process
+}
+```
+
+### Email conflicts
+
+Ensure unique email domain:
+
+```ts
+emailDomainName: "guest.yourapp.com" // Not a real domain
+```
+
+## Related
+
+- [AnonymousSignInButton Component](/docs/components/authentication/anonymous-sign-in-button)
+- [AnonymousUpgradeCard Component](/docs/components/account/anonymous-upgrade-card)
+- [Better Auth Anonymous Plugin](https://better-auth.com/docs/plugins/anonymous)
+- [Authentication Setup](/docs/guides/authentication/setup)

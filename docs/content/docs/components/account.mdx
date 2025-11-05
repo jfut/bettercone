@@ -5,7 +5,7 @@ description: User account management and settings
 
 # Account Components
 
-5 production-ready components for managing user account settings.
+6 production-ready components for managing user account settings.
 
 ## Components
 
@@ -18,6 +18,20 @@ import { AccountSettingsCards } from '@bettercone/ui';
 ```
 
 **Features:** Profile information, avatar, email, security, and account deletion
+
+---
+
+### AnonymousUpgradeCard
+Prompt anonymous users to link authentication methods and upgrade their guest accounts.
+
+```tsx
+import { AnonymousUpgradeCard } from '@bettercone/ui';
+<AnonymousUpgradeCard authClient={authClient} />
+```
+
+**Features:** Email sign-up, OAuth linking, benefits list, customizable styling
+
+**Use Case:** Encourage guest users to create full accounts
 
 ---
 

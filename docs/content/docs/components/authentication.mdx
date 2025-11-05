@@ -33,6 +33,7 @@ import { AuthView } from '@bettercone/ui';
 - **MagicLinkButton** - Passwordless magic link
 - **EmailOTPButton** - Email OTP verification
 - **OneTap** - Google One Tap sign-in
+- **AnonymousSignInButton** - Guest authentication without PII
 
 These sub-components are included and work automatically within `AuthView`. You can also import them individually if you need custom layouts.
 
@@ -66,6 +67,20 @@ import { SignedIn, SignedOut } from '@bettercone/ui';
 ```
 
 **Use Cases:** Show/hide content, navigation items, protected pages
+
+---
+
+### AnonymousSignInButton
+Enable guest authentication without requiring personal information.
+
+```tsx
+import { AnonymousSignInButton } from '@bettercone/ui';
+<AnonymousSignInButton authClient={authClient} />
+```
+
+**Features:** One-click guest access, no PII required, account linking support
+
+**Use Case:** Free trials, guest checkout, reduced friction onboarding
 
 
 ## Quick Start

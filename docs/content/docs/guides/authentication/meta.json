@@ -4,6 +4,7 @@
     "index",
     "setup",
     "email-password",
+    "anonymous",
     "better-auth-stripe"
   ]
 }

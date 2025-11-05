@@ -1,0 +1,346 @@
+---
+title: AnonymousUpgradeCard
+description: Prompt anonymous users to link authentication methods
+---
+
+# AnonymousUpgradeCard
+
+Encourage anonymous users to upgrade their guest accounts by linking email or OAuth authentication methods.
+
+## Installation
+
+```bash
+npm install @bettercone/ui
+```
+
+## Usage
+
+### Basic Usage
+
+```tsx
+import { AnonymousUpgradeCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function AccountPage() {
+  return (
+    <AnonymousUpgradeCard authClient={authClient} />
+  );
+}
+```
+
+### With Custom Callbacks
+
+```tsx
+import { AnonymousUpgradeCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+
+export default function AccountPage() {
+  const router = useRouter();
+
+  return (
+    <AnonymousUpgradeCard
+      onUpgradeWithEmail={() => {
+        router.push('/sign-up?upgrade=true');
+      }}
+      onLinkOAuth={(provider) => {
+        console.log(`Linking ${provider} account`);
+      }}
+    />
+  );
+}
+```
+
+### With OAuth Providers
+
+```tsx
+import { AnonymousUpgradeCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function AccountPage() {
+  return (
+    <AnonymousUpgradeCard
+      authClient={authClient}
+      showOAuthProviders={true}
+      oauthProviders={[
+        { id: 'google', name: 'Google' },
+        { id: 'github', name: 'GitHub' },
+      ]}
+    />
+  );
+}
+```
+
+### Custom Styling
+
+```tsx
+import { AnonymousUpgradeCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function AccountPage() {
+  return (
+    <AnonymousUpgradeCard
+      authClient={authClient}
+      classNames={{
+        card: "border-blue-200 bg-blue-50",
+        title: "text-blue-900",
+        description: "text-blue-700",
+        alert: "border-blue-300",
+        benefitsList: "text-blue-800",
+        primaryButton: "bg-blue-600 hover:bg-blue-700",
+      }}
+    />
+  );
+}
+```
+
+### Custom Localization
+
+```tsx
+import { AnonymousUpgradeCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function AccountPage() {
+  return (
+    <AnonymousUpgradeCard
+      authClient={authClient}
+      localization={{
+        title: "Upgrade Your Guest Account",
+        description: "Save your data permanently",
+        alertTitle: "Limited Access",
+        alertDescription: "Guest accounts have restricted features",
+        benefitsTitle: "Premium Benefits",
+        benefits: [
+          "Cloud data backup",
+          "Cross-device sync",
+          "Priority support",
+          "Advanced features",
+        ],
+        upgradeButton: "Create Account",
+        linkButton: "Link Social Account",
+      }}
+    />
+  );
+}
+```
+
+## Props
+
+### AnonymousUpgradeCardProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `authClient` | `AuthClient` | - | Better Auth client instance (optional if using AuthUIProvider) |
+| `onUpgradeWithEmail` | `() => void` | - | Callback for email upgrade (defaults to sign-up page) |
+| `onLinkOAuth` | `(provider: string) => void` | - | Callback for OAuth linking |
+| `showOAuthProviders` | `boolean` | `false` | Show OAuth provider linking buttons |
+| `oauthProviders` | `Provider[]` | `[]` | List of OAuth providers to display |
+| `classNames` | `ClassNames` | - | Custom CSS classes for styling |
+| `localization` | `Localization` | - | Custom text labels |
+
+### ClassNames Options
+
+```tsx
+interface AnonymousUpgradeCardClassNames {
+  card?: string;
+  header?: string;
+  title?: string;
+  description?: string;
+  content?: string;
+  alert?: string;
+  alertIcon?: string;
+  alertTitle?: string;
+  alertDescription?: string;
+  benefitsSection?: string;
+  benefitsTitle?: string;
+  benefitsList?: string;
+  benefitItem?: string;
+  actions?: string;
+  primaryButton?: string;
+  secondaryButton?: string;
+  oauthProviders?: string;
+}
+```
+
+### Localization Options
+
+```tsx
+interface AnonymousUpgradeCardLocalization {
+  title?: string;           // Default: "Upgrade Your Account"
+  description?: string;     // Default: "Link an authentication method..."
+  alertTitle?: string;      // Default: "Guest Account"
+  alertDescription?: string;// Default: "You're using a guest account..."
+  benefitsTitle?: string;   // Default: "Benefits of upgrading:"
+  benefits?: string[];      // Default array of 4 benefits
+  upgradeButton?: string;   // Default: "Sign Up with Email"
+  linkButton?: string;      // Default: "Link OAuth Account"
+}
+```
+
+### Provider Type
+
+```tsx
+interface Provider {
+  id: string;   // e.g., 'google', 'github'
+  name: string; // e.g., 'Google', 'GitHub'
+}
+```
+
+## Better Auth Setup
+
+### Server Configuration
+
+```ts
+// lib/auth.ts
+import { betterAuth } from "better-auth";
+import { anonymous } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    anonymous({
+      // Handle account linking
+      onLinkAccount: async ({ user, account }) => {
+        console.log(`User ${user.id} linked ${account.providerId}`);
+        
+        // Optional: Send welcome email
+        // Optional: Grant premium features
+        // Optional: Migrate guest data
+      },
+      
+      // Email domain for anonymous users
+      emailDomainName: "guest.yourapp.com",
+      
+      // Keep anonymous user after linking
+      disableDeleteAnonymousUser: true,
+    }),
+  ],
+});
+```
+
+### Client Configuration
+
+```ts
+// lib/auth-client.ts
+import { createAuthClient } from "better-auth/react";
+import { anonymousClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({
+  plugins: [anonymousClient()],
+});
+```
+
+## Features
+
+- **Beautiful Card Design**: Pre-styled card component with professional UI
+- **Alert Banner**: Prominent notification about guest account limitations
+- **Benefits List**: Customizable list of upgrade benefits
+- **Email Sign-Up**: Primary CTA for email registration
+- **OAuth Linking**: Optional social account linking
+- **Full Customization**: Complete control over styling and text
+- **Type Safety**: Full TypeScript support
+- **Responsive**: Mobile-friendly design
+
+## Use Cases
+
+- **Account Dashboard**: Show upgrade prompt to guest users
+- **Settings Page**: Encourage authentication method linking
+- **Checkout Flow**: Convert guests to registered users
+- **Feature Gates**: Promote premium features
+- **Onboarding**: Guide users to create full accounts
+
+## Example: Conditional Display
+
+Only show the upgrade card to anonymous users:
+
+```tsx
+'use client';
+
+import { AnonymousUpgradeCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+import { useSession } from '@/lib/hooks';
+
+export default function AccountPage() {
+  const { data: session } = useSession();
+  
+  // Check if user is anonymous (email contains guest domain)
+  const isAnonymous = session?.user?.email?.includes('@guest.');
+
+  if (!isAnonymous) {
+    return <div>Your account is fully set up!</div>;
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      <AnonymousUpgradeCard
+        authClient={authClient}
+        showOAuthProviders={true}
+        oauthProviders={[
+          { id: 'google', name: 'Google' },
+          { id: 'github', name: 'GitHub' },
+        ]}
+      />
+    </div>
+  );
+}
+```
+
+## Example: Dashboard Integration
+
+```tsx
+import { AnonymousUpgradeCard } from '@bettercone/ui';
+import { AccountSettingsCards } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function SettingsPage() {
+  return (
+    <div className="space-y-6">
+      {/* Show upgrade prompt first */}
+      <AnonymousUpgradeCard authClient={authClient} />
+      
+      {/* Regular account settings */}
+      <AccountSettingsCards authClient={authClient} />
+    </div>
+  );
+}
+```
+
+## Example: With Custom Benefits
+
+```tsx
+import { AnonymousUpgradeCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function UpgradePrompt() {
+  return (
+    <AnonymousUpgradeCard
+      authClient={authClient}
+      localization={{
+        benefits: [
+          "Save your workspace across devices",
+          "Access premium templates",
+          "Collaborate with team members",
+          "Get 24/7 priority support",
+          "Export data in multiple formats",
+        ],
+      }}
+    />
+  );
+}
+```
+
+## Account Linking Flow
+
+1. **User signs in anonymously** using [AnonymousSignInButton](/docs/components/authentication/anonymous-sign-in-button)
+2. **User explores your app** with guest access
+3. **User sees AnonymousUpgradeCard** in dashboard or settings
+4. **User clicks upgrade** button
+5. **User links email or OAuth** account
+6. **Better Auth merges accounts** preserving guest data
+7. **User gains full access** with persistent account
+
+## Related Components
+
+- [AnonymousSignInButton](/docs/components/authentication/anonymous-sign-in-button) - Enable guest authentication
+- [AccountSettingsCards](/docs/components/account) - Complete account settings dashboard
+- [AuthView](/docs/components/authentication/auth-view) - Full authentication UI
+- [ProviderButton](/docs/components/authentication/provider-button) - OAuth provider buttons

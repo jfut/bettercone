@@ -1,0 +1,223 @@
+---
+title: AnonymousSignInButton
+description: Enable guest authentication without requiring personal information
+---
+
+# AnonymousSignInButton
+
+Allow users to sign in anonymously as guests without providing email, password, or OAuth credentials.
+
+## Installation
+
+```bash
+npm install @bettercone/ui
+```
+
+## Usage
+
+### Basic Usage
+
+```tsx
+import { AnonymousSignInButton } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function GuestSignIn() {
+  return (
+    <AnonymousSignInButton authClient={authClient} />
+  );
+}
+```
+
+### With Success Callback
+
+```tsx
+import { AnonymousSignInButton } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+
+export default function GuestSignIn() {
+  const router = useRouter();
+
+  return (
+    <AnonymousSignInButton
+      authClient={authClient}
+      onSuccess={() => {
+        console.log('Guest signed in successfully!');
+        router.push('/dashboard');
+      }}
+      onError={(error) => {
+        console.error('Sign-in failed:', error);
+      }}
+    />
+  );
+}
+```
+
+### Custom Styling
+
+```tsx
+import { AnonymousSignInButton } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function GuestSignIn() {
+  return (
+    <AnonymousSignInButton
+      authClient={authClient}
+      variant="outline"
+      size="lg"
+    />
+  );
+}
+```
+
+### With Redirect
+
+```tsx
+import { AnonymousSignInButton } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function GuestSignIn() {
+  return (
+    <AnonymousSignInButton
+      authClient={authClient}
+      redirectTo="/onboarding"
+    />
+  );
+}
+```
+
+### Custom Localization
+
+```tsx
+import { AnonymousSignInButton } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function GuestSignIn() {
+  return (
+    <AnonymousSignInButton
+      authClient={authClient}
+      localization={{
+        buttonText: "Try as Guest",
+        loadingText: "Creating guest account...",
+      }}
+    />
+  );
+}
+```
+
+## Props
+
+### AnonymousSignInButtonProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `authClient` | `AuthClient` | - | Better Auth client instance (optional if using AuthUIProvider) |
+| `onSuccess` | `() => void` | - | Callback function on successful sign-in |
+| `onError` | `(error: Error) => void` | - | Callback function on error |
+| `redirectTo` | `string` | - | URL to redirect after successful sign-in |
+| `variant` | `ButtonVariant` | `"default"` | Button variant (default, outline, ghost, etc.) |
+| `size` | `ButtonSize` | `"default"` | Button size (sm, default, lg) |
+| `localization` | `Localization` | - | Custom text labels |
+
+### Localization Options
+
+```tsx
+interface Localization {
+  buttonText?: string;      // Default: "Continue as Guest"
+  loadingText?: string;     // Default: "Signing in..."
+}
+```
+
+## Better Auth Setup
+
+### Server Configuration
+
+```ts
+// lib/auth.ts
+import { betterAuth } from "better-auth";
+import { anonymous } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    anonymous({
+      // Optional: Handle account linking
+      onLinkAccount: async ({ user, account }) => {
+        console.log(`User ${user.id} linked ${account.providerId}`);
+      },
+      
+      // Optional: Email domain for anonymous users
+      emailDomainName: "guest.yourapp.com",
+      
+      // Optional: Prevent auto-deletion
+      disableDeleteAnonymousUser: false,
+    }),
+  ],
+});
+```
+
+### Client Configuration
+
+```ts
+// lib/auth-client.ts
+import { createAuthClient } from "better-auth/react";
+import { anonymousClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({
+  plugins: [anonymousClient()],
+});
+```
+
+## Features
+
+- **No PII Required**: Users can authenticate without email, password, or OAuth
+- **Seamless Experience**: One-click guest access
+- **Account Linking**: Anonymous users can later link email or OAuth accounts
+- **Full Customization**: Control styling, text, and behavior
+- **Type Safety**: Full TypeScript support with strict mode
+- **Loading States**: Built-in loading indicators
+- **Error Handling**: Comprehensive error callbacks
+
+## Use Cases
+
+- **Free Trials**: Allow users to try your app before signing up
+- **E-commerce**: Guest checkout without account creation
+- **Content Platforms**: Browse content before registering
+- **Gaming**: Start playing immediately
+- **Onboarding**: Reduce friction in user acquisition
+
+## Account Linking
+
+Anonymous users can upgrade their accounts later using the [AnonymousUpgradeCard](/docs/components/account/anonymous-upgrade-card) component.
+
+## Example: Complete Guest Flow
+
+```tsx
+import { AnonymousSignInButton } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function LandingPage() {
+  return (
+    <div className="flex flex-col gap-4">
+      <h1>Try Our App</h1>
+      <p>No signup required - start exploring now!</p>
+      
+      <div className="flex flex-col gap-2">
+        <AnonymousSignInButton
+          authClient={authClient}
+          redirectTo="/demo"
+        />
+        
+        <p className="text-sm text-muted-foreground">
+          You can create a full account later to save your progress
+        </p>
+      </div>
+    </div>
+  );
+}
+```
+
+## Related Components
+
+- [AnonymousUpgradeCard](/docs/components/account/anonymous-upgrade-card) - Prompt anonymous users to upgrade their account
+- [AuthView](/docs/components/authentication/auth-view) - Complete authentication UI
+- [ProviderButton](/docs/components/authentication/provider-button) - OAuth provider authentication

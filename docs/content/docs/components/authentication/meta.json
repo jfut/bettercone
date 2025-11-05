@@ -12,6 +12,7 @@
     "passkey-button",
     "magic-link-button",
     "email-otp-button",
+    "anonymous-sign-in-button",
     "one-tap",
     "sign-out"
   ]
