@@ -5,6 +5,16 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2025-11-05
+
+### Changed
+
+#### Documentation Updates
+- Updated README with comprehensive v0.3.0 and v0.3.1 feature documentation
+- Added Web3/SIWE component examples with Better Auth plugin configuration
+- Enhanced billing section with Stripe integration details
+- Added supported blockchain networks documentation (Ethereum, Polygon, Arbitrum, Base, Optimism)
+
 ## [0.3.1] - 2025-11-05
 
 ### Fixed
