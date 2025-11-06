@@ -56,6 +56,16 @@ export interface AnonymousSignInButtonProps {
     buttonText?: string;
     signingIn?: string;
   };
+  
+  /**
+   * Whether the component is in a submitting state
+   */
+  isSubmitting?: boolean;
+  
+  /**
+   * Callback to update the submitting state
+   */
+  setIsSubmitting?: (isSubmitting: boolean) => void;
 }
 
 export function AnonymousSignInButton({
@@ -68,11 +78,15 @@ export function AnonymousSignInButton({
   variant = "outline",
   size = "default",
   localization = {},
+  isSubmitting: isSubmittingProp,
+  setIsSubmitting: setIsSubmittingProp,
 }: AnonymousSignInButtonProps) {
   const context = React.useContext(AuthUIContext);
   const client = authClient || context?.authClient;
   
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoadingState, setIsLoadingState] = React.useState(false);
+  const isLoading = isSubmittingProp ?? isLoadingState;
+  const setIsLoading = setIsSubmittingProp ?? setIsLoadingState;
 
   const handleSignIn = async () => {
     if (!client) {

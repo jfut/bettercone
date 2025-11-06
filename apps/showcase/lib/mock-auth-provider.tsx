@@ -200,6 +200,57 @@ export const mockAuthClient = {
     },
   },
   
+  // Device authorization methods
+  device: Object.assign(
+    async ({ query }: { query: { user_code: string } }) => {
+      // Mock device verification
+      return {
+        data: {
+          clientId: "demo-cli-app",
+          scope: "openid profile email",
+        },
+        error: null,
+      };
+    },
+    {
+      code: async ({ client_id, scope }: { client_id: string; scope?: string }) => {
+        // Mock device code generation
+        return {
+          data: {
+            device_code: "abc123def456ghi789jkl012mno345pqr678",
+            user_code: "ABCD1234",
+            verification_uri: "https://demo.better-auth.com/device",
+            verification_uri_complete: "https://demo.better-auth.com/device?user_code=ABCD1234",
+            expires_in: 1800,
+            interval: 5,
+          },
+          error: null,
+        };
+      },
+      token: async ({ device_code }: { device_code: string; grant_type: string; client_id: string }) => {
+        // Mock token polling
+        return {
+          data: null,
+          error: { message: "authorization_pending" },
+        };
+      },
+      approve: async ({ userCode }: { userCode: string }) => {
+        // Mock device approval
+        return {
+          data: { success: true },
+          error: null,
+        };
+      },
+      deny: async ({ userCode }: { userCode: string }) => {
+        // Mock device denial
+        return {
+          data: { success: true },
+          error: null,
+        };
+      },
+    }
+  ),
+  
   $fetch: async (url: string) => {
     // Mock wallet API endpoints
     if (url === "/api/auth/wallets") {

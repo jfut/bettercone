@@ -164,6 +164,14 @@ export { PhoneSignUpForm } from "./components/auth/forms/phone-sign-up-form";
 export { AnonymousSignInButton } from "./components/auth/anonymous-sign-in-button";
 export type { AnonymousSignInButtonProps } from "./components/auth/anonymous-sign-in-button";
 
+// Last Login Badge
+export { LastLoginBadge } from "./components/auth/last-login-badge";
+
+// Device Authorization (OAuth 2.0)
+export { DeviceAuthorizationCard } from "./components/auth/device-authorization-card";
+export { DeviceApprovalCard } from "./components/auth/device-approval-card";
+export { DeviceCodeDisplay } from "./components/auth/device-code-display";
+
 // ============================================================================
 // Security Components
 // ============================================================================

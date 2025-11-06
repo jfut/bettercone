@@ -105,6 +105,9 @@ export const authLocalization = {
     /** @default "Continue" */
     CONTINUE: "Continue",
 
+    /** @default "Loading..." */
+    LOADING: "Loading...",
+
     /** @default "Current Password" */
     CURRENT_PASSWORD: "Current Password",
 
@@ -427,6 +430,18 @@ export const authLocalization = {
     /** @default "Sign in with" */
     SIGN_IN_WITH: "Sign in with",
 
+    /** @default "Sign in anonymously" */
+    SIGN_IN_ANONYMOUSLY: "Sign in anonymously",
+
+    /** @default "Continue as guest" */
+    ANONYMOUS_SIGN_IN: "Continue as guest",
+
+    /** @default "Sign in with Ethereum" */
+    SIGN_IN_WITH_ETHEREUM: "Sign in with Ethereum",
+
+    /** @default "Connect your Ethereum wallet" */
+    SIWE_SIGN_IN: "Connect your Ethereum wallet",
+
     /** @default "Sign Out" */
     SIGN_OUT: "Sign Out",
 
@@ -719,6 +734,111 @@ export const authLocalization = {
 
     /** @default "Unknown" */
     UNKNOWN: "Unknown",
+
+    // Device Authorization
+    /** @default "Enter Your Device Code" */
+    DEVICE_AUTH_TITLE: "Enter Your Device Code",
+
+    /** @default "Enter the code shown on your device to continue." */
+    DEVICE_AUTH_DESCRIPTION: "Enter the code shown on your device to continue.",
+
+    /** @default "Device Code" */
+    DEVICE_CODE_LABEL: "Device Code",
+
+    /** @default "ABCD-1234" */
+    DEVICE_CODE_PLACEHOLDER: "ABCD-1234",
+
+    /** @default "Please enter a valid device code" */
+    DEVICE_CODE_REQUIRED: "Please enter a valid device code",
+
+    /** @default "Invalid or expired code" */
+    DEVICE_CODE_INVALID: "Invalid or expired code",
+
+    /** @default "Auth client not configured" */
+    DEVICE_CODE_NO_CLIENT: "Auth client not configured",
+
+    /** @default "Format: XXXX-XXXX" */
+    DEVICE_CODE_FORMAT: "Format: XXXX-XXXX",
+
+    /** @default "Continue" */
+    DEVICE_AUTH_SUBMIT: "Continue",
+
+    // Device Approval
+    /** @default "Device Authorization Request" */
+    DEVICE_APPROVAL_TITLE: "Device Authorization Request",
+
+    /** @default "A device is requesting access to your account." */
+    DEVICE_APPROVAL_DESCRIPTION: "A device is requesting access to your account.",
+
+    /** @default "Code" */
+    DEVICE_APPROVAL_CODE_LABEL: "Code",
+
+    /** @default "Application" */
+    DEVICE_APPROVAL_APP_LABEL: "Application",
+
+    /** @default "Requested Permissions" */
+    DEVICE_APPROVAL_SCOPES_LABEL: "Requested Permissions",
+
+    /** @default "Approve" */
+    DEVICE_APPROVE_BUTTON: "Approve",
+
+    /** @default "Deny" */
+    DEVICE_DENY_BUTTON: "Deny",
+
+    /** @default "Device approved successfully" */
+    DEVICE_APPROVED_SUCCESS: "Device approved successfully",
+
+    /** @default "Device denied" */
+    DEVICE_DENIED_SUCCESS: "Device denied",
+
+    /** @default "Failed to approve device" */
+    DEVICE_APPROVE_ERROR: "Failed to approve device",
+
+    /** @default "Failed to deny device" */
+    DEVICE_DENY_ERROR: "Failed to deny device",
+
+    /** @default "Only approve if you initiated this request on your device." */
+    DEVICE_APPROVAL_NOTICE: "Only approve if you initiated this request on your device.",
+
+    // Device Code Display
+    /** @default "Sign In on Your Computer" */
+    DEVICE_DISPLAY_TITLE: "Sign In on Your Computer",
+
+    /** @default "Follow the steps below to complete authentication" */
+    DEVICE_DISPLAY_DESCRIPTION: "Follow the steps below to complete authentication",
+
+    /** @default "Visit this URL:" */
+    DEVICE_DISPLAY_URL_LABEL: "Visit this URL:",
+
+    /** @default "Enter this code:" */
+    DEVICE_DISPLAY_CODE_LABEL: "Enter this code:",
+
+    /** @default "Scan this QR code to authorize" */
+    DEVICE_SCAN_QR: "Scan this QR code to authorize",
+
+    /** @default "or scan QR code" */
+    DEVICE_OR_SCAN_QR: "or scan QR code",
+
+    /** @default "Copy Code" */
+    DEVICE_COPY_CODE: "Copy Code",
+
+    /** @default "Copied!" */
+    COPIED: "Copied!",
+
+    /** @default "Expires in" */
+    DEVICE_EXPIRES_IN: "Expires in",
+
+    /** @default "Checking for approval..." */
+    DEVICE_POLLING_STATUS: "Checking for approval...",
+
+    /** @default "Approved! Redirecting..." */
+    DEVICE_APPROVED: "Approved! Redirecting...",
+
+    /** @default "Code expired. Please try again." */
+    DEVICE_EXPIRED: "Code expired. Please try again.",
+
+    /** @default "Access denied" */
+    DEVICE_ACCESS_DENIED: "Access denied",
 
     ...BASE_ERROR_CODES,
     ...ADMIN_ERROR_CODES,

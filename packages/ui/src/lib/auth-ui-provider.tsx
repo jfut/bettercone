@@ -177,6 +177,16 @@ export type AuthUIContextType = {
      */
     passkey?: boolean
     /**
+     * Enable or disable Anonymous sign-in support
+     * @default false
+     */
+    anonymous?: boolean
+    /**
+     * Enable or disable Sign-In with Ethereum (SIWE) support
+     * @default false
+     */
+    siwe?: boolean
+    /**
      * Forces better-auth-tanstack to refresh the Session on the auth callback page
      * @default false
      */

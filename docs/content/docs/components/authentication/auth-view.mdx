@@ -24,7 +24,7 @@ import { AuthView } from '@bettercone/ui';
 
 - ✅ **All Auth Flows** - Sign-in, sign-up, forgot password, and reset password
 - ✅ **Auto-routing** - Automatically shows the correct form based on URL/state
-- ✅ **Provider Support** - Email/password, OAuth, magic links, passkeys, 2FA
+- ✅ **Provider Support** - Email/password, OAuth, magic links, passkeys, 2FA, anonymous, SIWE
 - ✅ **Customizable** - Full control over styling and behavior
 - ✅ **Type-Safe** - Full TypeScript support
 - ✅ **Localization** - i18n support with custom labels
@@ -32,7 +32,7 @@ import { AuthView } from '@bettercone/ui';
 
 ## Usage
 
-<Tabs items={['Basic', 'With OAuth', 'Customized']}>
+<Tabs items={['Basic', 'With OAuth', 'With Anonymous & SIWE', 'Customized']}>
   <Tab value="Basic">
     ```tsx
     import { AuthView } from '@bettercone/ui';
@@ -55,6 +55,26 @@ import { AuthView } from '@bettercone/ui';
           authClient={authClient}
           socialProviders={["google", "github", "discord"]}
         />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Anonymous & SIWE">
+    ```tsx
+    import { AuthUIProvider, AuthView } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function SignInPage() {
+      return (
+        <AuthUIProvider 
+          authClient={authClient}
+          anonymous={true}  // Enable guest sign-in
+          siwe={true}       // Enable Web3 wallet sign-in
+          passkey={true}    // Enable passkey authentication
+        >
+          <AuthView />
+        </AuthUIProvider>
       );
     }
     ```
@@ -91,6 +111,73 @@ import { AuthView } from '@bettercone/ui';
 | `onSuccess` | `() => void` | - | Callback when auth succeeds |
 | `className` | `string` | - | Additional CSS classes |
 | `labels` | `object` | - | Custom labels for internationalization |
+
+## Authentication Methods
+
+AuthView supports all Better Auth authentication methods. Enable them via `AuthUIProvider`:
+
+### Anonymous Sign-In
+
+Enable guest/anonymous authentication for users who want to try your app without creating an account.
+
+```tsx
+<AuthUIProvider authClient={authClient} anonymous={true}>
+  <AuthView />
+</AuthUIProvider>
+```
+
+**Features:**
+- One-click guest access
+- No email or credentials required
+- Can convert to full account later
+- Perfect for demos and trials
+
+<Callout type="info">
+  Requires the Better Auth [Anonymous plugin](https://www.better-auth.com/docs/plugins/anonymous) to be enabled on your server.
+</Callout>
+
+### Sign-In with Ethereum (SIWE)
+
+Enable Web3 wallet authentication for crypto-native applications.
+
+```tsx
+<AuthUIProvider authClient={authClient} siwe={true}>
+  <AuthView />
+</AuthUIProvider>
+```
+
+**Features:**
+- Connect with MetaMask or any Web3 wallet
+- ERC-4361 compliant (industry standard)
+- Automatic wallet detection
+- Only shows when wallet is available
+- Multi-chain support
+
+<Callout type="info">
+  Requires the Better Auth [SIWE plugin](https://www.better-auth.com/docs/plugins/siwe) to be enabled on your server and a Web3 wallet (MetaMask, WalletConnect, etc.) in the browser.
+</Callout>
+
+### Complete Example with All Methods
+
+```tsx
+<AuthUIProvider
+  authClient={authClient}
+  // Traditional methods
+  credentials={true}
+  social={{ providers: ["google", "github"] }}
+  
+  // Modern methods
+  passkey={true}
+  magicLink={true}
+  emailOTP={true}
+  
+  // Alternative methods
+  anonymous={true}
+  siwe={true}
+>
+  <AuthView />
+</AuthUIProvider>
+```
 
 ## Examples
 
@@ -158,3 +245,6 @@ export default function SignInPage() {
 - [SignInForm](/docs/components/authentication/sign-in-form) - Sign-in only
 - [SignUpForm](/docs/components/authentication/sign-up-form) - Sign-up only
 - [ProviderButton](/docs/components/authentication/provider-button) - OAuth buttons
+- [AnonymousSignInButton](/docs/components/authentication/anonymous-sign-in-button) - Guest authentication
+- [SiweSignInButton](/docs/components/web3/siwe-sign-in-button) - Web3 wallet authentication
+- [PasskeyButton](/docs/components/authentication/passkey-button) - Passkey authentication

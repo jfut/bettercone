@@ -1,0 +1,501 @@
+---
+title: DeviceCodeDisplay
+description: Display device authorization codes for CLI applications, smart TVs, and IoT devices
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# DeviceCodeDisplay
+
+The `DeviceCodeDisplay` component displays device authorization codes for CLI applications, smart TVs, IoT devices, and other limited-input devices. Features a large, readable code display, verification URL, optional QR code, countdown timer, and automatic polling.
+
+<Callout type="info">
+  Requires the Better Auth [Device Authorization plugin](https://www.better-auth.com/docs/plugins/device-authorization) to be enabled on your server.
+</Callout>
+
+<Callout type="tip">
+  **For CLI Apps**: This component is designed for CLI/device applications to show codes to users. For web-based code entry, use [DeviceAuthorizationCard](/docs/components/authentication/device-authorization-card).
+</Callout>
+
+## Installation
+
+```tsx
+import { DeviceCodeDisplay } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **OTP-style code display** - Beautiful, easy-to-read codes with InputOTP component
+- ✅ **Built-in QR code** - Scan with phone for instant authorization (react-qr-code)
+- ✅ **Countdown timer** - Shows time until code expires with color warnings
+- ✅ **Auto-polling** - Automatically checks for authorization
+- ✅ **Copy buttons** - Quick clipboard copy for URL and code
+- ✅ **Success/error states** - Clear feedback on authorization status
+- ✅ **Type-safe** - Full TypeScript support
+
+## Usage
+
+<Tabs items={['Basic', 'With QR Code', 'Custom Polling']}>
+  <Tab value="Basic">
+    ```tsx
+    import { DeviceCodeDisplay } from '@bettercone/ui';
+
+    export async function CLIAuthFlow() {
+      // Request device code from Better Auth
+      const { data } = await authClient.device.code({
+        client_id: "my-cli-app",
+        scope: "openid profile email",
+      });
+
+      return (
+        <DeviceCodeDisplay
+          deviceCode={data.device_code}
+          userCode={data.user_code}
+          verificationUri={data.verification_uri}
+          expiresIn={data.expires_in}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With QR Code">
+    ```tsx
+    import { DeviceCodeDisplay } from '@bettercone/ui';
+
+    export function SmartTVAuth() {
+      const deviceData = await requestDeviceCode();
+
+      return (
+        <DeviceCodeDisplay
+          deviceCode={deviceData.device_code}
+          userCode={deviceData.user_code}
+          verificationUri={deviceData.verification_uri}
+          verificationUriComplete={deviceData.verification_uri_complete}
+          expiresIn={deviceData.expires_in}
+          showQRCode={true} // Enable QR code
+          onSuccess={() => {
+            console.log('Authorized! Loading app...');
+          }}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Polling">
+    ```tsx
+    import { DeviceCodeDisplay } from '@bettercone/ui';
+
+    export function IoTDeviceAuth() {
+      const handleSuccess = () => {
+        console.log('Device authorized successfully!');
+        // Store token and proceed
+      };
+
+      const handleError = (error: string) => {
+        console.error('Authorization error:', error);
+        // Show error to user
+      };
+
+      const handleExpired = () => {
+        console.log('Code expired, requesting new code...');
+        // Request new code
+      };
+
+      return (
+        <DeviceCodeDisplay
+          deviceCode={deviceCode}
+          userCode={userCode}
+          verificationUri={verificationUri}
+          expiresIn={1800}
+          pollingInterval={3} // Poll every 3 seconds
+          onSuccess={handleSuccess}
+          onError={handleError}
+          onExpired={handleExpired}
+        />
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `deviceCode` | `string` | **Required** | The device code from the authorization request |
+| `userCode` | `string` | **Required** | The user-friendly code to display (e.g., ABCD-1234) |
+| `verificationUri` | `string` | **Required** | The URL where users enter the code |
+| `verificationUriComplete` | `string` | - | Complete verification URL (includes user code as parameter), used for QR code |
+| `expiresIn` | `number` | **Required** | Time in seconds until the code expires |
+| `className` | `string` | - | Additional CSS classes for the card |
+| `showQRCode` | `boolean` | `false` | Show QR code for mobile scanning (requires QR code component) |
+| `onExpired` | `() => void` | - | Callback when code expires |
+| `onSuccess` | `() => void` | - | Callback when authorization is successful |
+| `onError` | `(error: string) => void` | - | Callback when authorization fails |
+| `pollingInterval` | `number` | `5` | Polling interval in seconds |
+| `autoPoll` | `boolean` | `true` | Whether to automatically poll for authorization |
+| `localization` | `Partial<AuthLocalization>` | - | Custom localization strings |
+
+## How It Works
+
+1. Component displays user code and verification URL
+2. Countdown timer shows time until expiration (default: 30 minutes)
+3. Automatically polls Better Auth server every 5 seconds (configurable)
+4. When user approves on their computer/phone, component receives token
+5. Calls `onSuccess` callback and shows success message
+6. If code expires, calls `onExpired` callback
+
+## Examples
+
+### Complete CLI Application Flow
+
+```tsx
+// cli-auth.ts
+import { DeviceCodeDisplay } from '@bettercone/ui';
+import { createAuthClient } from 'better-auth/client';
+import { deviceAuthorizationClient } from 'better-auth/client/plugins';
+
+const authClient = createAuthClient({
+  baseURL: "https://your-app.com",
+  plugins: [deviceAuthorizationClient()],
+});
+
+async function authenticateCLI() {
+  console.log('🔐 Authenticating...');
+  
+  // Request device code
+  const { data, error } = await authClient.device.code({
+    client_id: "my-cli-app",
+    scope: "openid profile email",
+  });
+  
+  if (error || !data) {
+    console.error('❌ Error:', error?.error_description);
+    process.exit(1);
+  }
+  
+  // Display code to user
+  console.log('\n📱 Please authorize this device:');
+  console.log(`Visit: ${data.verification_uri}`);
+  console.log(`Enter code: ${data.user_code}\n`);
+  
+  // In a React/UI environment, render the component:
+  return (
+    <DeviceCodeDisplay
+      deviceCode={data.device_code}
+      userCode={data.user_code}
+      verificationUri={data.verification_uri}
+      verificationUriComplete={data.verification_uri_complete}
+      expiresIn={data.expires_in}
+      onSuccess={() => {
+        console.log('✅ Authorization successful!');
+        // Proceed with authenticated operations
+      }}
+      onExpired={() => {
+        console.log('❌ Code expired. Please try again.');
+        process.exit(1);
+      }}
+    />
+  );
+}
+```
+
+### Smart TV Application
+
+```tsx
+// tv-app.tsx
+import { DeviceCodeDisplay } from '@bettercone/ui';
+import { AuthUIProvider } from '@bettercone/ui';
+
+export function SmartTVAuthScreen() {
+  const [deviceData, setDeviceData] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Request device code on mount
+    async function requestCode() {
+      const { data } = await authClient.device.code({
+        client_id: "smart-tv-app",
+        scope: "openid profile",
+      });
+      setDeviceData(data);
+    }
+    requestCode();
+  }, []);
+
+  if (isAuthenticated) {
+    return <TVDashboard />;
+  }
+
+  if (!deviceData) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="flex items-center justify-center h-screen bg-black text-white">
+        <DeviceCodeDisplay
+          deviceCode={deviceData.device_code}
+          userCode={deviceData.user_code}
+          verificationUri={deviceData.verification_uri}
+          verificationUriComplete={deviceData.verification_uri_complete}
+          expiresIn={deviceData.expires_in}
+          showQRCode={true}
+          className="scale-125" // Larger for TV viewing
+          onSuccess={() => {
+            setIsAuthenticated(true);
+          }}
+        />
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### IoT Device with Manual Polling Control
+
+```tsx
+import { DeviceCodeDisplay } from '@bettercone/ui';
+
+export function IoTDeviceAuth() {
+  const [autoPoll, setAutoPoll] = useState(true);
+
+  return (
+    <div>
+      <DeviceCodeDisplay
+        deviceCode={deviceCode}
+        userCode={userCode}
+        verificationUri={verificationUri}
+        expiresIn={1800}
+        autoPoll={autoPoll}
+        pollingInterval={10} // Poll every 10 seconds to save battery
+        onSuccess={() => {
+          // Store credentials and start device operations
+          storeToken(token);
+          startDeviceServices();
+        }}
+      />
+      
+      <button onClick={() => setAutoPoll(!autoPoll)}>
+        {autoPoll ? 'Pause' : 'Resume'} Polling
+      </button>
+    </div>
+  );
+}
+```
+
+## Setup
+
+### 1. Enable the Plugin
+
+Add the Device Authorization plugin to your Better Auth configuration:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { deviceAuthorization } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  // ... other config
+  plugins: [
+    deviceAuthorization({
+      expiresIn: "30m", // Code expiration time
+      interval: "5s",   // Minimum polling interval
+    }),
+  ],
+});
+```
+
+### 2. Request Device Code
+
+Use the Better Auth client to request device authorization:
+
+```tsx
+import { createAuthClient } from 'better-auth/client';
+import { deviceAuthorizationClient } from 'better-auth/client/plugins';
+
+const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_AUTH_URL,
+  plugins: [deviceAuthorizationClient()],
+});
+
+const { data } = await authClient.device.code({
+  client_id: "your-app-id",
+  scope: "openid profile email",
+});
+```
+
+### 3. Display the Component
+
+Render the DeviceCodeDisplay with the response data:
+
+```tsx
+<DeviceCodeDisplay
+  deviceCode={data.device_code}
+  userCode={data.user_code}
+  verificationUri={data.verification_uri}
+  expiresIn={data.expires_in}
+/>
+```
+
+## QR Code Support
+
+The component includes built-in QR code support using `react-qr-code`. Simply enable it with the `showQRCode` prop:
+
+```tsx
+<DeviceCodeDisplay
+  deviceCode={deviceCode}
+  userCode={userCode}
+  verificationUri={verificationUri}
+  verificationUriComplete={verificationUriComplete} // Required for QR
+  expiresIn={1800}
+  showQRCode={true}
+/>
+```
+
+The QR code encodes the complete verification URI, allowing users to scan with their phone and be taken directly to the authorization page with the code pre-filled.
+
+<Callout type="tip">
+  QR codes work best on smart TVs and kiosks where users have their phones nearby. The code is displayed in a clean, scannable format with a white background for optimal reading.
+</Callout>
+
+## Polling Behavior
+
+### Default Behavior
+
+- Automatically polls every 5 seconds (configurable)
+- Stops polling when code expires
+- Stops polling when user approves/denies
+- Handles "slow_down" responses from server
+
+### Custom Polling
+
+```tsx
+<DeviceCodeDisplay
+  deviceCode={deviceCode}
+  userCode={userCode}
+  verificationUri={verificationUri}
+  expiresIn={1800}
+  pollingInterval={10} // Poll every 10 seconds
+  autoPoll={false}     // Disable automatic polling
+/>
+```
+
+### Error Handling
+
+The component handles these polling errors:
+
+- `authorization_pending` - Continues polling
+- `slow_down` - Server requests slower polling
+- `expired_token` - Code expired, calls `onExpired`
+- `access_denied` - User denied, calls `onError`
+
+## Countdown Timer
+
+The countdown timer:
+- Shows MM:SS format
+- Updates every second
+- Changes color when < 5 minutes (orange)
+- Changes color when < 1 minute (red)
+- Stops polling when reaches 0
+
+## Accessibility
+
+- Large, readable font for codes
+- High contrast display
+- Clear visual hierarchy
+- Copy buttons with feedback
+- Screen reader friendly alerts
+
+## Related Components
+
+- [DeviceAuthorizationCard](/docs/components/authentication/device-authorization-card) - For users to enter codes
+- [DeviceApprovalCard](/docs/components/authentication/device-approval-card) - For users to approve/deny devices
+- [AuthView](/docs/components/authentication/auth-view) - For standard authentication flows
+
+## Use Cases
+
+- **CLI Applications** - Terminal-based authentication
+- **Smart TVs** - Large display for living room viewing
+- **IoT Devices** - Devices with limited or no keyboard
+- **Gaming Consoles** - Controller-based input only
+- **Streaming Devices** - Remote-only input
+
+## Best Practices
+
+1. **Large display for TVs** - Increase component scale for smart TV apps
+2. **Battery consideration** - Increase polling interval for battery-powered IoT devices
+3. **Handle expiration** - Automatically request new code on expiration
+4. **Show QR code** - Makes it easier for users with mobile devices
+5. **Success feedback** - Clearly communicate when authorization succeeds
+
+## Localization
+
+Customize text using the `localization` prop:
+
+```tsx
+<DeviceCodeDisplay
+  deviceCode={deviceCode}
+  userCode={userCode}
+  verificationUri={verificationUri}
+  expiresIn={1800}
+  localization={{
+    DEVICE_DISPLAY_TITLE: "Authenticate Your Device",
+    DEVICE_DISPLAY_URL_LABEL: "Go to:",
+    DEVICE_DISPLAY_CODE_LABEL: "Use code:",
+    DEVICE_COPY_CODE: "Copy",
+    DEVICE_EXPIRES_IN: "Time left",
+    DEVICE_POLLING_STATUS: "Waiting for approval...",
+    DEVICE_APPROVED: "Success!",
+    DEVICE_EXPIRED: "Time's up! Request a new code.",
+  }}
+/>
+```
+
+## TypeScript
+
+```ts
+import type { DeviceCodeDisplayProps } from '@bettercone/ui';
+
+const props: DeviceCodeDisplayProps = {
+  deviceCode: "abc123...",
+  userCode: "ABCD1234",
+  verificationUri: "https://app.com/device",
+  verificationUriComplete: "https://app.com/device?user_code=ABCD1234",
+  expiresIn: 1800,
+  showQRCode: true,
+  pollingInterval: 5,
+  autoPoll: true,
+  onSuccess: () => console.log('Authorized'),
+  onExpired: () => console.log('Expired'),
+  onError: (error) => console.error(error),
+};
+```
+
+## FAQ
+
+### How do I get the device code?
+
+Call `authClient.device.code()` to request a device code from Better Auth.
+
+### Can I disable automatic polling?
+
+Yes, set `autoPoll={false}`.
+
+### How often should I poll?
+
+Default is 5 seconds. For battery-powered devices, consider 10-15 seconds.
+
+### What happens when the code expires?
+
+Polling stops, `onExpired` callback is called, and an error message is shown.
+
+### Can I customize the code format?
+
+The user code format is determined by the Better Auth server configuration.
+
+### Do I need QR code support?
+
+No, it's optional. QR codes help users on mobile devices scan and authorize quickly.

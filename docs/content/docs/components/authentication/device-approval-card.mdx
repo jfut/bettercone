@@ -1,0 +1,428 @@
+---
+title: DeviceApprovalCard
+description: Card component for approving or denying device authorization requests
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# DeviceApprovalCard
+
+The `DeviceApprovalCard` component allows authenticated users to approve or deny device authorization requests. Part of the OAuth 2.0 Device Authorization Grant flow (RFC 8628).
+
+<Callout type="warn">
+  **Authentication Required**: Users must be logged in to approve or deny device authorization requests. Redirect unauthenticated users to the login page.
+</Callout>
+
+<Callout type="info">
+  Requires the Better Auth [Device Authorization plugin](https://www.better-auth.com/docs/plugins/device-authorization) to be enabled on your server.
+</Callout>
+
+## Installation
+
+```tsx
+import { DeviceApprovalCard } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Approve/Deny actions** - Clear buttons for user decision
+- ✅ **Client information** - Shows app name and requested scopes
+- ✅ **Authentication check** - Requires logged-in user
+- ✅ **Loading states** - Disabled buttons during processing
+- ✅ **Auto-redirect** - Redirects after successful action
+- ✅ **Error handling** - Clear error messages
+- ✅ **Type-safe** - Full TypeScript support
+
+## Usage
+
+<Tabs items={['Basic', 'With Redirect', 'With Callbacks']}>
+  <Tab value="Basic">
+    ```tsx
+    import { DeviceApprovalCard } from '@bettercone/ui';
+
+    export function DeviceApprovalPage({ searchParams }) {
+      const userCode = searchParams.user_code;
+
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <DeviceApprovalCard userCode={userCode} />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Redirect">
+    ```tsx
+    import { DeviceApprovalCard } from '@bettercone/ui';
+
+    export function DeviceApprovalPage({ searchParams }) {
+      return (
+        <DeviceApprovalCard 
+          userCode={searchParams.user_code}
+          redirectUrl="/dashboard"
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Callbacks">
+    ```tsx
+    import { DeviceApprovalCard } from '@bettercone/ui';
+
+    export function DeviceApprovalPage({ searchParams }) {
+      const handleApprove = () => {
+        console.log('Device approved');
+        // Track analytics, send notification, etc.
+      };
+
+      const handleDeny = () => {
+        console.log('Device denied');
+        // Track analytics
+      };
+
+      return (
+        <DeviceApprovalCard 
+          userCode={searchParams.user_code}
+          onApprove={handleApprove}
+          onDeny={handleDeny}
+        />
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `userCode` | `string` | **Required** | The user code from the device authorization request (usually from URL query params) |
+| `className` | `string` | - | Additional CSS classes for the card |
+| `redirectUrl` | `string` | `"/"` | URL to redirect to after approval or denial |
+| `onApprove` | `() => void` | - | Callback function when device is approved |
+| `onDeny` | `() => void` | - | Callback function when device is denied |
+| `showClientInfo` | `boolean` | `true` | Whether to show client ID and requested scopes |
+| `localization` | `Partial<AuthLocalization>` | - | Custom localization strings |
+
+## How It Works
+
+1. User arrives at approval page with `user_code` query parameter
+2. Component fetches device request information (client ID, scopes)
+3. User sees the code and requested permissions
+4. User clicks Approve or Deny
+5. Component sends request to Better Auth server
+6. Shows success message and redirects after 1.5 seconds
+
+## Examples
+
+### Complete Approval Flow (Next.js App Router)
+
+```tsx
+// app/device/approve/page.tsx
+import { DeviceApprovalCard } from '@bettercone/ui';
+import { AuthUIProvider } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+import { redirect } from 'next/navigation';
+
+export default async function DeviceApprovalPage({
+  searchParams,
+}: {
+  searchParams: { user_code?: string };
+}) {
+  // Check if user is authenticated
+  const session = await authClient.getSession();
+  
+  if (!session) {
+    // Redirect to login with return URL
+    redirect(`/login?redirect=/device/approve?user_code=${searchParams.user_code}`);
+  }
+
+  if (!searchParams.user_code) {
+    redirect('/device'); // No code provided, go to code entry page
+  }
+
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <main className="container max-w-lg mx-auto py-12">
+        <DeviceApprovalCard 
+          userCode={searchParams.user_code} 
+          redirectUrl="/dashboard"
+        />
+      </main>
+    </AuthUIProvider>
+  );
+}
+```
+
+### With Authentication Check (Client Component)
+
+```tsx
+'use client';
+
+import { DeviceApprovalCard } from '@bettercone/ui';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+
+export function DeviceApprovalClientPage() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const userCode = searchParams.get('user_code');
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      // Redirect to login if not authenticated
+      router.push(`/login?redirect=/device/approve?user_code=${userCode}`);
+    }
+  }, [user, isLoading, router, userCode]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user || !userCode) {
+    return null;
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <DeviceApprovalCard userCode={userCode} />
+    </div>
+  );
+}
+```
+
+### With Analytics Tracking
+
+```tsx
+import { DeviceApprovalCard } from '@bettercone/ui';
+import { trackEvent } from '@/lib/analytics';
+
+export function DeviceApprovalPage({ searchParams }) {
+  const handleApprove = () => {
+    trackEvent('device_authorization_approved', {
+      user_code: searchParams.user_code,
+    });
+  };
+
+  const handleDeny = () => {
+    trackEvent('device_authorization_denied', {
+      user_code: searchParams.user_code,
+    });
+  };
+
+  return (
+    <DeviceApprovalCard 
+      userCode={searchParams.user_code}
+      onApprove={handleApprove}
+      onDeny={handleDeny}
+    />
+  );
+}
+```
+
+### Custom Styling
+
+```tsx
+import { DeviceApprovalCard } from '@bettercone/ui';
+
+export function DeviceApprovalPage({ searchParams }) {
+  return (
+    <div className="min-h-screen bg-linear-to-br from-purple-50 to-pink-50 flex items-center justify-center p-4">
+      <DeviceApprovalCard 
+        userCode={searchParams.user_code}
+        className="shadow-2xl"
+        showClientInfo={true}
+      />
+    </div>
+  );
+}
+```
+
+## Setup
+
+### 1. Enable the Plugin
+
+Add the Device Authorization plugin to your Better Auth configuration:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { deviceAuthorization } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  // ... other config
+  plugins: [
+    deviceAuthorization({
+      expiresIn: "30m",
+      interval: "5s",
+    }),
+  ],
+});
+```
+
+### 2. Create the Approval Page
+
+Create a page at `/device/approve` (or your preferred route):
+
+```tsx
+// app/device/approve/page.tsx
+import { DeviceApprovalCard } from '@bettercone/ui';
+
+export default function DeviceApprovalPage({ searchParams }) {
+  return <DeviceApprovalCard userCode={searchParams.user_code} />;
+}
+```
+
+### 3. Implement Authentication Check
+
+**Option A: Server Component (Recommended)**
+
+```tsx
+// app/device/approve/page.tsx
+import { DeviceApprovalCard } from '@bettercone/ui';
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+
+export default async function DeviceApprovalPage({ searchParams }) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect(`/login?redirect=/device/approve?user_code=${searchParams.user_code}`);
+  }
+
+  return <DeviceApprovalCard userCode={searchParams.user_code} />;
+}
+```
+
+**Option B: Middleware**
+
+```ts
+// middleware.ts
+export function middleware(request: NextRequest) {
+  // Check authentication for device approval routes
+  if (request.nextUrl.pathname.startsWith('/device/approve')) {
+    const session = request.cookies.get('session');
+    
+    if (!session) {
+      return NextResponse.redirect(
+        new URL(`/login?redirect=${request.nextUrl.pathname}${request.nextUrl.search}`, request.url)
+      );
+    }
+  }
+}
+```
+
+## Security
+
+### Authentication Required
+
+**Why it matters**: Device authorization allows a device to access a user's account. Only authenticated users should be able to approve these requests.
+
+### Best Practices
+
+1. **Always verify authentication** - Don't allow unauthenticated access
+2. **Show device information** - Let users know what they're approving
+3. **Display scopes** - Show what permissions are being requested
+4. **Use HTTPS** - Always use secure connections in production
+5. **Short redirect delay** - Give users time to see success message (1.5s)
+
+## Localization
+
+Customize text using the `localization` prop:
+
+```tsx
+<DeviceApprovalCard
+  userCode="ABCD1234"
+  localization={{
+    DEVICE_APPROVAL_TITLE: "Authorize Device",
+    DEVICE_APPROVAL_DESCRIPTION: "A device wants to access your account",
+    DEVICE_APPROVE_BUTTON: "Allow Access",
+    DEVICE_DENY_BUTTON: "Block Access",
+    DEVICE_APPROVED_SUCCESS: "Access granted!",
+    DEVICE_DENIED_SUCCESS: "Access blocked",
+  }}
+/>
+```
+
+## Client Information Display
+
+The component automatically fetches and displays:
+
+- **Client ID** - The application requesting access
+- **Scopes** - Requested permissions (displayed as badges)
+
+To hide this information:
+
+```tsx
+<DeviceApprovalCard 
+  userCode="ABCD1234"
+  showClientInfo={false}
+/>
+```
+
+## Error Handling
+
+The component handles these error scenarios:
+
+- **Invalid user code** - Code doesn't exist or has expired
+- **Already processed** - Code was already approved/denied
+- **Network error** - Unable to connect to server
+- **Authentication error** - User session invalid
+
+## Related Components
+
+- [DeviceAuthorizationCard](/docs/components/authentication/device-authorization-card) - For entering device codes
+- [DeviceCodeDisplay](/docs/components/authentication/device-code-display) - For displaying codes on devices
+- [AuthView](/docs/components/authentication/auth-view) - For standard authentication flows
+
+## Use Cases
+
+- **Smart TV Apps** - Users approve TV access from their phone
+- **CLI Applications** - Users approve terminal app access
+- **IoT Devices** - Users approve device access from web
+- **Gaming Consoles** - Users approve console access
+- **Streaming Devices** - Users approve streaming box access
+
+## TypeScript
+
+```ts
+import type { DeviceApprovalCardProps } from '@bettercone/ui';
+
+const props: DeviceApprovalCardProps = {
+  userCode: "ABCD1234",
+  className: "max-w-md mx-auto",
+  redirectUrl: "/dashboard",
+  onApprove: () => console.log('Approved'),
+  onDeny: () => console.log('Denied'),
+  showClientInfo: true,
+};
+```
+
+## FAQ
+
+### How do users get to this page?
+
+Users are redirected here from [DeviceAuthorizationCard](/docs/components/authentication/device-authorization-card) after entering a valid device code.
+
+### What if the user isn't logged in?
+
+Redirect them to your login page with a return URL pointing back to the approval page.
+
+### Can I customize the redirect URL?
+
+Yes, use the `redirectUrl` prop. Defaults to `"/"`.
+
+### How long are codes valid?
+
+Default is 30 minutes. Configure with `expiresIn` in the Device Authorization plugin.
+
+### Can I skip showing client information?
+
+Yes, set `showClientInfo={false}`.

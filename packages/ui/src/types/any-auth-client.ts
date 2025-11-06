@@ -188,4 +188,92 @@ export interface AnyAuthClient {
             error?: any
         }>
     }
+
+    /**
+     * Device Authorization (optional)
+     * Available when using @better-auth/device-authorization plugin
+     * OAuth 2.0 Device Authorization Grant (RFC 8628)
+     * @see https://www.better-auth.com/docs/plugins/device-authorization
+     */
+    device?: {
+        /**
+         * Verify user code validity
+         * @param params - Query parameters
+         * @param params.query.user_code - The user code to verify
+         */
+        (params: {
+            query: { user_code: string }
+        }): Promise<{
+            data?: {
+                clientId?: string
+                scope?: string
+            }
+            error?: any
+        }>
+        
+        /**
+         * Request device and user codes
+         * Initiates the device authorization flow
+         */
+        code: (params: {
+            client_id: string
+            scope?: string
+        }) => Promise<{
+            data?: {
+                device_code: string
+                user_code: string
+                verification_uri: string
+                verification_uri_complete?: string
+                expires_in: number
+                interval: number
+            }
+            error?: {
+                error: string
+                error_description?: string
+            }
+        }>
+        
+        /**
+         * Poll for access token
+         * Device polls this endpoint to check authorization status
+         */
+        token: (params: {
+            grant_type: string
+            device_code: string
+            client_id: string
+        }) => Promise<{
+            data?: {
+                access_token?: string
+                token_type?: string
+                expires_in?: number
+            }
+            error?: {
+                error: "authorization_pending" | "slow_down" | "expired_token" | "access_denied" | "invalid_grant"
+                error_description?: string
+            }
+        }>
+        
+        /**
+         * Approve device authorization request
+         * User must be authenticated to approve
+         */
+        approve: (params: {
+            userCode: string
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Deny device authorization request
+         * User must be authenticated to deny
+         */
+        deny: (params: {
+            userCode: string
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+    }
 }
+

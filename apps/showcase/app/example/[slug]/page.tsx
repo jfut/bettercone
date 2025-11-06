@@ -226,6 +226,39 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
     componentProps.onError = (error: Error) => console.error('Impersonation error:', error);
   }
 
+  // LastLoginBadge needs method prop
+  if (componentName === 'LastLoginBadge') {
+    componentProps.method = 'google'; // Show Google as last used method
+    componentProps.variant = 'secondary';
+    componentProps.showIcon = true;
+  }
+
+  // DeviceAuthorizationCard needs no special props (uses form input)
+  if (componentName === 'DeviceAuthorizationCard') {
+    componentProps.onSuccess = (code: string) => console.log('Valid code:', code);
+  }
+
+  // DeviceApprovalCard needs userCode prop
+  if (componentName === 'DeviceApprovalCard') {
+    componentProps.userCode = 'ABCD1234';
+    componentProps.showClientInfo = true;
+    componentProps.onApprove = () => console.log('Device approved');
+    componentProps.onDeny = () => console.log('Device denied');
+  }
+
+  // DeviceCodeDisplay needs device authorization data
+  if (componentName === 'DeviceCodeDisplay') {
+    componentProps.deviceCode = 'abc123def456ghi789jkl012mno345pqr678';
+    componentProps.userCode = 'ABCD1234';
+    componentProps.verificationUri = 'https://demo.better-auth.com/device';
+    componentProps.verificationUriComplete = 'https://demo.better-auth.com/device?user_code=ABCD1234';
+    componentProps.expiresIn = 1800; // 30 minutes
+    componentProps.showQRCode = true; // Enable QR code display
+    componentProps.autoPoll = false; // Disable polling in showcase
+    componentProps.onSuccess = () => console.log('Authorization successful!');
+    componentProps.onExpired = () => console.log('Code expired');
+  }
+
   return (
     <ComponentErrorBoundary componentName={componentName}>
       <MockAuthUIProvider>

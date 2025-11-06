@@ -5,6 +5,62 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6] - 2025-11-06
+
+### Added
+
+#### Device Authorization Components
+- **DeviceAuthorizationCard**: User code input for device authorization flow
+  - User code input with auto-formatting (ABCD-1234)
+  - Real-time validation as user types
+  - Auto-redirect to approval page on valid code
+  - Error handling for invalid/expired codes
+  - Full localization support
+  - Integrates with Better Auth Device Authorization plugin
+
+- **DeviceApprovalCard**: Approve or deny device authorization requests
+  - Approve/deny buttons with loading states
+  - Device code display with copy functionality
+  - Optional client info display (name, scope)
+  - Authentication requirement check
+  - Success/error/loading state cards
+  - Security notice for users
+  - Grid button layout matching design system
+  - Full localization support (15+ strings)
+  - Integrates with Better Auth Device Authorization plugin
+
+- **DeviceCodeDisplay**: Display device codes for CLI/IoT applications
+  - Large, readable code display with auto-formatting
+  - Verification URL with copy button
+  - Optional QR code for mobile scanning
+  - Countdown timer with color-coded urgency
+  - Automatic polling for authorization status
+  - Success/error/expired state alerts
+  - Centered layout matching design system
+  - Step-by-step user flow (visit URL, enter code)
+  - Full localization support (10+ strings)
+  - Integrates with Better Auth Device Authorization plugin
+
+### Changed
+- **AnyAuthClient**: Added device authorization plugin type definitions
+  - `device()` to verify user code and fetch client info
+  - `device.code()` to generate device and user codes
+  - `device.token()` to poll for authorization token
+  - `device.approve()` to approve device authorization
+  - `device.deny()` to deny device authorization
+
+- **AuthLocalization**: Added device authorization strings
+  - `DEVICE_AUTH_TITLE`, `DEVICE_AUTH_DESCRIPTION`
+  - `DEVICE_APPROVAL_TITLE`, `DEVICE_APPROVAL_DESCRIPTION`
+  - `DEVICE_DISPLAY_TITLE`, `DEVICE_DISPLAY_DESCRIPTION`
+  - `DEVICE_DISPLAY_URL_LABEL`, `DEVICE_DISPLAY_CODE_LABEL`
+  - `DEVICE_SCAN_QR`, `DEVICE_OR_SCAN_QR`
+  - `DEVICE_COPY_CODE`, `DEVICE_EXPIRES_IN`, `DEVICE_POLLING_STATUS`
+  - `DEVICE_APPROVED`, `DEVICE_APPROVED_SUCCESS`, `DEVICE_DENIED_SUCCESS`
+  - `DEVICE_EXPIRED`, `DEVICE_ACCESS_DENIED`
+  - And more...
+
+
 ## [0.3.5] - 2025-11-06
 
 ### Added

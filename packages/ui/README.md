@@ -6,6 +6,19 @@
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## What's New in v0.3.6
+
+**3 New Device Authorization Components** - CLI, IoT, and smart TV authentication:
+
+- [x] **DeviceAuthorizationCard**: User code input for device authorization flow
+- [x] **DeviceApprovalCard**: Approve or deny device authorization requests
+- [x] **DeviceCodeDisplay**: Display device codes with QR code support
+- [x] **Better Auth Device Plugin**: Full integration with Device Authorization plugin
+- [x] **Auto-formatting**: User-friendly code formatting (ABCD-1234)
+- [x] **QR Code Support**: Optional QR code scanning for mobile devices
+- [x] **Real-time Polling**: Automatic authorization status checking
+- [x] **Countdown Timer**: Color-coded expiration timer
+
 ## What's New in v0.3.5
 
 **3 New Admin Components** - User management and moderation tools:
@@ -194,6 +207,9 @@ export default function BillingPage() {
 - `PhoneSignUpForm` - Sign up with phone number and OTP verification
 - `AnonymousSignInButton` - Sign in as guest without PII
 - `AnonymousUpgradeCard` - Encourage anonymous users to link authentication
+- `DeviceAuthorizationCard` - User code input for device authorization
+- `DeviceApprovalCard` - Approve or deny device authorization requests
+- `DeviceCodeDisplay` - Display device codes for CLI/IoT applications
 
 ### Security & Email
 

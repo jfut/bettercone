@@ -1,0 +1,309 @@
+---
+title: DeviceAuthorizationCard
+description: Card component for users to enter device authorization codes from limited-input devices
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# DeviceAuthorizationCard
+
+The `DeviceAuthorizationCard` component allows users to enter device authorization codes as part of the OAuth 2.0 Device Authorization Grant flow (RFC 8628). Perfect for authenticating smart TVs, CLI applications, IoT devices, and gaming consoles.
+
+<Callout type="info">
+  Requires the Better Auth [Device Authorization plugin](https://www.better-auth.com/docs/plugins/device-authorization) to be enabled on your server.
+</Callout>
+
+## Installation
+
+```tsx
+import { DeviceAuthorizationCard } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Auto-formatting** - Automatically formats codes as XXXX-XXXX
+- ✅ **Validation** - Validates codes with Better Auth server
+- ✅ **Error handling** - Clear error messages for invalid/expired codes
+- ✅ **Auto-redirect** - Redirects to approval page on valid code
+- ✅ **Type-safe** - Full TypeScript support
+- ✅ **Accessible** - Proper labels and ARIA attributes
+
+## Usage
+
+<Tabs items={['Basic', 'Custom Redirect', 'With Callback']}>
+  <Tab value="Basic">
+    ```tsx
+    import { DeviceAuthorizationCard } from '@bettercone/ui';
+
+    export function DevicePage() {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <DeviceAuthorizationCard />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Redirect">
+    ```tsx
+    import { DeviceAuthorizationCard } from '@bettercone/ui';
+
+    export function DevicePage() {
+      return (
+        <DeviceAuthorizationCard 
+          redirectUrl="/auth/device/confirm"
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Callback">
+    ```tsx
+    import { DeviceAuthorizationCard } from '@bettercone/ui';
+
+    export function DevicePage() {
+      const handleSuccess = (code: string) => {
+        console.log('Valid code entered:', code);
+        // Track analytics, etc.
+      };
+
+      return (
+        <DeviceAuthorizationCard 
+          onSuccess={handleSuccess}
+          redirectUrl="/device/approve"
+        />
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | - | Additional CSS classes for the card |
+| `redirectUrl` | `string` | `"/device/approve"` | URL to redirect to after successful validation. User code is appended as query param |
+| `onSuccess` | `(userCode: string) => void` | - | Callback function when code is successfully validated |
+| `localization` | `Partial<AuthLocalization>` | - | Custom localization strings |
+
+## How It Works
+
+1. User enters the code shown on their device (e.g., smart TV, CLI app)
+2. Input automatically formats to XXXX-XXXX pattern
+3. Component validates the code with Better Auth server
+4. On success, redirects to approval page (e.g., `/device/approve?user_code=ABCD1234`)
+5. User can then approve or deny the device authorization request
+
+## Examples
+
+### Complete Device Flow Page
+
+```tsx
+import { DeviceAuthorizationCard } from '@bettercone/ui';
+import { AuthUIProvider } from '@bettercone/ui';
+
+export default function DeviceAuthPage() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="container max-w-lg mx-auto py-12">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2">
+            Device Authorization
+          </h1>
+          <p className="text-muted-foreground">
+            Enter the code shown on your device
+          </p>
+        </div>
+
+        <DeviceAuthorizationCard />
+
+        <div className="mt-8 text-center text-sm text-muted-foreground">
+          <p>
+            This is typically shown on smart TVs, CLI applications,
+            or other devices with limited input capabilities.
+          </p>
+        </div>
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### With Custom Styling
+
+```tsx
+import { DeviceAuthorizationCard } from '@bettercone/ui';
+
+export function DevicePage() {
+  return (
+    <div className="bg-linear-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
+      <DeviceAuthorizationCard 
+        className="shadow-2xl"
+        redirectUrl="/auth/device/verify"
+      />
+    </div>
+  );
+}
+```
+
+### Next.js App Router Example
+
+```tsx
+// app/device/page.tsx
+import { DeviceAuthorizationCard } from '@bettercone/ui';
+import { AuthUIProvider } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function DeviceAuthorizationPage() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <main className="flex min-h-screen items-center justify-center p-4">
+        <DeviceAuthorizationCard />
+      </main>
+    </AuthUIProvider>
+  );
+}
+```
+
+## Setup
+
+### 1. Enable the Plugin
+
+Add the Device Authorization plugin to your Better Auth configuration:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { deviceAuthorization } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  // ... other config
+  plugins: [
+    deviceAuthorization({
+      expiresIn: "30m", // Device code expiration
+      interval: "5s",   // Minimum polling interval
+    }),
+  ],
+});
+```
+
+### 2. Run Database Migration
+
+```bash
+npx @better-auth/cli migrate
+```
+
+### 3. Create the Device Page
+
+Create a page at `/device` (or your preferred route) where users will enter codes:
+
+```tsx
+// app/device/page.tsx
+import { DeviceAuthorizationCard } from '@bettercone/ui';
+
+export default function DevicePage() {
+  return <DeviceAuthorizationCard />;
+}
+```
+
+### 4. Create the Approval Page
+
+Create a page at `/device/approve` where users approve or deny devices:
+
+```tsx
+// app/device/approve/page.tsx
+import { DeviceApprovalCard } from '@bettercone/ui';
+
+export default function DeviceApprovalPage() {
+  return <DeviceApprovalCard />;
+}
+```
+
+See [DeviceApprovalCard](/docs/components/authentication/device-approval-card) for details.
+
+## Input Behavior
+
+### Auto-formatting
+
+- Automatically converts input to uppercase
+- Adds dash after 4 characters (ABCD-1234)
+- Removes invalid characters
+- Limits to 8 characters + 1 dash
+
+### Validation
+
+- Validates code format before submission
+- Checks with Better Auth server for code validity
+- Shows error messages for invalid/expired codes
+- Disables button until valid format entered
+
+## Error Handling
+
+The component handles these error scenarios:
+
+- **Invalid code format** - Shows error if code doesn't match pattern
+- **Expired code** - Shows error if code has expired (default: 30 minutes)
+- **Non-existent code** - Shows error if code doesn't exist
+- **Network error** - Shows error if unable to connect to server
+
+## Accessibility
+
+- Proper form labels and descriptions
+- ARIA attributes for error states
+- Keyboard navigation support
+- Screen reader friendly error messages
+
+## Related Components
+
+- [DeviceApprovalCard](/docs/components/authentication/device-approval-card) - For approving/denying device requests
+- [DeviceCodeDisplay](/docs/components/authentication/device-code-display) - For displaying codes on CLI/device apps
+- [AuthView](/docs/components/authentication/auth-view) - For standard authentication flows
+
+## Use Cases
+
+- **Smart TV Apps** - Users enter codes shown on TV
+- **CLI Applications** - Terminal apps authenticate users
+- **IoT Devices** - Devices with no keyboard
+- **Gaming Consoles** - Controller-based authentication
+- **Streaming Devices** - Remote-only input devices
+
+## Best Practices
+
+1. **Place on dedicated route** - Create a `/device` page for this component
+2. **Clear instructions** - Tell users where to find the code
+3. **Timeout handling** - Inform users about code expiration (default: 30 min)
+4. **Mobile-friendly** - Ensure the page works well on mobile devices (users often access from phones)
+5. **Analytics** - Track successful code entries to understand usage
+
+## Localization
+
+Customize text using the `localization` prop:
+
+```tsx
+<DeviceAuthorizationCard
+  localization={{
+    DEVICE_AUTH_TITLE: "Enter Device Code",
+    DEVICE_AUTH_DESCRIPTION: "Enter the code from your TV",
+    DEVICE_CODE_PLACEHOLDER: "XXXX-XXXX",
+    DEVICE_CODE_INVALID: "Code is invalid or expired",
+    DEVICE_AUTH_SUBMIT: "Verify Code",
+  }}
+/>
+```
+
+## TypeScript
+
+```ts
+import type { DeviceAuthorizationCardProps } from '@bettercone/ui';
+
+const props: DeviceAuthorizationCardProps = {
+  className: "max-w-md mx-auto",
+  redirectUrl: "/auth/device/confirm",
+  onSuccess: (code) => {
+    console.log('Valid code:', code);
+  },
+};
+```

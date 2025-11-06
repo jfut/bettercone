@@ -43,6 +43,10 @@ export const componentsByCategory = {
     { name: "ProviderButton", description: "OAuth provider sign in button", slug: "provider-button" },
     { name: "MagicLinkButton", description: "Magic link authentication button", slug: "magic-link-button" },
     { name: "EmailOTPButton", description: "Email OTP authentication button", slug: "email-otp-button" },
+    { name: "LastLoginBadge", description: "Badge showing last authentication method used", slug: "last-login-badge" },
+    { name: "DeviceAuthorizationCard", description: "Enter device authorization codes (OAuth 2.0)", slug: "device-authorization-card" },
+    { name: "DeviceApprovalCard", description: "Approve or deny device authorization requests", slug: "device-approval-card" },
+    { name: "DeviceCodeDisplay", description: "Display codes for CLI/device apps", slug: "device-code-display" },
   ],
   "Phone Authentication": [
     { name: "PhoneNumberCard", description: "Phone number management card", slug: "phone-number-card" },

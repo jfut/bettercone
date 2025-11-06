@@ -25,6 +25,7 @@ import {
     CardTitle
 } from "../../index"
 import { Separator } from "../../index"
+import { AnonymousSignInButton } from "./anonymous-sign-in-button"
 import { AuthCallback } from "./auth-callback"
 import { AuthForm, type AuthFormClassNames } from "./auth-form"
 import { EmailOTPButton } from "./email-otp-button"
@@ -33,6 +34,7 @@ import { OneTap } from "./one-tap"
 import { PasskeyButton } from "./passkey-button"
 import { ProviderButton } from "./provider-button"
 import { SignOut } from "./sign-out"
+import { SiweSignInButton } from "../web3/siwe-sign-in-button"
 
 export type AuthViewClassNames = {
     base?: string
@@ -83,6 +85,8 @@ export function AuthView({
         emailOTP,
         oneTap,
         passkey,
+        anonymous,
+        siwe,
         signUp,
         social,
         genericOAuth,
@@ -222,7 +226,7 @@ export function AuthView({
                 {view !== "RESET_PASSWORD" &&
                     (social?.providers?.length ||
                         genericOAuth?.providers?.length ||
-                        (view === "SIGN_IN" && passkey)) && (
+                        (view === "SIGN_IN" && (passkey || anonymous || siwe))) && (
                         <>
                             {(credentials || magicLink || emailOTP) && (
                                 <div
@@ -319,6 +323,34 @@ export function AuthView({
                                         "FORGOT_PASSWORD"
                                     ].includes(view as string) && (
                                         <PasskeyButton
+                                            classNames={classNames}
+                                            isSubmitting={isSubmitting}
+                                            localization={localization}
+                                            redirectTo={redirectTo}
+                                            setIsSubmitting={setIsSubmitting}
+                                        />
+                                    )}
+
+                                {anonymous && view === "SIGN_IN" && (
+                                    <AnonymousSignInButton
+                                        className="w-full"
+                                        variant="outline"
+                                        localization={{
+                                            buttonText: localization.ANONYMOUS_SIGN_IN,
+                                            signingIn: "Signing in..."
+                                        }}
+                                        isSubmitting={isSubmitting}
+                                        redirectTo={redirectTo}
+                                        setIsSubmitting={setIsSubmitting}
+                                    />
+                                )}
+
+                                {siwe &&
+                                    view === "SIGN_IN" &&
+                                    typeof window !== "undefined" &&
+                                    window.ethereum && (
+                                        <SiweSignInButton
+                                            variant="outline"
                                             classNames={classNames}
                                             isSubmitting={isSubmitting}
                                             localization={localization}

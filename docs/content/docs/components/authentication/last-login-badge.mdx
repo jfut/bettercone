@@ -1,0 +1,270 @@
+---
+title: LastLoginBadge
+description: Display a badge showing the last authentication method used by the user
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# LastLoginBadge
+
+The `LastLoginBadge` component displays a small badge indicating which authentication method was last used by the user. Perfect for improving UX by highlighting familiar sign-in options.
+
+<Callout type="info">
+  Requires the Better Auth [Last Login Method plugin](https://www.better-auth.com/docs/plugins/last-login-method) to be enabled on your server.
+</Callout>
+
+## Installation
+
+```tsx
+import { LastLoginBadge } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Automatic Detection** - Reads from Better Auth's lastLoginMethod plugin
+- ✅ **Provider Icons** - Shows icons for OAuth providers (Google, GitHub, etc.)
+- ✅ **Customizable** - Custom text, variants, and styling
+- ✅ **Smart Display** - Only renders when a method is available
+- ✅ **Type-Safe** - Full TypeScript support
+
+## Usage
+
+<Tabs items={['Basic', 'With Buttons', 'Custom Text']}>
+  <Tab value="Basic">
+    ```tsx
+    import { LastLoginBadge } from '@bettercone/ui';
+
+    export function SignInPage() {
+      return (
+        <div>
+          <h2>Sign in with Google</h2>
+          <LastLoginBadge method="google" />
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Buttons">
+    ```tsx
+    import { LastLoginBadge } from '@bettercone/ui';
+    import { Button } from '@bettercone/ui';
+
+    export function SignInPage() {
+      const lastMethod = authClient.getLastUsedLoginMethod();
+
+      return (
+        <div className="space-y-3">
+          <Button 
+            variant={lastMethod === 'google' ? 'default' : 'outline'}
+            className="w-full"
+          >
+            Continue with Google
+            {lastMethod === 'google' && <LastLoginBadge method="google" />}
+          </Button>
+
+          <Button 
+            variant={lastMethod === 'github' ? 'default' : 'outline'}
+            className="w-full"
+          >
+            Continue with GitHub
+            {lastMethod === 'github' && <LastLoginBadge method="github" />}
+          </Button>
+
+          <Button 
+            variant={lastMethod === 'email' ? 'default' : 'outline'}
+            className="w-full"
+          >
+            Sign in with Email
+            {lastMethod === 'email' && <LastLoginBadge method="email" />}
+          </Button>
+        </div>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Text">
+    ```tsx
+    import { LastLoginBadge } from '@bettercone/ui';
+
+    export function SignInPage() {
+      return (
+        <div>
+          <Button>
+            Sign in with Google
+            <LastLoginBadge 
+              method="google"
+              text="Previously used"
+              variant="outline"
+              showIcon={false}
+            />
+          </Button>
+        </div>
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `method` | `string` | - | Authentication method to display (e.g., "google", "email", "github"). If not provided, automatically reads from authClient |
+| `className` | `string` | - | Additional CSS classes |
+| `variant` | `"default" \| "secondary" \| "outline" \| "destructive"` | `"secondary"` | Badge style variant |
+| `showIcon` | `boolean` | `true` | Show provider icon alongside text |
+| `text` | `string` | `"Last used"` | Custom badge text |
+| `localization` | `Partial<AuthLocalization>` | - | Custom localization strings |
+
+## Supported Authentication Methods
+
+The component automatically displays the appropriate name and icon for these methods:
+
+- **OAuth Providers**: `google`, `github`, `discord`, `facebook`, `apple`, etc.
+- **Email**: `email`
+- **Passkey**: `passkey`
+- **Magic Link**: `magic-link`
+- **Phone**: `phone`
+- **Anonymous**: `anonymous`
+- **SIWE**: `siwe` (Sign-In with Ethereum)
+- **Custom**: Any custom authentication method (displays capitalized)
+
+## Examples
+
+### Automatic Method Detection
+
+```tsx
+import { LastLoginBadge } from '@bettercone/ui';
+import { AuthUIProvider } from '@bettercone/ui';
+
+export function SignInPage() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <div className="space-y-4">
+        <h1>Sign In</h1>
+        
+        {/* Badge automatically reads from authClient */}
+        <LastLoginBadge />
+      </div>
+    </AuthUIProvider>
+  );
+}
+```
+
+### With AuthView Integration
+
+```tsx
+"use client";
+
+import { AuthView, LastLoginBadge } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function SignInPage() {
+  const lastMethod = authClient.getLastUsedLoginMethod();
+
+  return (
+    <div className="space-y-4">
+      {lastMethod && (
+        <div className="text-center text-sm text-muted-foreground">
+          Welcome back! You last signed in with
+          <LastLoginBadge method={lastMethod} className="ml-1" />
+        </div>
+      )}
+      
+      <AuthView authClient={authClient} />
+    </div>
+  );
+}
+```
+
+### Custom Styling
+
+```tsx
+import { LastLoginBadge } from '@bettercone/ui';
+
+export function SignInButton() {
+  return (
+    <Button className="relative">
+      Sign in with Google
+      <LastLoginBadge 
+        method="google"
+        variant="default"
+        className="absolute -top-2 -right-2"
+      />
+    </Button>
+  );
+}
+```
+
+### Different Variants
+
+```tsx
+import { LastLoginBadge } from '@bettercone/ui';
+
+export function VariantExamples() {
+  return (
+    <div className="flex gap-2">
+      <LastLoginBadge method="google" variant="default" />
+      <LastLoginBadge method="github" variant="secondary" />
+      <LastLoginBadge method="email" variant="outline" />
+      <LastLoginBadge method="discord" variant="destructive" />
+    </div>
+  );
+}
+```
+
+## Setup
+
+To use this component, you need to enable the Last Login Method plugin in your Better Auth configuration:
+
+### Server Setup
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { lastLoginMethod } from "better-auth/plugins"
+
+export const auth = betterAuth({
+    plugins: [
+        lastLoginMethod({
+            // Optional: Store in database for persistence
+            storeInDatabase: true,
+            
+            // Optional: Custom cookie settings
+            cookieName: "better-auth.last_used_login_method",
+            maxAge: 60 * 60 * 24 * 30, // 30 days
+        })
+    ]
+})
+```
+
+### Client Setup
+
+```ts title="auth-client.ts"
+import { createAuthClient } from "better-auth/client"
+import { lastLoginMethodClient } from "better-auth/client/plugins"
+
+export const authClient = createAuthClient({
+    plugins: [
+        lastLoginMethodClient({
+            cookieName: "better-auth.last_used_login_method"
+        })
+    ]
+})
+```
+
+## Best Practices
+
+1. **Highlight Familiar Methods**: Use the badge to make previously used sign-in methods more prominent
+2. **Combine with Button Variants**: Change button appearance based on last method used
+3. **Progressive Enhancement**: Badge only shows when method is available - no errors if plugin missing
+4. **Consistent Placement**: Place badges consistently (usually top-right or right-aligned)
+
+## Related Components
+
+- [AuthView](/docs/components/authentication/auth-view) - Complete authentication interface
+- [ProviderButton](/docs/components/authentication/provider-button) - OAuth provider buttons
+- [AnonymousSignInButton](/docs/components/authentication/anonymous-sign-in-button) - Guest authentication
+- [PasskeyButton](/docs/components/authentication/passkey-button) - Passkey authentication
