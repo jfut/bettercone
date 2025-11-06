@@ -8,6 +8,42 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.3.6",
+    date: "2024-11-06",
+    title: "Device Authorization Components",
+    type: "feature",
+    changes: [
+      {
+        category: "New Components",
+        items: [
+          "DeviceAuthorizationCard - User code input for device authorization",
+          "DeviceApprovalCard - Approve/deny device authorization requests",
+          "DeviceCodeDisplay - Display codes for CLI/IoT applications",
+          "LastLoginBadge - Show last authentication method used",
+        ],
+      },
+      {
+        category: "Features",
+        items: [
+          "OAuth 2.0 Device Authorization Grant (RFC 8628) support",
+          "Auto-formatting for device codes (ABCD-1234)",
+          "QR code support for mobile scanning",
+          "Real-time polling for authorization status",
+          "Countdown timer with color-coded urgency",
+          "Copy-to-clipboard for URLs and codes",
+          "Support for Smart TVs, CLI apps, IoT devices",
+          "Better Auth Device Authorization plugin integration",
+        ],
+      },
+      {
+        category: "Improvements",
+        items: [
+          "AuthView integration with anonymous and SIWE authentication",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.3.5",
     date: "2024-11-06",
     title: "Admin Components",
