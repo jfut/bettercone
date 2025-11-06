@@ -6,6 +6,16 @@
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## What's New in v0.3.5
+
+**3 New Admin Components** - User management and moderation tools:
+
+- [x] **UserManagementTable**: Complete admin table with pagination, search, ban, delete, and impersonate
+- [x] **BanUserDialog**: Ban users with customizable reason and duration (permanent or days)
+- [x] **ImpersonateUserDialog**: Safely impersonate users for support purposes
+- [x] **Better Auth Admin Plugin**: Full integration with admin plugin API
+- [x] **Table UI Component**: Added table primitive for data display
+
 ## What's New in v0.3.4
 
 **6 New Components** - Passkeys, Organizations, Account Management & Email:
@@ -16,18 +26,6 @@
 - [x] **TransferOwnershipDialog**: Organization ownership transfer with role management
 - [x] **LinkAccountCard**: Link OAuth providers to existing accounts
 - [x] **UnlinkAccountCard**: Unlink OAuth providers with confirmation dialog
-
-**Categories at 100%**:
-- Organizations: 17/17 components ✅
-- User Management: 16/16 components ✅
-- Billing: 6/6 components ✅
-- Usage: 4/4 components ✅
-- Team: 4/4 components ✅
-- Web3: 2/2 components ✅
-- Phone: 3/3 components ✅
-- Security & Email: 10/10 components ✅
-
-**Progress**: 79/89 components (89%)
 
 ## What's New in v0.3.3
 
@@ -242,6 +240,12 @@ export default function BillingPage() {
 - `ApiKeysCard` - API keys list
 - `ApiKeyCell` - Individual API key
 - `CreateApiKeyDialog` - Create new API key
+
+### Admin Tools
+
+- `UserManagementTable` - Admin table for user management
+- `BanUserDialog` - Ban users with reason and duration
+- `ImpersonateUserDialog` - Impersonate users for support
 
 ### User Components
 

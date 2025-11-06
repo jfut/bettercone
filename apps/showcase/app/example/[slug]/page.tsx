@@ -10,7 +10,7 @@ import { allComponentsMap } from "@/lib/components-data";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import dynamic from "next/dynamic";
 import { Component as ReactComponent, ErrorInfo, ReactNode } from "react";
-import { MockDataProvider, mockPricingPlans, mockUsage, mockSeatAllocation, mockOrganization, mockSubscription, mockFeatures } from "@/lib/mock-data";
+import { MockDataProvider, mockPricingPlans, mockUsage, mockSeatAllocation, mockOrganization, mockSubscription, mockFeatures, mockAdminUsers } from "@/lib/mock-data";
 import { MockAuthUIProvider } from "@/components/mock-auth-provider";
 import { mockAuthClient } from "@/lib/mock-auth-provider";
 
@@ -200,6 +200,30 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
   if (componentName === 'UnlinkAccountCard') {
     componentProps.onSuccess = () => console.log('Account unlinked successfully');
     componentProps.onError = (error: Error) => console.error('Account unlinking error:', error);
+  }
+
+  // UserManagementTable needs callbacks
+  if (componentName === 'UserManagementTable') {
+    componentProps.onSuccess = (message: string) => console.log('Success:', message);
+    componentProps.onError = (error: Error) => console.error('Error:', error);
+  }
+
+  // BanUserDialog needs user and callbacks
+  if (componentName === 'BanUserDialog') {
+    componentProps.open = true;
+    componentProps.onOpenChange = (open: boolean) => console.log('Dialog open:', open);
+    componentProps.user = mockAdminUsers[1]; // Jane Smith
+    componentProps.onSuccess = () => console.log('User banned successfully');
+    componentProps.onError = (error: Error) => console.error('Ban error:', error);
+  }
+
+  // ImpersonateUserDialog needs user and callbacks
+  if (componentName === 'ImpersonateUserDialog') {
+    componentProps.open = true;
+    componentProps.onOpenChange = (open: boolean) => console.log('Dialog open:', open);
+    componentProps.user = mockAdminUsers[0]; // John Doe
+    componentProps.onSuccess = () => console.log('Impersonation started');
+    componentProps.onError = (error: Error) => console.error('Impersonation error:', error);
   }
 
   return (

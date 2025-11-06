@@ -5,6 +5,51 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.5] - 2025-11-06
+
+### Added
+
+#### Admin Components
+- **UserManagementTable**: Complete admin table for managing users
+  - User list with pagination (10 per page, offset-based)
+  - Search by email or name with contains operator
+  - Sort by creation date (descending)
+  - Ban/unban users with confirmation dialogs
+  - Delete users with confirmation
+  - Impersonate users for support (with page reload)
+  - Status badges (active/banned, verified/unverified)
+  - Role display (supports string or array)
+  - Full error handling with toast notifications
+  - Complete localization support (50+ strings)
+  - Integrates with Better Auth admin plugin
+
+- **BanUserDialog**: Ban users with reason and duration
+  - Ban reason input (textarea)
+  - Duration selector: permanent, 1/3/7/30 days, or custom
+  - Custom duration input field
+  - User info preview
+  - Full localization support
+  - Integrates with Better Auth admin plugin
+
+- **ImpersonateUserDialog**: Impersonate users for support
+  - User preview with avatar
+  - Safety warning about impersonation
+  - Automatic page reload after impersonation
+  - Full localization support
+  - Integrates with Better Auth admin plugin
+
+### Changed
+- **AnyAuthClient**: Added admin plugin type definitions
+  - `listUsers` with pagination, search, and filtering
+  - `banUser` with reason and expiration
+  - `unbanUser` to remove ban
+  - `removeUser` to delete user
+  - `impersonateUser` to start impersonation
+  - `stopImpersonating` to end impersonation
+
+### Infrastructure
+- Added Table UI component to support UserManagementTable
+
 ## [0.3.4] - 2025-11-06
 
 ### Added

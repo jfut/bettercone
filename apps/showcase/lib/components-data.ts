@@ -32,10 +32,7 @@ export const componentsByCategory = {
     { name: "PasswordInput", description: "Password input with show/hide toggle", slug: "password-input" },
     { name: "ChangePasswordCard", description: "Change password form", slug: "change-password-card" },
     { name: "ChangeEmailCard", description: "Change email with verification", slug: "change-email-card" },
-    { name: "PasskeysCard", description: "Manage passkeys", slug: "passkeys-card" },
     { name: "TwoFactorCard", description: "Enable/disable 2FA", slug: "two-factor-card" },
-    { name: "SessionsCard", description: "Active sessions management", slug: "sessions-card" },
-    { name: "PhoneNumberCard", description: "Manage phone number authentication", slug: "phone-number-card" },
     { name: "EmailVerificationBanner", description: "Prompt users to verify their email", slug: "email-verification-banner" },
   ],
   "Passkeys & Auth Methods": [
@@ -79,6 +76,11 @@ export const componentsByCategory = {
     { name: "ApiKeysCard", description: "API keys management card", slug: "api-keys-card" },
     { name: "ApiKeyCell", description: "Individual API key list item", slug: "api-key-cell" },
     { name: "CreateApiKeyDialog", description: "Create new API key dialog", slug: "create-api-key-dialog" },
+  ],
+  "Admin Tools": [
+    { name: "UserManagementTable", description: "Manage users with ban, delete, and impersonate", slug: "user-management-table" },
+    { name: "BanUserDialog", description: "Ban users with reason and duration", slug: "ban-user-dialog" },
+    { name: "ImpersonateUserDialog", description: "Impersonate users for support", slug: "impersonate-user-dialog" },
   ],
   "Billing & Pricing": [
     { name: "BillingDashboard", description: "Complete billing dashboard", slug: "billing-dashboard" },

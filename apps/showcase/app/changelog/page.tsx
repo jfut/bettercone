@@ -8,6 +8,41 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.3.5",
+    date: "2024-11-06",
+    title: "Admin Components",
+    type: "feature",
+    changes: [
+      {
+        category: "New Components",
+        items: [
+          "UserManagementTable - Admin table with pagination, search, and actions",
+          "BanUserDialog - Ban users with reason and duration",
+          "ImpersonateUserDialog - Impersonate users for support",
+        ],
+      },
+      {
+        category: "Features",
+        items: [
+          "User management with pagination (10 per page)",
+          "Search by email or name",
+          "Ban/unban users with custom duration",
+          "Delete users with confirmation",
+          "Impersonate users for support purposes",
+          "Status badges (active/banned, verified/unverified)",
+          "Role display support",
+          "Better Auth admin plugin integration",
+        ],
+      },
+      {
+        category: "Infrastructure",
+        items: [
+          "Added Table UI component",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.3.4",
     date: "2024-11-06",
     title: "Passkeys, Organizations & Account Management",

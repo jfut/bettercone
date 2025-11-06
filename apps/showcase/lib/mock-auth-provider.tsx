@@ -149,6 +149,57 @@ export const mockAuthClient = {
     error: undefined,
   }),
   
+  // Admin methods
+  admin: {
+    listUsers: async (params?: { 
+      searchValue?: string; 
+      searchField?: string;
+      limit?: number;
+      offset?: number;
+    }) => {
+      const { mockAdminUsers } = await import("./mock-data");
+      let users = [...mockAdminUsers];
+      
+      // Apply search filter
+      if (params?.searchValue && params?.searchField) {
+        const searchLower = params.searchValue.toLowerCase();
+        users = users.filter((user) => {
+          const fieldValue = user[params.searchField as keyof typeof user];
+          return fieldValue && String(fieldValue).toLowerCase().includes(searchLower);
+        });
+      }
+      
+      // Apply pagination
+      const offset = params?.offset || 0;
+      const limit = params?.limit || 10;
+      const paginatedUsers = users.slice(offset, offset + limit);
+      
+      return {
+        data: {
+          users: paginatedUsers,
+          total: users.length,
+        },
+        error: null,
+      };
+    },
+    
+    banUser: async () => {
+      return { data: null, error: null };
+    },
+    
+    unbanUser: async () => {
+      return { data: null, error: null };
+    },
+    
+    removeUser: async () => {
+      return { data: null, error: null };
+    },
+    
+    impersonateUser: async () => {
+      return { data: { session: mockSession, user: mockUser }, error: null };
+    },
+  },
+  
   $fetch: async (url: string) => {
     // Mock wallet API endpoints
     if (url === "/api/auth/wallets") {

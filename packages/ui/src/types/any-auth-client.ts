@@ -111,4 +111,81 @@ export interface AnyAuthClient {
             error?: Error 
         }>
     }
+    
+    /**
+     * Admin management (optional)
+     * Available when using @better-auth/admin plugin
+     * @see https://www.better-auth.com/docs/plugins/admin
+     */
+    admin?: {
+        /**
+         * List users with pagination, search, and filtering
+         */
+        listUsers: (params?: {
+            searchValue?: string
+            searchField?: string
+            searchOperator?: "contains" | "starts_with" | "ends_with"
+            limit?: number
+            offset?: number
+            sortBy?: string
+            sortDirection?: "asc" | "desc"
+            filterBy?: Record<string, any>
+        }) => Promise<{
+            data?: {
+                users: any[]
+                total: number
+            }
+            error?: any
+        }>
+        
+        /**
+         * Ban a user
+         */
+        banUser: (params: {
+            userId: string
+            banReason?: string
+            banExpiresIn?: number
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Unban a user
+         */
+        unbanUser: (params: {
+            userId: string
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Delete a user
+         */
+        removeUser: (params: {
+            userId: string
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Impersonate a user
+         */
+        impersonateUser: (params: {
+            userId: string
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Stop impersonating
+         */
+        stopImpersonating: () => Promise<{
+            data?: any
+            error?: any
+        }>
+    }
 }

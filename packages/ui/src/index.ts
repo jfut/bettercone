@@ -39,6 +39,17 @@ export {
   CardContent,
 } from "./components/ui/card";
 
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+} from "./components/ui/table";
+
 // ============================================================================
 // Billing Components
 // ============================================================================
@@ -213,6 +224,13 @@ export { UnlinkAccountCard } from "./components/account/unlink-account-card";
 export { ApiKeysCard } from "./components/developer/api-keys-card";
 export { ApiKeyCell } from "./components/developer/api-key-cell";
 export { CreateApiKeyDialog } from "./components/developer/create-api-key-dialog";
+
+// ============================================================================
+// Admin Components
+// ============================================================================
+export { UserManagementTable } from "./components/admin/user-management-table";
+export { BanUserDialog } from "./components/admin/ban-user-dialog";
+export { ImpersonateUserDialog } from "./components/admin/impersonate-user-dialog";
 
 // ============================================================================
 // User Components
