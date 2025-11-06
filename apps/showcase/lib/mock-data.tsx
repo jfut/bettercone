@@ -623,7 +623,7 @@ export const mockPricingPlans = [
   },
 ];
 
-// Mock accounts (for password/email settings)
+// Mock accounts (for password/email settings and OAuth linking)
 export const mockAccounts = [
   {
     id: "acc_1",
@@ -636,6 +636,12 @@ export const mockAccounts = [
     provider: "github",
     accountId: "github_123456",
     providerId: "github",
+  },
+  {
+    id: "acc_3",
+    provider: "google",
+    accountId: "demo@bettercone.com",
+    providerId: "google",
   },
 ];
 

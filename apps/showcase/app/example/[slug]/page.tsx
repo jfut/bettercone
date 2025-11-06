@@ -148,8 +148,58 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
       { id: 'google', name: 'Google' },
       { id: 'github', name: 'GitHub' },
     ];
-    componentProps.onUpgradeWithEmail = () => console.log('Upgrade with email clicked');
-    componentProps.onLinkOAuth = (provider: string) => console.log(`Link ${provider} clicked`);
+    componentProps.onUpgradeWithEmail = () => console.log('Upgrade with email');
+    componentProps.onLinkOAuth = (provider: string) => console.log('Link OAuth:', provider);
+  }
+
+  // PasswordBreachChecker needs password prop
+  if (componentName === 'PasswordBreachChecker') {
+    componentProps.password = 'password123'; // Common password for demo
+    componentProps.checkOnType = true;
+    componentProps.showCount = true;
+    componentProps.onBreached = (count: number) => console.log(`Password breached ${count} times`);
+    componentProps.onSafe = () => console.log('Password is safe');
+  }
+
+  // EmailVerificationBanner needs email
+  if (componentName === 'EmailVerificationBanner') {
+    componentProps.email = 'user@example.com';
+    componentProps.dismissible = true;
+    componentProps.cooldown = 60;
+    componentProps.onResend = () => console.log('Verification email sent');
+    componentProps.onDismiss = () => console.log('Banner dismissed');
+  }
+
+  // ChangeEmailCard needs callbacks
+  if (componentName === 'ChangeEmailCard') {
+    componentProps.onSuccess = () => console.log('Email changed successfully');
+    componentProps.onError = (error: Error) => console.error('Email change error:', error);
+  }
+
+  // PasskeySetupWizard needs callbacks
+  if (componentName === 'PasskeySetupWizard') {
+    componentProps.onSuccess = () => console.log('Passkey registered successfully');
+    componentProps.onError = (error: Error) => console.error('Passkey registration error:', error);
+    componentProps.onCancel = () => console.log('Passkey setup cancelled');
+  }
+
+  // TransferOwnershipDialog needs organization ID
+  if (componentName === 'TransferOwnershipDialog') {
+    componentProps.organizationId = mockOrganization.id;
+    componentProps.onSuccess = () => console.log('Ownership transferred successfully');
+    componentProps.onError = (error: Error) => console.error('Ownership transfer error:', error);
+  }
+
+  // LinkAccountCard needs callbacks
+  if (componentName === 'LinkAccountCard') {
+    componentProps.onSuccess = () => console.log('Account linked successfully');
+    componentProps.onError = (error: Error) => console.error('Account linking error:', error);
+  }
+
+  // UnlinkAccountCard needs callbacks
+  if (componentName === 'UnlinkAccountCard') {
+    componentProps.onSuccess = () => console.log('Account unlinked successfully');
+    componentProps.onError = (error: Error) => console.error('Account unlinking error:', error);
   }
 
   return (

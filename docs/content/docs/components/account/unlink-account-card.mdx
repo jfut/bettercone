@@ -1,0 +1,299 @@
+---
+title: UnlinkAccountCard
+description: Unlink OAuth providers from user account
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# UnlinkAccountCard
+
+Display and manage linked OAuth providers with the ability to unlink them from the user's account.
+
+## Usage
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    ```tsx
+    import { UnlinkAccountCard, AuthUIProvider } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function AccountSettings() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <UnlinkAccountCard
+            onSuccess={() => console.log('Account unlinked!')}
+          />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab value="Code">
+    Full working example with all features.
+  </Tab>
+</Tabs>
+
+## Features
+
+- **Account List** - Shows all linked OAuth providers with emails
+- **Confirmation Dialog** - AlertDialog before unlinking
+- **Minimum Account Protection** - Prevents unlinking last account
+- **Real-Time Updates** - Automatically refreshes after unlink
+- **Provider Icons** - Visual provider identification
+- **Loading States** - Built-in progress indicators
+- **Error Handling** - Automatic error display with localization
+
+## Props
+
+### UnlinkAccountCardProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onSuccess` | `() => void` | - | Callback fired when account is successfully unlinked |
+| `onError` | `(error: Error) => void` | - | Callback fired when unlinking fails |
+| `className` | `string` | - | Optional CSS class for styling |
+| `localization` | `Partial<AccountLocalization>` | - | Custom text labels |
+
+## Requirements
+
+### Better Auth Configuration
+
+The Generic OAuth plugin must be configured in your Better Auth setup:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { genericOAuth } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    genericOAuth({
+      config: [
+        {
+          providerId: "google",
+          discoveryUrl: "https://accounts.google.com/.well-known/openid-configuration",
+          clientId: process.env.GOOGLE_CLIENT_ID!,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET!
+        },
+        // Add more providers...
+      ]
+    })
+  ]
+});
+```
+
+### Auth Client Setup
+
+```ts title="lib/auth-client.ts"
+import { createAuthClient } from "better-auth/react";
+import { genericOAuthClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({
+  plugins: [genericOAuthClient()]
+});
+```
+
+## How It Works
+
+1. **Displays linked accounts**: Shows all OAuth providers linked to user
+2. **User clicks unlink**: Opens confirmation dialog
+3. **Confirmation**: User confirms they want to unlink
+4. **Unlink request**: Better Auth removes the account link
+5. **Auto-refresh**: Account list updates automatically
+6. **Success callback**: UI reflects the change
+
+## Minimum Account Protection
+
+The component prevents users from unlinking their last account:
+
+- ✅ Can unlink if multiple accounts exist
+- ❌ Cannot unlink if it's the only account
+- ℹ️ Shows informative message about needing at least one account
+
+This ensures users always have a way to sign in.
+
+## Localization
+
+Customize all text in the component:
+
+```tsx
+<UnlinkAccountCard
+  localization={{
+    // Card
+    linkedAccounts: "Linked Accounts",
+    linkedAccountsDescription: "Manage connected sign-in methods",
+    
+    // Account List
+    noLinkedAccounts: "No linked accounts",
+    provider: "Provider",
+    email: "Email",
+    
+    // Dialog
+    unlinkAccountTitle: "Unlink Account?",
+    unlinkAccountDescription: "You will no longer be able to sign in with this provider.",
+    unlinkAccountWarning: "This action cannot be undone.",
+    
+    // Protection
+    cannotUnlinkLastAccount: "Cannot unlink your only account. Link another provider first.",
+    
+    // Buttons
+    unlink: "Unlink",
+    cancel: "Cancel",
+    
+    // Messages
+    unlinkAccountSuccess: "Account unlinked successfully",
+    unlinkAccountError: "Failed to unlink account"
+  }}
+/>
+```
+
+## Examples
+
+### In Settings Page
+
+```tsx title="app/settings/accounts/page.tsx"
+import { LinkAccountCard, UnlinkAccountCard } from '@bettercone/ui';
+
+export default function ConnectedAccounts() {
+  return (
+    <div className="space-y-6">
+      <div className="prose dark:prose-invert">
+        <h2>Connected Accounts</h2>
+        <p>Manage your linked OAuth providers for sign-in.</p>
+      </div>
+      
+      <UnlinkAccountCard
+        onSuccess={() => {
+          toast.success('Account unlinked successfully');
+        }}
+        onError={(error) => {
+          toast.error('Failed to unlink account');
+        }}
+      />
+      
+      <LinkAccountCard />
+    </div>
+  );
+}
+```
+
+### With Account Count Check
+
+```tsx title="components/unlink-with-check.tsx"
+import { UnlinkAccountCard } from '@bettercone/ui';
+import { useListAccounts } from '@bettercone/ui/hooks';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+export function UnlinkWithCheck() {
+  const { data: accounts, isLoading } = useListAccounts();
+  
+  if (isLoading) {
+    return <div>Loading accounts...</div>;
+  }
+  
+  const accountCount = accounts?.length || 0;
+  
+  return (
+    <>
+      {accountCount === 1 && (
+        <Alert>
+          <AlertDescription>
+            You must have at least one linked account. Link another provider before unlinking.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      <UnlinkAccountCard />
+    </>
+  );
+}
+```
+
+### Custom Account Display
+
+```tsx title="components/custom-unlink-card.tsx"
+import { UnlinkAccountCard } from '@bettercone/ui';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+
+export function CustomUnlinkCard() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Manage Sign-In Methods</CardTitle>
+        <CardDescription>
+          Unlink OAuth providers you no longer want to use for sign-in.
+        </CardDescription>
+      </CardHeader>
+      <UnlinkAccountCard className="border-0" />
+    </Card>
+  );
+}
+```
+
+## Account Information Displayed
+
+For each linked account, the component shows:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Provider** | OAuth provider name | Google, GitHub, Microsoft |
+| **Email** | Email from provider | user@example.com |
+| **Account ID** | Provider's user ID | github_123456 |
+
+## Protection Rules
+
+The component enforces these safety rules:
+
+1. **Minimum One Account**: Users must keep at least one linked account
+2. **Confirmation Required**: Shows AlertDialog before unlinking
+3. **Clear Warnings**: Explains consequences of unlinking
+4. **Undo Not Available**: Informs users action is permanent
+5. **Re-Link Allowed**: Users can re-link the same provider later
+
+## Use Cases
+
+### Multiple Provider Management
+Users with Google, GitHub, and Microsoft linked can remove the ones they don't use.
+
+### Provider Consolidation
+Users who prefer one provider can unlink others after linking their preferred one.
+
+### Security Cleanup
+Remove old or unused OAuth connections for better security hygiene.
+
+### Account Switching
+Unlink and re-link to switch between different accounts from the same provider.
+
+## Security Considerations
+
+1. **Account Ownership**: Only the account owner can unlink providers
+2. **Active Session**: User must be authenticated to unlink
+3. **Revocation**: OAuth tokens are revoked on provider's side
+4. **Audit Trail**: All unlink events are logged
+5. **Immediate Effect**: Cannot sign in with provider after unlinking
+
+## Error Handling
+
+Common error scenarios:
+
+- **Last Account**: Attempting to unlink only account
+- **Not Found**: Account doesn't exist or already unlinked
+- **Permission Denied**: User doesn't own the account
+- **Network Error**: Connection issues
+- **Provider Error**: OAuth provider issues
+
+## Post-Unlink Behavior
+
+After unlinking an account:
+
+1. **Immediate**: Cannot sign in with that provider
+2. **Session**: Current session remains active
+3. **Re-link**: Can link the same provider again later
+4. **Email**: Provider's email is no longer associated
+5. **Data**: User data remains (only link is removed)
+
+## Related Components
+
+- [LinkAccountCard](/docs/components/account/link-account-card) - Link OAuth providers
+- [AnonymousUpgradeCard](/docs/components/account/anonymous-upgrade-card) - Upgrade anonymous accounts
+- [DeleteAccountCard](/docs/components/account/delete-account-card) - Delete entire account
+- [AccountView](/docs/components/account/account-view) - Complete account settings

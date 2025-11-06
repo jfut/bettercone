@@ -158,6 +158,7 @@ export type { AnonymousSignInButtonProps } from "./components/auth/anonymous-sig
 // ============================================================================
 export { PasskeyCell } from "./components/security/passkey-cell";
 export { PasskeysCard } from "./components/security/passkeys-card";
+export { PasskeySetupWizard } from "./components/passkey/passkey-setup-wizard";
 export { TwoFactorCard } from "./components/security/two-factor-card";
 export { TwoFactorPasswordDialog } from "./components/security/two-factor-password-dialog";
 export { BackupCodesDialog } from "./components/security/backup-codes-dialog";
@@ -165,9 +166,15 @@ export { ChangePasswordCard } from "./components/security/change-password-card";
 export { SessionsCard } from "./components/security/sessions-card";
 export { SessionCell } from "./components/security/session-cell";
 
+// Email Management
+export { ChangeEmailCard } from "./components/settings/security/change-email-card";
+
 // Phone Number Management
 export { PhoneNumberCard } from "./components/security/phone-number-card";
 
+// Email Verification
+export { EmailVerificationBanner } from "./components/security/email-verification-banner";
+export type { EmailVerificationBannerProps } from "./components/security/email-verification-banner";
 
 
 // ============================================================================
@@ -187,6 +194,7 @@ export { OrganizationNameCard } from "./components/organization/organization-nam
 export { OrganizationSlugCard } from "./components/organization/organization-slug-card";
 export { OrganizationLogoCard } from "./components/organization/organization-logo-card";
 export { LeaveOrganizationDialog } from "./components/organization/leave-organization-dialog";
+export { TransferOwnershipDialog } from "./components/organization/transfer-ownership-dialog";
 
 // ============================================================================
 // Account Components
@@ -195,11 +203,9 @@ export { AccountView } from "./components/account/account-view";
 export { DeleteAccountCard } from "./components/account/delete-account-card";
 export { DeleteAccountDialog } from "./components/account/delete-account-dialog";
 export { AnonymousUpgradeCard } from "./components/account/anonymous-upgrade-card";
-export type {
-  AnonymousUpgradeCardProps,
-  AnonymousUpgradeCardClassNames,
-  AnonymousUpgradeCardLocalization
-} from "./components/account/anonymous-upgrade-card";
+export type { AnonymousUpgradeCardProps } from "./components/account/anonymous-upgrade-card";
+export { LinkAccountCard } from "./components/account/link-account-card";
+export { UnlinkAccountCard } from "./components/account/unlink-account-card";
 
 // ============================================================================
 // Developer Components

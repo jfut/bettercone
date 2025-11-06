@@ -16,7 +16,7 @@ import { UpdateAvatarCard } from "./account/update-avatar-card"
 import { UpdateFieldCard } from "./account/update-field-card"
 import { UpdateNameCard } from "./account/update-name-card"
 import { UpdateUsernameCard } from "./account/update-username-card"
-// import { ChangeEmailCard } from "../security/change-email-card" // Component doesn't exist in Dave's library
+import { ChangeEmailCard } from "./security/change-email-card"
 import type { SettingsCardClassNames } from "./shared/settings-card"
 
 export function AccountSettingsCards({
@@ -96,7 +96,7 @@ export function AccountSettingsCards({
                     validate
                 } = additionalField
 
-                // @ts-expect-error Custom fields are not typed
+                
                 const defaultValue = sessionData?.user[field] as unknown
 
                 return (

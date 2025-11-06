@@ -1,0 +1,225 @@
+---
+title: ChangeEmailCard
+description: Change user email with verification code
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# ChangeEmailCard
+
+A two-step email change component with verification code confirmation.
+
+## Usage
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    ```tsx
+    import { ChangeEmailCard, AuthUIProvider } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function EmailSettings() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <ChangeEmailCard
+            onSuccess={() => console.log('Email changed!')}
+          />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab value="Code">
+    Full working example with all features.
+  </Tab>
+</Tabs>
+
+## Features
+
+- **Two-Step Process** - Request change → Verify new email
+- **Email Validation** - Validates new email via Better Auth endpoint
+- **Verification Code** - 6-digit code sent to new email address
+- **Auto-Focus** - Automatic focus on verification input after request
+- **Loading States** - Built-in progress indicators
+- **Error Handling** - Clear error messages with localization
+- **Toast Notifications** - Success/error feedback
+
+## How It Works
+
+### Step 1: Request Email Change
+1. User enters new email address
+2. Better Auth validates the email
+3. Sends verification code to new email
+4. Shows verification input field
+
+### Step 2: Verify New Email
+1. User enters 6-digit code from email
+2. Better Auth verifies the code
+3. Updates user's email address
+4. Triggers success callback
+
+## Props
+
+### ChangeEmailCardProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onSuccess` | `() => void` | - | Callback fired when email is successfully changed |
+| `onError` | `(error: Error) => void` | - | Callback fired when change fails |
+| `className` | `string` | - | Optional CSS class for styling |
+| `localization` | `Partial<EmailLocalization>` | - | Custom text labels |
+
+## Requirements
+
+### Better Auth Configuration
+
+Email verification must be enabled in your Better Auth setup:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }) => {
+      // Send verification email with code
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your new email",
+        html: `Your verification code is: ${token}`
+      });
+    }
+  }
+});
+```
+
+## Localization
+
+Customize all text in the component:
+
+```tsx
+<ChangeEmailCard
+  localization={{
+    // Card
+    changeEmail: "Change Email",
+    changeEmailDescription: "Update your email address",
+    
+    // Form
+    newEmail: "New Email",
+    newEmailPlaceholder: "Enter new email address",
+    
+    // Verification
+    verificationCode: "Verification Code",
+    verificationCodePlaceholder: "Enter 6-digit code",
+    verificationCodeDescription: "Check your new email for the code",
+    
+    // Buttons
+    requestChange: "Request Change",
+    verifyAndChange: "Verify and Change",
+    cancel: "Cancel",
+    
+    // Messages
+    emailChangeSuccess: "Email changed successfully",
+    emailChangeError: "Failed to change email",
+    invalidCode: "Invalid verification code"
+  }}
+/>
+```
+
+## Examples
+
+### In Settings Page
+
+```tsx title="app/settings/account/page.tsx"
+import { ChangeEmailCard } from '@bettercone/ui';
+import { useRouter } from 'next/navigation';
+
+export default function AccountSettings() {
+  const router = useRouter();
+  
+  return (
+    <div className="space-y-6">
+      <ChangeEmailCard
+        onSuccess={() => {
+          // Refresh user data or redirect
+          router.refresh();
+        }}
+        onError={(error) => {
+          console.error('Email change failed:', error);
+        }}
+      />
+    </div>
+  );
+}
+```
+
+### With Custom Styling
+
+```tsx
+<ChangeEmailCard
+  className="max-w-2xl"
+  onSuccess={() => {
+    toast.success('Email updated! Please check your inbox.');
+  }}
+/>
+```
+
+### Combined with EmailVerificationBanner
+
+```tsx title="app/settings/page.tsx"
+import { ChangeEmailCard, EmailVerificationBanner } from '@bettercone/ui';
+
+export default function Settings() {
+  const user = useUser();
+  
+  return (
+    <div className="space-y-6">
+      {!user?.emailVerified && (
+        <EmailVerificationBanner email={user?.email} />
+      )}
+      
+      <ChangeEmailCard />
+    </div>
+  );
+}
+```
+
+## Email Flow
+
+1. **User initiates change**: Enters new email address
+2. **Backend validation**: Better Auth checks if email is available
+3. **Code generation**: 6-digit code generated and sent
+4. **User receives email**: Code arrives in new inbox
+5. **User enters code**: Submits verification code
+6. **Verification**: Better Auth validates code
+7. **Email updated**: User's email is changed
+8. **Success callback**: UI updates accordingly
+
+## Security Considerations
+
+1. **Email Uniqueness**: Better Auth ensures new email isn't already in use
+2. **Code Expiration**: Verification codes expire after set time (default: 15 minutes)
+3. **Rate Limiting**: Prevents spam by limiting change requests
+4. **Current Session**: User must be authenticated to change email
+5. **Confirmation Required**: Two-step process prevents accidental changes
+
+## Error Handling
+
+The component handles various error scenarios:
+
+- Invalid email format
+- Email already in use
+- Verification code expired
+- Invalid verification code
+- Network errors
+- Rate limit exceeded
+
+All errors display user-friendly messages that can be customized via localization.
+
+## Related Components
+
+- [EmailVerificationBanner](/docs/components/security/email-verification-banner) - Prompt email verification
+- [ChangePasswordCard](/docs/components/security/change-password-card) - Change password
+- [AccountView](/docs/components/account/account-view) - Complete account settings

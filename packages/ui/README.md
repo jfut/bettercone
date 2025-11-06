@@ -6,6 +6,29 @@
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## What's New in v0.3.4
+
+**6 New Components** - Passkeys, Organizations, Account Management & Email:
+
+- [x] **EmailVerificationBanner**: Persistent banner prompting email verification with resend functionality
+- [x] **ChangeEmailCard**: Two-step email change process with verification code
+- [x] **PasskeySetupWizard**: 5-step wizard for passkey registration (biometric & security keys)
+- [x] **TransferOwnershipDialog**: Organization ownership transfer with role management
+- [x] **LinkAccountCard**: Link OAuth providers to existing accounts
+- [x] **UnlinkAccountCard**: Unlink OAuth providers with confirmation dialog
+
+**Categories at 100%**:
+- Organizations: 17/17 components ✅
+- User Management: 16/16 components ✅
+- Billing: 6/6 components ✅
+- Usage: 4/4 components ✅
+- Team: 4/4 components ✅
+- Web3: 2/2 components ✅
+- Phone: 3/3 components ✅
+- Security & Email: 10/10 components ✅
+
+**Progress**: 79/89 components (89%)
+
 ## What's New in v0.3.3
 
 **Anonymous Authentication** - Sign in users without PII:
@@ -163,6 +186,7 @@ export default function BillingPage() {
 - `AuthForm` - Reusable form wrapper
 - `AuthCallback` - OAuth callback handler
 - `PasskeyButton` - Passkey authentication
+- `PasskeySetupWizard` - 5-step passkey registration wizard
 - `ProviderButton` - Social OAuth provider button
 - `MagicLinkButton` - Magic link authentication
 - `EmailOTPButton` - Email OTP trigger
@@ -170,8 +194,10 @@ export default function BillingPage() {
 - `SignOut` - Sign out component
 - `PhoneSignInForm` - Sign in with phone number and password
 - `PhoneSignUpForm` - Sign up with phone number and OTP verification
+- `AnonymousSignInButton` - Sign in as guest without PII
+- `AnonymousUpgradeCard` - Encourage anonymous users to link authentication
 
-### Security
+### Security & Email
 
 - `PasskeyCell` - Individual passkey display
 - `PasskeysCard` - Passkey management
@@ -179,6 +205,8 @@ export default function BillingPage() {
 - `TwoFactorPasswordDialog` - Password verification for 2FA
 - `BackupCodesDialog` - Backup codes display
 - `ChangePasswordCard` - Password change form
+- `ChangeEmailCard` - Email change with verification
+- `EmailVerificationBanner` - Prompt email verification with resend
 - `SessionsCard` - Active sessions list
 - `SessionCell` - Individual session display
 - `PhoneNumberCard` - Manage phone number with OTP verification
@@ -191,6 +219,7 @@ export default function BillingPage() {
 - `OrganizationMembersCard` - Members list
 - `RemoveMemberDialog` - Remove member
 - `UpdateMemberRoleDialog` - Change member role
+- `TransferOwnershipDialog` - Transfer organization ownership
 - `OrganizationInvitationsCard` - Pending invitations
 - `InviteMemberDialog` - Send invitation
 - `AcceptInvitationCard` - Accept invitation
@@ -200,11 +229,13 @@ export default function BillingPage() {
 - `OrganizationLogoCard` - Upload organization logo
 - `LeaveOrganizationDialog` - Leave organization
 
-### Account
+### Account Management
 
 - `AccountView` - Account settings view
 - `DeleteAccountCard` - Account deletion
 - `DeleteAccountDialog` - Confirm deletion
+- `LinkAccountCard` - Link OAuth providers to account
+- `UnlinkAccountCard` - Unlink OAuth providers from account
 
 ### Developer Tools
 

@@ -8,6 +8,36 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.3.4",
+    date: "2024-11-06",
+    title: "Passkeys, Organizations & Account Management",
+    type: "feature",
+    changes: [
+      {
+        category: "New Components",
+        items: [
+          "PasskeySetupWizard - 5-step passkey registration wizard",
+          "TransferOwnershipDialog - Organization ownership transfer",
+          "LinkAccountCard - Link OAuth providers to accounts",
+          "UnlinkAccountCard - Unlink OAuth providers from accounts",
+          "ChangeEmailCard - Email change with verification",
+          "EmailVerificationBanner - Prompt email verification",
+        ],
+      },
+      {
+        category: "Features",
+        items: [
+          "Platform vs cross-platform authenticator selection",
+          "Organization ownership transfer with role management",
+          "OAuth account linking and unlinking",
+          "Two-step email change process with verification",
+          "Minimum account protection (prevent unlinking last account)",
+          "AlertDialog and RadioGroup UI components added",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.3.3",
     date: "2024-11-05",
     title: "Anonymous Authentication",

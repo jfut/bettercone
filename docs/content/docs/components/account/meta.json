@@ -1,6 +1,8 @@
 {
   "title": "Account",
   "pages": [
-    "anonymous-upgrade-card"
+    "anonymous-upgrade-card",
+    "link-account-card",
+    "unlink-account-card"
   ]
 }

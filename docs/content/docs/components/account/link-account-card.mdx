@@ -1,0 +1,263 @@
+---
+title: LinkAccountCard
+description: Link OAuth providers to user account
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# LinkAccountCard
+
+Allow users to link additional OAuth providers (Google, GitHub, etc.) to their existing account.
+
+## Usage
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    ```tsx
+    import { LinkAccountCard, AuthUIProvider } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function AccountSettings() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <LinkAccountCard
+            onSuccess={() => console.log('Account linked!')}
+          />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab value="Code">
+    Full working example with all features.
+  </Tab>
+</Tabs>
+
+## Features
+
+- **OAuth Provider Selection** - Choose from configured OAuth providers
+- **OAuth Flow Initiation** - Redirects to provider for authorization
+- **Account Linking** - Links provider account to existing user
+- **Loading States** - Built-in progress indicators
+- **Error Handling** - Automatic error display with localization
+- **Multi-Provider Support** - Link multiple OAuth accounts
+
+## Props
+
+### LinkAccountCardProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onSuccess` | `() => void` | - | Callback fired when account is successfully linked |
+| `onError` | `(error: Error) => void` | - | Callback fired when linking fails |
+| `className` | `string` | - | Optional CSS class for styling |
+| `localization` | `Partial<AccountLocalization>` | - | Custom text labels |
+
+## Requirements
+
+### Better Auth Configuration
+
+The Generic OAuth plugin must be configured in your Better Auth setup:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { genericOAuth } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    genericOAuth({
+      config: [
+        {
+          providerId: "google",
+          discoveryUrl: "https://accounts.google.com/.well-known/openid-configuration",
+          clientId: process.env.GOOGLE_CLIENT_ID!,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET!
+        },
+        {
+          providerId: "github", 
+          discoveryUrl: "https://github.com/.well-known/openid-configuration",
+          clientId: process.env.GITHUB_CLIENT_ID!,
+          clientSecret: process.env.GITHUB_CLIENT_SECRET!
+        }
+        // Add more providers as needed
+      ]
+    })
+  ]
+});
+```
+
+### Auth Client Setup
+
+```ts title="lib/auth-client.ts"
+import { createAuthClient } from "better-auth/react";
+import { genericOAuthClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({
+  plugins: [genericOAuthClient()]
+});
+```
+
+## How It Works
+
+1. **User selects provider**: Choose from dropdown (Google, GitHub, etc.)
+2. **Initiate OAuth flow**: Redirects to provider's authorization page
+3. **User authorizes**: Grants permissions on provider's page
+4. **Redirect back**: Provider redirects to callback URL
+5. **Link account**: Better Auth links provider account to user
+6. **Success callback**: UI updates with new linked account
+
+## Localization
+
+Customize all text in the component:
+
+```tsx
+<LinkAccountCard
+  localization={{
+    // Card
+    linkAccount: "Link Account",
+    linkAccountDescription: "Connect additional sign-in methods",
+    
+    // Selection
+    selectProvider: "Select Provider",
+    selectProviderPlaceholder: "Choose a provider",
+    
+    // Providers
+    google: "Google",
+    github: "GitHub",
+    facebook: "Facebook",
+    microsoft: "Microsoft",
+    
+    // Buttons
+    linkButton: "Link Account",
+    
+    // Messages
+    linkAccountSuccess: "Account linked successfully",
+    linkAccountError: "Failed to link account",
+    providerAlreadyLinked: "This provider is already linked"
+  }}
+/>
+```
+
+## Examples
+
+### In Settings Page
+
+```tsx title="app/settings/accounts/page.tsx"
+import { LinkAccountCard, UnlinkAccountCard } from '@bettercone/ui';
+
+export default function ConnectedAccounts() {
+  return (
+    <div className="space-y-6">
+      <LinkAccountCard
+        onSuccess={() => {
+          // Refresh account list
+          router.refresh();
+        }}
+        onError={(error) => {
+          console.error('Link failed:', error);
+        }}
+      />
+      
+      <UnlinkAccountCard />
+    </div>
+  );
+}
+```
+
+### With Custom Styling
+
+```tsx
+<LinkAccountCard
+  className="max-w-2xl border-2"
+  onSuccess={() => {
+    toast.success('Account linked! You can now sign in with this provider.');
+  }}
+/>
+```
+
+### With Available Providers Check
+
+```tsx title="components/link-account-with-check.tsx"
+import { LinkAccountCard } from '@bettercone/ui';
+import { useListAccounts } from '@bettercone/ui/hooks';
+
+export function LinkAccountWithCheck() {
+  const { data: accounts } = useListAccounts();
+  const linkedProviders = accounts?.map(a => a.providerId) || [];
+  
+  const availableProviders = ['google', 'github', 'microsoft']
+    .filter(p => !linkedProviders.includes(p));
+  
+  if (availableProviders.length === 0) {
+    return (
+      <div className="text-muted-foreground">
+        All available providers are already linked.
+      </div>
+    );
+  }
+  
+  return <LinkAccountCard />;
+}
+```
+
+## OAuth Callback Handling
+
+The component handles the OAuth callback automatically. Ensure your callback route is set up:
+
+```ts title="app/api/auth/callback/[provider]/route.ts"
+import { auth } from "@/lib/auth";
+import { NextRequest } from "next/server";
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { provider: string } }
+) {
+  return auth.handler(request);
+}
+```
+
+## Supported Providers
+
+Any OAuth provider configured in Better Auth's Generic OAuth plugin:
+
+- Google
+- GitHub
+- Microsoft
+- Facebook
+- Discord
+- Twitter/X
+- LinkedIn
+- GitLab
+- And any custom OAuth 2.0 provider
+
+## Benefits of Linking Accounts
+
+1. **Multiple Sign-In Options**: Users can sign in with any linked provider
+2. **Account Recovery**: Alternative access if one provider has issues
+3. **Convenience**: Choose preferred provider for each session
+4. **Trust Signals**: Verified by multiple providers
+5. **Cross-Platform**: Access from different devices/ecosystems
+
+## Security Considerations
+
+1. **Email Verification**: Linked providers should have verified emails
+2. **Existing Account Check**: Prevents duplicate accounts
+3. **User Consent**: Explicit authorization on provider's page
+4. **Revocation**: Users can unlink accounts anytime
+5. **Audit Trail**: All linking events are logged
+
+## Error Handling
+
+Common error scenarios:
+
+- **Provider Already Linked**: Account is already connected
+- **Email Conflict**: Provider email matches different user
+- **OAuth Declined**: User denied authorization
+- **Invalid Provider**: Provider not configured
+- **Network Error**: Connection issues
+
+## Related Components
+
+- [UnlinkAccountCard](/docs/components/account/unlink-account-card) - Unlink OAuth providers
+- [AnonymousUpgradeCard](/docs/components/account/anonymous-upgrade-card) - Link to anonymous accounts
+- [ProviderButton](/docs/components/authentication/provider-button) - OAuth sign-in button

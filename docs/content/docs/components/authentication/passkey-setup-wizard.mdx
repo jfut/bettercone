@@ -1,0 +1,235 @@
+---
+title: PasskeySetupWizard
+description: 5-step wizard for passkey registration with device selection
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# PasskeySetupWizard
+
+A comprehensive 5-step wizard that guides users through passkey registration with platform or cross-platform authenticators.
+
+## Usage
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    ```tsx
+    import { PasskeySetupWizard, AuthUIProvider } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function PasskeySetup() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <PasskeySetupWizard
+            onSuccess={() => console.log('Passkey registered!')}
+            onCancel={() => console.log('Setup cancelled')}
+          />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab value="Code">
+    Full working example with all features.
+  </Tab>
+</Tabs>
+
+## Features
+
+- **5-Step Wizard** - Guided flow: intro → name → type → register → success
+- **Platform Authenticators** - Biometric (Face ID, Touch ID, Windows Hello)
+- **Cross-Platform Authenticators** - Security keys (YubiKey, USB keys)
+- **Device Detection** - Auto-detects available authenticator types
+- **Named Passkeys** - Users can identify their passkeys (e.g., "My iPhone")
+- **Loading States** - Built-in progress indicators
+- **Error Handling** - Automatic error display with retry option
+
+## Wizard Steps
+
+### Step 1: Introduction
+Explains what passkeys are and their benefits (security, convenience, no passwords).
+
+### Step 2: Name Your Passkey
+Users provide a friendly name to identify their passkey later (e.g., "Work MacBook", "Personal iPhone").
+
+### Step 3: Choose Authenticator Type
+Users select between:
+- **Platform**: Device biometrics (Face ID, Touch ID, Windows Hello)
+- **Cross-platform**: Physical security keys (YubiKey, USB keys)
+
+### Step 4: Register
+Initiates WebAuthn registration flow with the selected authenticator type.
+
+### Step 5: Success
+Confirmation screen with option to add another passkey or finish.
+
+## Props
+
+### PasskeySetupWizardProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onSuccess` | `() => void` | - | Callback fired when passkey is successfully registered |
+| `onError` | `(error: Error) => void` | - | Callback fired when registration fails |
+| `onCancel` | `() => void` | - | Callback fired when user cancels setup |
+| `className` | `string` | - | Optional CSS class for styling |
+| `localization` | `Partial<PasskeyLocalization>` | - | Custom text labels |
+
+## Requirements
+
+### Better Auth Configuration
+
+The `passkey` plugin must be configured in your Better Auth setup:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { passkey } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    passkey({
+      // Optional: Configure passkey settings
+      rpID: process.env.NEXT_PUBLIC_RP_ID, // Your domain
+      rpName: "Your App Name",
+    })
+  ]
+});
+```
+
+### Auth Client Setup
+
+```ts title="lib/auth-client.ts"
+import { createAuthClient } from "better-auth/react";
+import { passkeyClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({
+  plugins: [passkeyClient()]
+});
+```
+
+## Localization
+
+Customize all text in the wizard:
+
+```tsx
+<PasskeySetupWizard
+  localization={{
+    // Step 1 - Introduction
+    passkeyIntroTitle: "Set Up Passkey",
+    passkeyIntroDescription: "Add biometric or security key authentication",
+    passkeyIntroBenefit1: "More secure than passwords",
+    passkeyIntroBenefit2: "Sign in with Face ID or Touch ID",
+    passkeyIntroBenefit3: "Works across all your devices",
+    
+    // Step 2 - Name
+    passkeyNameTitle: "Name Your Passkey",
+    passkeyNameDescription: "Help identify this passkey later",
+    passkeyNamePlaceholder: "e.g., My iPhone",
+    
+    // Step 3 - Type
+    passkeyTypeTitle: "Choose Authenticator Type",
+    passkeyTypePlatformLabel: "This Device",
+    passkeyTypePlatformDescription: "Use Face ID, Touch ID, or Windows Hello",
+    passkeyTypeCrossPlatformLabel: "Security Key",
+    passkeyTypeCrossPlatformDescription: "Use YubiKey or USB security key",
+    
+    // Step 4 - Register
+    passkeyRegisterTitle: "Register Your Passkey",
+    passkeyRegisterDescription: "Follow your device's prompts",
+    passkeyRegisterButton: "Register Passkey",
+    
+    // Step 5 - Success
+    passkeySuccessTitle: "Passkey Registered!",
+    passkeySuccessDescription: "You can now sign in securely",
+    
+    // Buttons
+    next: "Next",
+    back: "Back",
+    cancel: "Cancel",
+    finish: "Finish"
+  }}
+/>
+```
+
+## Examples
+
+### In Settings Page
+
+Add passkey setup to user security settings:
+
+```tsx title="app/settings/security/page.tsx"
+import { PasskeysCard, PasskeySetupWizard } from '@bettercone/ui';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+
+export default function SecuritySettings() {
+  const [open, setOpen] = useState(false);
+  
+  return (
+    <div className="space-y-6">
+      <PasskeysCard />
+      
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button>Add Passkey</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <PasskeySetupWizard
+            onSuccess={() => {
+              setOpen(false);
+              // Refresh passkeys list
+            }}
+            onCancel={() => setOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+```
+
+### First-Time Setup
+
+Prompt users to set up passkey after registration:
+
+```tsx title="app/onboarding/page.tsx"
+import { PasskeySetupWizard } from '@bettercone/ui';
+import { useRouter } from 'next/navigation';
+
+export default function OnboardingPage() {
+  const router = useRouter();
+  
+  return (
+    <div className="container max-w-2xl py-12">
+      <PasskeySetupWizard
+        onSuccess={() => router.push('/dashboard')}
+        onCancel={() => router.push('/dashboard')}
+      />
+    </div>
+  );
+}
+```
+
+## Browser Support
+
+Passkeys require WebAuthn API support:
+- ✅ Chrome 67+
+- ✅ Safari 14+
+- ✅ Firefox 60+
+- ✅ Edge 79+
+- ✅ Mobile Safari (iOS 14+)
+- ✅ Chrome Android
+
+## Security Considerations
+
+1. **HTTPS Required**: WebAuthn only works over HTTPS in production
+2. **RP ID**: Must match your domain (configure in Better Auth)
+3. **User Verification**: Platform authenticators provide built-in verification
+4. **Credential Storage**: Credentials are stored securely by the browser/device
+
+## Related Components
+
+- [PasskeysCard](/docs/components/security/passkeys-card) - Manage registered passkeys
+- [PasskeyButton](/docs/components/authentication/passkey-button) - Sign in with passkey
+- [PasskeyCell](/docs/components/security/passkey-cell) - Individual passkey display

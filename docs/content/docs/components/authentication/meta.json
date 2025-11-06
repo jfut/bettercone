@@ -10,6 +10,7 @@
     "auth-callback",
     "provider-button",
     "passkey-button",
+    "passkey-setup-wizard",
     "magic-link-button",
     "email-otp-button",
     "anonymous-sign-in-button",

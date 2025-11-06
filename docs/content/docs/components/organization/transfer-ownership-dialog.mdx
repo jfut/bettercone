@@ -1,0 +1,283 @@
+---
+title: TransferOwnershipDialog
+description: Transfer organization ownership to another member
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+# TransferOwnershipDialog
+
+Transfer organization ownership to another admin or owner, with automatic role demotion for the current owner.
+
+## Usage
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    ```tsx
+    import { TransferOwnershipDialog, AuthUIProvider } from '@bettercone/ui';
+    import { authClient } from '@/lib/auth-client';
+
+    export default function OrganizationSettings() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <TransferOwnershipDialog
+            organizationId="org_123"
+            onSuccess={() => console.log('Ownership transferred!')}
+          />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  <Tab value="Code">
+    Full working example with all features.
+  </Tab>
+</Tabs>
+
+## Features
+
+- **Member Selection** - Dropdown of eligible members (admins and owners only)
+- **Role Management** - Automatically promotes new owner and demotes current owner to admin
+- **Warning System** - Clear warnings about ownership transfer consequences
+- **Eligibility Filtering** - Only shows admins and owners as transfer candidates
+- **Loading States** - Built-in progress indicators
+- **Error Handling** - Automatic error display with localization
+- **Confirmation** - Warning about losing owner privileges
+
+## Props
+
+### TransferOwnershipDialogProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `organizationId` | `string` | **Required** | ID of the organization |
+| `onSuccess` | `() => void` | - | Callback fired when ownership is successfully transferred |
+| `onError` | `(error: Error) => void` | - | Callback fired when transfer fails |
+| `className` | `string` | - | Optional CSS class for styling |
+| `localization` | `Partial<OrganizationLocalization>` | - | Custom text labels |
+
+## Requirements
+
+### Better Auth Configuration
+
+The `organization` plugin must be configured in your Better Auth setup:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    organization({
+      // Organization configuration
+      allowedRoles: ["owner", "admin", "member"]
+    })
+  ]
+});
+```
+
+### Auth Client Setup
+
+```ts title="lib/auth-client.ts"
+import { createAuthClient } from "better-auth/react";
+import { organizationClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({
+  plugins: [organizationClient()]
+});
+```
+
+## How It Works
+
+### Transfer Process
+
+1. **Current State**: User is organization owner
+2. **Select New Owner**: Choose eligible member (admin or owner role)
+3. **Initiate Transfer**: Confirm the transfer action
+4. **Backend Process**:
+   - Promote selected member to owner role
+   - Demote current owner to admin role
+5. **Success**: New owner has full control, previous owner becomes admin
+
+### Eligibility Rules
+
+Only members with these roles can become owners:
+- **admin** - Full management access except ownership transfer
+- **owner** - Already an owner (for multi-owner organizations)
+
+Regular members cannot be selected as they lack elevated permissions.
+
+## Localization
+
+Customize all text in the dialog:
+
+```tsx
+<TransferOwnershipDialog
+  organizationId="org_123"
+  localization={{
+    // Dialog
+    transferOwnership: "Transfer Ownership",
+    transferOwnershipDescription: "Transfer organization ownership to another member",
+    
+    // Selection
+    selectNewOwner: "Select New Owner",
+    selectNewOwnerPlaceholder: "Choose a member",
+    
+    // Warning
+    transferOwnershipWarning: "Warning: You will lose owner privileges and become an admin. This action cannot be undone.",
+    
+    // Buttons
+    transfer: "Transfer Ownership",
+    cancel: "Cancel",
+    
+    // Messages
+    transferOwnershipSuccess: "Ownership transferred successfully",
+    transferOwnershipError: "Failed to transfer ownership",
+    noEligibleMembers: "No eligible members to transfer ownership to"
+  }}
+/>
+```
+
+## Examples
+
+### In Organization Settings
+
+```tsx title="app/org/[id]/settings/page.tsx"
+import { TransferOwnershipDialog } from '@bettercone/ui';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { useState } from 'react';
+
+export default function OrganizationSettings({ params }) {
+  const [open, setOpen] = useState(false);
+  const { activeOrganization } = useActiveOrganization();
+  
+  // Only show to owners
+  if (activeOrganization?.role !== 'owner') {
+    return null;
+  }
+  
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="destructive">Transfer Ownership</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <TransferOwnershipDialog
+          organizationId={params.id}
+          onSuccess={() => {
+            setOpen(false);
+            // Redirect to organization page
+            router.push('/organizations');
+          }}
+          onError={(error) => {
+            console.error('Transfer failed:', error);
+          }}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+### With Confirmation Step
+
+```tsx title="components/transfer-ownership-with-confirm.tsx"
+import { TransferOwnershipDialog } from '@bettercone/ui';
+import { AlertDialog } from '@/components/ui/alert-dialog';
+import { useState } from 'react';
+
+export function TransferOwnershipWithConfirm({ organizationId }) {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
+  
+  return (
+    <>
+      <Button onClick={() => setShowConfirm(true)}>
+        Transfer Ownership
+      </Button>
+      
+      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will transfer full ownership to another member. 
+              You will become an admin and lose owner privileges.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setShowConfirm(false);
+              setShowTransfer(true);
+            }}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <Dialog open={showTransfer} onOpenChange={setShowTransfer}>
+        <DialogContent>
+          <TransferOwnershipDialog
+            organizationId={organizationId}
+            onSuccess={() => setShowTransfer(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+```
+
+## Role Hierarchy
+
+Understanding organization roles:
+
+| Role | Permissions | Can Be New Owner |
+|------|-------------|------------------|
+| **owner** | Full control, transfer ownership, delete org | ✅ Yes |
+| **admin** | Manage members, settings, invitations | ✅ Yes |
+| **member** | View content, basic actions | ❌ No |
+
+## What Happens After Transfer
+
+For the **new owner**:
+- ✅ Full organization control
+- ✅ Can delete organization
+- ✅ Can transfer ownership again
+- ✅ Can manage all members
+- ✅ Can update all settings
+
+For the **previous owner**:
+- ⚠️ Demoted to admin role
+- ❌ Cannot delete organization
+- ❌ Cannot transfer ownership
+- ✅ Can still manage members
+- ✅ Can still update settings
+
+## Security Considerations
+
+1. **Owner Only**: Only current owner can initiate transfer
+2. **Eligible Members**: Only admins and owners can receive ownership
+3. **Single Transaction**: Both role updates happen atomically
+4. **Audit Trail**: Transfer is logged in organization history
+5. **Irreversible**: New owner must transfer back (manual process)
+
+## Error Handling
+
+Common error scenarios:
+
+- **Not Owner**: Current user isn't organization owner
+- **No Eligible Members**: No admins/owners to transfer to
+- **Invalid Member**: Selected member doesn't exist or left
+- **Permission Denied**: Backend validation failure
+- **Network Error**: Connection issues
+
+## Related Components
+
+- [OrganizationMembersCard](/docs/components/organization#organizationmemberscard) - View and manage members
+- [UpdateMemberRoleDialog](/docs/components/organization#updatememberroledialog) - Change member roles
+- [DeleteOrganizationCard](/docs/components/organization#deleteorganizationcard) - Delete organization (owner only)
+- [LeaveOrganizationDialog](/docs/components/organization#leaveorganizationdialog) - Leave organization (non-owners)

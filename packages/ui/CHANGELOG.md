@@ -5,6 +5,106 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2025-11-06
+
+### Added
+
+#### Email Verification Component
+- **EmailVerificationBanner**: Prompt users to verify their email address
+  - Persistent banner for unverified users
+  - Resend verification email functionality
+  - Cooldown timer (default 60s) with countdown display
+  - Dismissible with local state tracking
+  - Success/error messages with 5s auto-hide
+  - Integrates with Better Auth `/send-verification-email` endpoint
+  - Optional AuthUIContext support
+  - Customizable via `classNames` prop (7 customization points)
+  - Full localization support
+
+#### Email Management Component
+- **ChangeEmailCard**: Allow users to change their email with verification
+  - Extracted from better-auth-ui with enhancements
+  - Two-step process: request change → verify new email
+  - Email validation with Better Auth endpoint
+  - Automatic focus management on verification code input
+  - Success/error messages with toast notifications
+  - Integrates with Better Auth `/change-email` endpoint
+  - Full localization support
+  - Customizable via callbacks: `onSuccess`, `onError`
+
+#### Passkey Components
+- **PasskeySetupWizard**: 5-step wizard for registering passkeys
+  - Step 1: Introduction to passkey benefits
+  - Step 2: Name your passkey for identification
+  - Step 3: Choose authenticator type (platform vs cross-platform)
+  - Step 4: Register passkey with device
+  - Step 5: Success confirmation
+  - Platform authenticators: Biometric (Face ID, Touch ID, Windows Hello)
+  - Cross-platform: Security keys (YubiKey, USB keys)
+  - Integrates with Better Auth passkey plugin
+  - Full localization support
+  - Customizable via callbacks: `onSuccess`, `onError`, `onCancel`
+
+#### Organization Components
+- **TransferOwnershipDialog**: Transfer organization ownership to another member
+  - Member selection dropdown (admins/owners only eligible)
+  - Warning message about ownership transfer consequences
+  - Two-step role update: promote new owner → demote current owner to admin
+  - Integrates with Better Auth organization plugin
+  - Full localization support
+  - Customizable via callbacks: `onSuccess`, `onError`
+
+#### Account Management Components
+- **LinkAccountCard**: Link OAuth providers to existing accounts
+  - Provider selection from Generic OAuth configuration
+  - Initiate OAuth linking flow with callback URL
+  - Loading states during OAuth process
+  - Integrates with Better Auth Generic OAuth plugin
+  - Full localization support
+  - Customizable via callbacks: `onSuccess`, `onError`
+- **UnlinkAccountCard**: Unlink OAuth providers from accounts
+  - Lists all linked OAuth accounts with provider and email
+  - AlertDialog confirmation before unlinking
+  - Minimum account protection (prevents unlinking last account)
+  - Real-time account list refresh after unlink
+  - Integrates with Better Auth account unlinking
+  - Full localization support
+  - Customizable via callbacks: `onSuccess`, `onError`
+
+#### UI Components
+- **RadioGroup**: Radix UI radio group primitive
+  - Added as dependency for PasskeySetupWizard
+  - Uses @radix-ui/react-radio-group v1.3.8
+  - Consistent with design system styling
+- **AlertDialog**: Radix UI alert dialog primitive
+  - Added for UnlinkAccountCard confirmation
+  - Uses @radix-ui/react-alert-dialog v1.1.15
+  - Consistent with design system styling
+
+### Changed
+- Simplified export pattern: Components with inline `classNames` no longer export ClassNames types
+- `AnonymousUpgradeCard` now exports only `Props` (removed ClassNames and Localization exports)
+- Consistent with library-wide pattern: only complex components with nested structures export ClassNames
+
+### Fixed
+- Alert component border color now explicitly uses `border-border` design token
+- Removed hardcoded blue colors from all components
+- All components now use design system tokens exclusively
+
+### Categories at 100%
+- **Organizations**: 17/17 components (TransferOwnershipDialog completed)
+- **User Management**: 16/16 components (LinkAccountCard, UnlinkAccountCard completed)
+- **Billing**: 6/6 components
+- **Usage**: 4/4 components
+- **Team**: 4/4 components
+- **Web3**: 2/2 components
+- **Phone**: 3/3 components
+- **Security & Email**: 10/10 components
+
+### Progress
+- **Total Components**: 79/89 (89%)
+- **Remaining**: 10 components to reach 100%
+
 ## [0.3.3] - 2025-11-05
 
 ### Added
