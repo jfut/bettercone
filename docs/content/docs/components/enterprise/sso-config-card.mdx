@@ -1,0 +1,403 @@
+---
+title: SSO Config Card
+description: Configure OIDC and SAML 2.0 SSO providers for enterprise authentication
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+## Overview
+
+Comprehensive interface for configuring enterprise Single Sign-On (SSO) using OIDC (OpenID Connect) or SAML 2.0 protocols.
+
+## Features
+
+- ✅ **OIDC Support** - Full OpenID Connect provider configuration
+- ✅ **SAML 2.0 Support** - Complete SAML setup with metadata
+- ✅ **Attribute Mapping** - Map claims/attributes to user model
+- ✅ **Auto-fetch** - Load provider data from Better Auth
+- ✅ **Advanced Settings** - PKCE, signature algorithms, certificate validation
+
+## Installation
+
+```bash
+npm install @bettercone/ui
+```
+
+## Usage
+
+<Tabs items={['Auto-fetch', 'Custom Client', 'Direct Data']}>
+  <Tab value="Auto-fetch">
+    ```tsx
+    import { SSOConfigCard } from '@bettercone/ui'
+
+    export default function SSOSettings() {
+      return (
+        <SSOConfigCard
+          providerId="acme-corp-okta"
+          onSuccess={(provider) => console.log('Saved:', provider)}
+          showActions={true}
+          allowDelete={true}
+        />
+      )
+    }
+    ```
+  </Tab>
+
+  <Tab value="Custom Client">
+    ```tsx
+    import { SSOConfigCard } from '@bettercone/ui'
+    import { authClient } from '@/lib/auth-client'
+
+    export default function SSOSettings() {
+      return (
+        <SSOConfigCard
+          authClient={authClient}
+          providerId="enterprise-azure-ad"
+          onSuccess={(provider) => console.log('Saved:', provider)}
+        />
+      )
+    }
+    ```
+  </Tab>
+
+  <Tab value="Direct Data">
+    ```tsx
+    import { SSOConfigCard } from '@bettercone/ui'
+
+    const provider = {
+      id: "sso_okta_001",
+      providerId: "acme-corp-okta",
+      issuer: "https://dev-12345678.okta.com",
+      domain: "acmecorp.com",
+      oidcConfig: {
+        clientId: "0oa2a3b4c5d6e7f8g9h0",
+        clientSecret: "your-client-secret",
+        authorizationEndpoint: "https://dev-12345678.okta.com/oauth2/v1/authorize",
+        tokenEndpoint: "https://dev-12345678.okta.com/oauth2/v1/token",
+        jwksEndpoint: "https://dev-12345678.okta.com/oauth2/v1/keys",
+        scopes: ["openid", "email", "profile"],
+        pkce: true,
+      },
+    }
+
+    <SSOConfigCard data={provider} />
+    ```
+  </Tab>
+</Tabs>
+
+## OIDC Configuration
+
+<Callout type="info">
+  For Google, Okta, Auth0, Azure AD with OIDC, etc.
+</Callout>
+
+```tsx
+<SSOConfigCard
+  data={{
+    id: "sso_google_001",
+    providerId: "workspace-google",
+    issuer: "https://accounts.google.com",
+    oidcConfig: {
+      clientId: "123456...apps.googleusercontent.com",
+      clientSecret: "GOCSPX-...",
+      authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+      tokenEndpoint: "https://oauth2.googleapis.com/token",
+      jwksEndpoint: "https://www.googleapis.com/oauth2/v3/certs",
+      scopes: ["openid", "email", "profile"],
+      pkce: true,
+      mapping: {
+        id: "sub",
+        email: "email",
+        name: "name",
+        image: "picture",
+      },
+    },
+  }}
+/>
+```
+
+### OIDC Fields
+
+- `clientId` - OAuth 2.0 client ID from IdP
+- `clientSecret` - OAuth 2.0 client secret
+- `authorizationEndpoint` - Authorization URL
+- `tokenEndpoint` - Token exchange endpoint
+- `jwksEndpoint` - JSON Web Key Set URL
+- `discoveryEndpoint` - .well-known/openid-configuration
+- `scopes` - Requested scopes (openid, email, profile)
+- `pkce` - Enable PKCE (recommended)
+
+## SAML 2.0 Configuration
+
+<Callout type="info">
+  For Azure AD SAML, Okta SAML, OneLogin, etc.
+</Callout>
+
+```tsx
+<SSOConfigCard
+  data={{
+    id: "sso_azure_002",
+    providerId: "enterprise-azure-ad",
+    samlConfig: {
+      entryPoint: "https://login.microsoftonline.com/tenant-id/saml2",
+      cert: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+      callbackUrl: "https://yourapp.com/api/auth/sso/saml2/callback",
+      audience: "https://yourapp.com",
+      wantAssertionsSigned: true,
+      signatureAlgorithm: "sha256",
+      mapping: {
+        id: "nameID",
+        email: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+        name: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+      },
+    },
+  }}
+/>
+```
+
+### SAML Fields
+
+- `entryPoint` - IdP's SAML SSO URL
+- `cert` - X.509 certificate (PEM format)
+- `callbackUrl` - Your ACS URL
+- `audience` - Expected audience / entity ID
+- `wantAssertionsSigned` - Require signed assertions
+- `signatureAlgorithm` - sha1 | sha256 | sha512
+- `identifierFormat` - NameID format
+
+## Attribute Mapping
+
+<Callout type="warn">
+  Map **claim/attribute names**, not values. E.g., "email" → "email" claim in ID token.
+</Callout>
+
+### Standard Fields
+
+- `id` - Unique identifier (OIDC: "sub", SAML: "nameID")
+- `email` - Email address
+- `emailVerified` - Email verification status
+- `name` - Full name
+- `firstName` / `lastName` - Given/family names
+- `image` - Profile picture URL
+
+### Custom Fields
+
+```tsx
+mapping: {
+  id: "sub",
+  email: "email",
+  extraFields: {
+    department: "department",
+    employeeId: "employee_id",
+    companyId: "https://acme.com/claims/company",
+  }
+}
+```
+
+## Props
+
+```typescript
+interface SSOConfigCardProps {
+  authClient?: object
+  providerId?: string
+  data?: SSOProvider
+  onSuccess?: (provider: SSOProvider) => void
+  onError?: (error: Error) => void
+  showActions?: boolean
+  allowDelete?: boolean
+  className?: string
+}
+```
+
+## Types
+
+```typescript
+interface SSOProvider {
+  id: string
+  providerId: string
+  issuer?: string
+  domain?: string
+  organizationId?: string
+  oidcConfig?: OIDCConfig
+  samlConfig?: SAMLConfig
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+interface OIDCConfig {
+  clientId: string
+  clientSecret?: string
+  authorizationEndpoint: string
+  tokenEndpoint: string
+  jwksEndpoint?: string
+  scopes?: string[]
+  pkce?: boolean
+  mapping?: AttributeMapping
+}
+
+interface SAMLConfig {
+  entryPoint: string
+  cert: string
+  callbackUrl: string
+  audience?: string
+  wantAssertionsSigned?: boolean
+  signatureAlgorithm?: 'sha1' | 'sha256' | 'sha512'
+  identifierFormat?: string
+  mapping?: AttributeMapping
+}
+```
+
+## Integration Modes
+
+### Auto-fetch Mode
+
+```tsx
+<SSOConfigCard providerId="my-provider" />
+```
+
+### Custom authClient Mode
+
+```tsx
+import { authClient } from '@/lib/auth-client'
+
+<SSOConfigCard authClient={authClient} providerId="my-provider" />
+```
+
+### Data Prop Mode
+
+```tsx
+<SSOConfigCard 
+  data={myProviderData}
+  onSuccess={async (updated) => {
+    await fetch('/api/sso/providers', {
+      method: 'PUT',
+      body: JSON.stringify(updated),
+    })
+  }}
+/>
+```
+
+## Better Auth Setup
+
+<Tabs items={['Server', 'Client']}>
+  <Tab value="Server">
+    ```ts
+    import { betterAuth } from 'better-auth'
+    import { sso } from 'better-auth/plugins'
+
+    export const auth = betterAuth({
+      plugins: [
+        sso({
+          providers: {
+            // Providers registered dynamically
+          },
+        }),
+      ],
+    })
+    ```
+  </Tab>
+
+  <Tab value="Client">
+    ```ts
+    import { createAuthClient } from 'better-auth/client'
+    import { ssoClient } from 'better-auth/client/plugins'
+
+    export const authClient = createAuthClient({
+      plugins: [ssoClient()],
+    })
+    ```
+  </Tab>
+</Tabs>
+
+## Common Patterns
+
+### Admin SSO Management
+
+```tsx
+export default function AdminSSOPage() {
+  const [providers, setProviders] = useState<string[]>([])
+  
+  return (
+    <div className="space-y-6">
+      {providers.map((providerId) => (
+        <SSOConfigCard
+          key={providerId}
+          providerId={providerId}
+          allowDelete={true}
+        />
+      ))}
+    </div>
+  )
+}
+```
+
+### Organization-scoped SSO
+
+```tsx
+<SSOConfigCard
+  data={{
+    ...providerData,
+    organizationId: currentOrg.id,
+  }}
+  onSuccess={async (provider) => {
+    await fetch(`/api/orgs/${currentOrg.id}/sso`, {
+      method: 'PUT',
+      body: JSON.stringify(provider),
+    })
+  }}
+/>
+```
+
+### Read-only View
+
+```tsx
+<SSOConfigCard
+  data={existingProvider}
+  showActions={false}
+  allowDelete={false}
+/>
+```
+
+## Security Notes
+
+<Callout type="error">
+  **Never expose client secrets in client-side code!** Use environment variables or secret management services.
+</Callout>
+
+**Best Practices:**
+- Store client secrets securely
+- Validate SAML certificates
+- Always enable PKCE for OIDC
+- Use HTTPS for all endpoints
+- Verify SAML audience matches entity ID
+
+## Troubleshooting
+
+### Provider data doesn't load
+- Verify `providerId` exists
+- Check Better Auth SSO plugin is configured
+- Ensure authClient has access
+
+### OIDC authentication fails
+- Verify endpoints (authorization, token, jwks)
+- Include "openid" in scopes
+- Match redirect URI to callback URL
+- Enable PKCE
+
+### SAML authentication fails
+- Validate certificate PEM format
+- Match signature/digest algorithms with IdP
+- Verify callback URL = ACS endpoint
+- Check NameID format matches IdP
+
+## Related Components
+
+- [SAMLSetupWizard](/docs/components/enterprise/saml-setup-wizard) - Guided SAML setup
+- [OIDCProviderCard](/docs/components/enterprise/oidc-provider-card) - OAuth2/OIDC provider management
+
+## Resources
+
+- [Better Auth SSO Plugin](https://better-auth.com/docs/plugins/sso)
+- [OIDC Specification](https://openid.net/connect/)
+- [SAML 2.0 Specification](http://docs.oasis-open.org/security/saml/v2.0/)

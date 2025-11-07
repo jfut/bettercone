@@ -102,6 +102,11 @@ export const componentsByCategory = {
     { name: "StorageUsageCard", description: "Storage usage metrics", slug: "storage-usage-card" },
     { name: "FeatureAccessCard", description: "Feature access based on plan", slug: "feature-access-card" },
   ],
+  "Enterprise SSO": [
+    { name: "SSOConfigCard", description: "Configure SAML and OIDC SSO providers", slug: "sso-config-card" },
+    { name: "SAMLSetupWizard", description: "Step-by-step SAML 2.0 setup wizard", slug: "saml-setup-wizard" },
+    { name: "OIDCProviderCard", description: "OAuth2/OIDC client application management", slug: "oidc-provider-card" },
+  ],
 };
 
 // Generate usage example for each component

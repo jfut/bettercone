@@ -10,7 +10,7 @@ import { allComponentsMap } from "@/lib/components-data";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import dynamic from "next/dynamic";
 import { Component as ReactComponent, ErrorInfo, ReactNode } from "react";
-import { MockDataProvider, mockPricingPlans, mockUsage, mockSeatAllocation, mockOrganization, mockSubscription, mockFeatures, mockAdminUsers } from "@/lib/mock-data";
+import { MockDataProvider, mockPricingPlans, mockUsage, mockSeatAllocation, mockOrganization, mockSubscription, mockFeatures, mockAdminUsers, mockSSOProviders, mockOAuth2Clients } from "@/lib/mock-data";
 import { MockAuthUIProvider } from "@/components/mock-auth-provider";
 import { mockAuthClient } from "@/lib/mock-auth-provider";
 
@@ -257,6 +257,41 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
     componentProps.autoPoll = false; // Disable polling in showcase
     componentProps.onSuccess = () => console.log('Authorization successful!');
     componentProps.onExpired = () => console.log('Code expired');
+  }
+
+  // SSOConfigCard needs SSO provider data
+  if (componentName === 'SSOConfigCard') {
+    // Toggle between OIDC (index 0) and SAML (index 1) providers
+    // You can change this index to test different provider types:
+    // 0 = Okta (OIDC), 1 = Azure AD (SAML), 2 = Google (OIDC)
+    const providerIndex = 1; // Set to 1 to show SAML example
+    const mockProvider = mockSSOProviders[providerIndex];
+    
+    componentProps.data = mockProvider;
+    componentProps.onSuccess = (provider: unknown) => console.log('SSO provider saved:', provider);
+    componentProps.onError = (error: Error) => console.error('SSO error:', error);
+    componentProps.showActions = true;
+    componentProps.allowDelete = true;
+  }
+
+  // SAMLSetupWizard needs callbacks
+  if (componentName === 'SAMLSetupWizard') {
+    componentProps.onSuccess = (config: unknown) => console.log('SAML setup complete:', config);
+    componentProps.onError = (error: Error) => console.error('SAML setup error:', error);
+    componentProps.onCancel = () => console.log('SAML setup cancelled');
+    componentProps.organizationId = mockOrganization.id;
+  }
+
+  // OIDCProviderCard needs OAuth2 client data
+  if (componentName === 'OIDCProviderCard') {
+    componentProps.clients = mockOAuth2Clients;
+    componentProps.onClientRegistered = (client: unknown) => console.log('OAuth2 client registered:', client);
+    componentProps.onClientUpdated = (client: unknown) => console.log('OAuth2 client updated:', client);
+    componentProps.onClientDeleted = (clientId: string) => console.log('OAuth2 client deleted:', clientId);
+    componentProps.onError = (error: Error) => console.error('OAuth2 error:', error);
+    componentProps.allowRegistration = true;
+    componentProps.showActiveTokens = false; // Disable for demo
+    componentProps.showTrustedClients = false; // Disable for demo
   }
 
   return (

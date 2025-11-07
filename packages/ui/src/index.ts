@@ -28,6 +28,7 @@ export { Badge, badgeVariants } from "./components/ui/badge";
 export { Skeleton } from "./components/ui/skeleton";
 export { Progress } from "./components/ui/progress";
 export { Separator } from "./components/ui/separator";
+export { Stepper, type StepperProps, type Step } from "./components/ui/stepper";
 export { UserView, type UserViewProps, type UserViewClassNames } from "./components/ui/user-view";
 
 export {
@@ -272,6 +273,35 @@ export type {
   WalletConnectionCardProps,
   WalletConnectionCardClassNames
 } from "./components/web3/wallet-connection-card";
+
+// ============================================================================
+// Enterprise SSO Components
+// ============================================================================
+export { SSOConfigCard } from "./components/enterprise/sso-config-card";
+export type {
+  SSOConfigCardProps,
+  SSOProvider,
+  OIDCConfig,
+  SAMLConfig,
+  AttributeMapping,
+  IDPMetadata,
+  SPMetadata
+} from "./components/enterprise/sso-config-card";
+
+export { SAMLSetupWizard } from "./components/enterprise/saml-setup-wizard";
+export type {
+  SAMLSetupWizardProps,
+  SAMLConfiguration,
+  SAMLAttributeMapping
+} from "./components/enterprise/saml-setup-wizard";
+
+export { OIDCProviderCard } from "./components/enterprise/oidc-provider-card";
+export type {
+  OIDCProviderCardProps,
+  OAuth2Client,
+  OAuth2AccessToken,
+  ClientRegistrationData
+} from "./components/enterprise/oidc-provider-card";
 
 // ============================================================================
 // Hooks

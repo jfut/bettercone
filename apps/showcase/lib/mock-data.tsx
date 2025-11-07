@@ -793,7 +793,6 @@ export const mockAccounts = [
   },
 ];
 
-// Mock wallet connections (Web3/SIWE)
 export const mockWalletConnections = [
   {
     id: "wallet_1",
@@ -810,6 +809,210 @@ export const mockWalletConnections = [
     chainId: 137, // Polygon
     isPrimary: false,
     createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+  },
+];
+
+// Mock SSO Providers
+export const mockSSOProviders = [
+  {
+    id: "sso_okta_001",
+    providerId: "acme-corp-okta",
+    issuer: "https://dev-12345678.okta.com",
+    domain: "acmecorp.com",
+    organizationId: "org_acme_corp",
+    oidcConfig: {
+      clientId: "0oa2a3b4c5d6e7f8g9h0",
+      clientSecret: "***HIDDEN***",
+      authorizationEndpoint: "https://dev-12345678.okta.com/oauth2/v1/authorize",
+      tokenEndpoint: "https://dev-12345678.okta.com/oauth2/v1/token",
+      jwksEndpoint: "https://dev-12345678.okta.com/oauth2/v1/keys",
+      discoveryEndpoint: "https://dev-12345678.okta.com/.well-known/openid-configuration",
+      scopes: ["openid", "email", "profile", "groups"],
+      pkce: true,
+      mapping: {
+        id: "sub",
+        email: "email",
+        emailVerified: "email_verified",
+        name: "name",
+        firstName: "given_name",
+        lastName: "family_name",
+        image: "picture",
+        extraFields: {
+          department: "department",
+          employeeId: "employee_id",
+        },
+      },
+    },
+    createdAt: new Date("2024-01-15"),
+    updatedAt: new Date("2024-10-20"),
+  },
+  {
+    id: "sso_azure_002",
+    providerId: "enterprise-azure-ad",
+    issuer: "https://login.microsoftonline.com/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    domain: "enterprise.com",
+    organizationId: "org_enterprise",
+    samlConfig: {
+      entryPoint: "https://login.microsoftonline.com/a1b2c3d4-e5f6-7890-abcd-ef1234567890/saml2",
+      cert: "-----BEGIN CERTIFICATE-----\nMIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n-----END CERTIFICATE-----",
+      callbackUrl: "https://yourapp.com/api/auth/sso/saml2/callback/enterprise-azure-ad",
+      audience: "https://yourapp.com",
+      wantAssertionsSigned: true,
+      signatureAlgorithm: "sha256",
+      digestAlgorithm: "sha256",
+      identifierFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+      mapping: {
+        id: "nameID",
+        email: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+        name: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+        firstName: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname",
+        lastName: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname",
+        extraFields: {
+          department: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/department",
+        },
+      },
+    },
+    createdAt: new Date("2024-02-01"),
+    updatedAt: new Date("2024-11-05"),
+  },
+  {
+    id: "sso_google_003",
+    providerId: "workspace-google",
+    issuer: "https://accounts.google.com",
+    domain: "workspace.example.com",
+    oidcConfig: {
+      clientId: "123456789012-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com",
+      clientSecret: "***HIDDEN***",
+      authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+      tokenEndpoint: "https://oauth2.googleapis.com/token",
+      jwksEndpoint: "https://www.googleapis.com/oauth2/v3/certs",
+      discoveryEndpoint: "https://accounts.google.com/.well-known/openid-configuration",
+      scopes: ["openid", "email", "profile"],
+      pkce: true,
+      mapping: {
+        id: "sub",
+        email: "email",
+        emailVerified: "email_verified",
+        name: "name",
+        image: "picture",
+      },
+    },
+    createdAt: new Date("2024-03-10"),
+    updatedAt: new Date("2024-10-28"),
+  },
+];
+
+// Mock OAuth2 Clients (Better Auth Schema Format)
+export const mockOAuth2Clients = [
+  {
+    id: "client_web_001",
+    clientId: "web_app_1a2b3c4d5e6f",
+    clientSecret: "secret_demo_9z8y7x6w5v4u3t2s1r0q",
+    name: "Production Web Application",
+    type: "web",
+    redirectURLs: [
+      "https://myapp.com/api/auth/callback",
+      "https://myapp.com/auth/success",
+    ],
+    disabled: false,
+    userId: "user_demo_123",
+    createdAt: new Date("2024-08-15"),
+    updatedAt: new Date("2024-11-01"),
+    // Metadata stored in Better Auth format
+    metadata: JSON.stringify({
+      client_uri: "https://myapp.com",
+      logo_uri: "https://myapp.com/logo.png",
+      tos_uri: "https://myapp.com/terms",
+      policy_uri: "https://myapp.com/privacy",
+      contacts: ["admin@myapp.com", "security@myapp.com"],
+      grant_types: ["authorization_code", "refresh_token"],
+      response_types: ["code"],
+      token_endpoint_auth_method: "client_secret_basic",
+      scope: "openid email profile",
+    }),
+  },
+  {
+    id: "client_spa_002",
+    clientId: "spa_dashboard_7g8h9i0j1k2l",
+    name: "React Admin Dashboard",
+    type: "spa",
+    redirectURLs: [
+      "http://localhost:3000/callback",
+      "https://dashboard.myapp.com/callback",
+    ],
+    disabled: false,
+    userId: "user_demo_123",
+    createdAt: new Date("2024-09-20"),
+    updatedAt: new Date("2024-10-15"),
+    metadata: JSON.stringify({
+      client_uri: "https://dashboard.myapp.com",
+      logo_uri: "https://dashboard.myapp.com/icon.png",
+      grant_types: ["authorization_code"],
+      response_types: ["code"],
+      token_endpoint_auth_method: "none",
+      scope: "openid email profile",
+    }),
+  },
+  {
+    id: "client_native_003",
+    clientId: "mobile_ios_3m4n5o6p7q8r",
+    name: "iOS Mobile App",
+    type: "native",
+    redirectURLs: [
+      "myapp://oauth/callback",
+      "com.mycompany.myapp://oauth/callback",
+    ],
+    disabled: false,
+    userId: "user_demo_456",
+    createdAt: new Date("2024-10-01"),
+    updatedAt: new Date("2024-11-03"),
+    metadata: JSON.stringify({
+      client_uri: "https://apps.apple.com/app/myapp",
+      policy_uri: "https://myapp.com/mobile/privacy",
+      grant_types: ["authorization_code", "refresh_token"],
+      response_types: ["code"],
+      token_endpoint_auth_method: "none",
+      scope: "openid email profile offline_access",
+    }),
+  },
+  {
+    id: "client_m2m_004",
+    clientId: "service_analytics_9s0t1u2v3w4x",
+    clientSecret: "sk_service_5y6z7a8b9c0d1e2f",
+    name: "Analytics Service",
+    type: "m2m",
+    redirectURLs: [],
+    disabled: false,
+    userId: "user_demo_123",
+    createdAt: new Date("2024-07-10"),
+    updatedAt: new Date("2024-10-25"),
+    metadata: JSON.stringify({
+      contacts: ["devops@myapp.com"],
+      grant_types: ["client_credentials"],
+      response_types: [],
+      token_endpoint_auth_method: "client_secret_post",
+      scope: "analytics:read analytics:write",
+    }),
+  },
+  {
+    id: "client_disabled_005",
+    clientId: "old_app_4x5y6z7a8b9c",
+    clientSecret: "sk_old_0d1e2f3g4h5i6j7k",
+    name: "Legacy Application (Disabled)",
+    type: "web",
+    redirectURLs: [
+      "https://old.myapp.com/callback",
+    ],
+    disabled: true,
+    userId: "user_demo_789",
+    createdAt: new Date("2023-05-20"),
+    updatedAt: new Date("2024-09-15"),
+    metadata: JSON.stringify({
+      grant_types: ["authorization_code", "refresh_token"],
+      response_types: ["code"],
+      token_endpoint_auth_method: "client_secret_basic",
+      scope: "openid email",
+    }),
   },
 ];
 
@@ -839,6 +1042,8 @@ interface MockDataContextType {
   activityLog: typeof mockActivityLog;
   accounts: typeof mockAccounts;
   walletConnections: typeof mockWalletConnections;
+  ssoProviders: typeof mockSSOProviders;
+  oauth2Clients: typeof mockOAuth2Clients;
 }
 
 const MockDataContext = createContext<MockDataContextType | null>(null);
@@ -869,6 +1074,8 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
     activityLog: mockActivityLog,
     accounts: mockAccounts,
     walletConnections: mockWalletConnections,
+    ssoProviders: mockSSOProviders,
+    oauth2Clients: mockOAuth2Clients,
   };
 
   return (
@@ -912,5 +1119,6 @@ export const mockData = {
   activityLog: mockActivityLog,
   accounts: mockAccounts,
   walletConnections: mockWalletConnections,
+  ssoProviders: mockSSOProviders,
 };
 

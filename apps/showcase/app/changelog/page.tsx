@@ -8,6 +8,54 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.3.7",
+    date: "2025-11-07",
+    title: "🎉 Complete Better Auth Coverage - Enterprise SSO & OIDC Provider",
+    type: "feature",
+    changes: [
+      {
+        category: "New Components",
+        items: [
+          "SSOConfigCard - Complete OIDC & SAML SSO configuration for enterprise customers",
+          "SAMLSetupWizard - Guided 5-step SAML setup wizard with IdP presets",
+          "OIDCProviderCard - OAuth2/OIDC Provider client application management (RFC 7591)",
+        ],
+      },
+      {
+        category: "Features",
+        items: [
+          "Full OIDC (OpenID Connect) SSO configuration",
+          "Complete SAML 2.0 SSO setup with metadata parsing",
+          "OAuth2/OIDC Provider - manage client applications",
+          "Dynamic client registration (RFC 7591 compliant)",
+          "Support for Azure AD, Okta, Google Workspace, OneLogin, Auth0, JumpCloud",
+          "XML metadata auto-parsing for SAML",
+          "Attribute mapping for OIDC claims and SAML assertions",
+          "Client types: web, SPA, native, machine-to-machine",
+          "One-time secret display for OAuth2 clients",
+          "Connection testing before completion",
+        ],
+      },
+      {
+        category: "Documentation",
+        items: [
+          "Streamlined enterprise component docs (49% reduction in length)",
+          "Comprehensive setup guides for all major IdPs",
+          "RFC 7591 and SAML 2.0 specification references",
+          "Better Auth SSO and OIDC Provider plugin integration guides",
+        ],
+      },
+      {
+        category: "Milestone",
+        items: [
+          "🎉 100% Better Auth coverage achieved",
+          "All Better Auth plugins fully implemented",
+          "Complete authentication, security, billing, and enterprise features",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.3.6",
     date: "2024-11-06",
     title: "Device Authorization Components",

@@ -1,0 +1,8 @@
+{
+  "title": "Enterprise SSO",
+  "pages": [
+    "sso-config-card",
+    "saml-setup-wizard",
+    "oidc-provider-card"
+  ]
+}

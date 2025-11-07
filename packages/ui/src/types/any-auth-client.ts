@@ -275,5 +275,317 @@ export interface AnyAuthClient {
             error?: any
         }>
     }
+
+    /**
+     * SSO (Single Sign-On) (optional)
+     * Available when using @better-auth/sso plugin
+     * Supports OIDC, OAuth2, and SAML 2.0 providers
+     * @see https://www.better-auth.com/docs/plugins/sso
+     */
+    sso?: {
+        /**
+         * Register a new SSO provider (OIDC or SAML)
+         */
+        register: (params: {
+            providerId: string
+            issuer: string
+            domain: string
+            organizationId?: string
+            oidcConfig?: {
+                clientId: string
+                clientSecret: string
+                authorizationEndpoint: string
+                tokenEndpoint: string
+                jwksEndpoint?: string
+                discoveryEndpoint?: string
+                scopes?: string[]
+                pkce?: boolean
+                mapping?: {
+                    id?: string
+                    email?: string
+                    emailVerified?: string
+                    name?: string
+                    image?: string
+                    extraFields?: Record<string, string>
+                }
+            }
+            samlConfig?: {
+                entryPoint: string
+                cert: string
+                callbackUrl: string
+                audience?: string
+                wantAssertionsSigned?: boolean
+                signatureAlgorithm?: string
+                digestAlgorithm?: string
+                identifierFormat?: string
+                idpMetadata?: {
+                    metadata: string
+                    privateKey?: string
+                    privateKeyPass?: string
+                    isAssertionEncrypted?: boolean
+                    encPrivateKey?: string
+                    encPrivateKeyPass?: string
+                }
+                spMetadata?: {
+                    metadata: string
+                    binding?: string
+                    privateKey?: string
+                    privateKeyPass?: string
+                    isAssertionEncrypted?: boolean
+                    encPrivateKey?: string
+                    encPrivateKeyPass?: string
+                }
+                mapping?: {
+                    id?: string
+                    email?: string
+                    name?: string
+                    firstName?: string
+                    lastName?: string
+                    emailVerified?: string
+                    extraFields?: Record<string, string>
+                }
+            }
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * List registered SSO providers
+         */
+        listProviders: (params?: {
+            domain?: string
+            organizationId?: string
+        }) => Promise<{
+            data?: Array<{
+                id: string
+                providerId: string
+                issuer: string
+                domain: string
+                organizationId?: string
+                userId: string
+            }>
+            error?: any
+        }>
+        
+        /**
+         * Get SSO provider details
+         */
+        getProvider: (params: {
+            providerId: string
+        }) => Promise<{
+            data?: {
+                id: string
+                providerId: string
+                issuer: string
+                domain: string
+                oidcConfig?: any
+                samlConfig?: any
+                organizationId?: string
+            }
+            error?: any
+        }>
+        
+        /**
+         * Update SSO provider
+         */
+        updateProvider: (params: {
+            providerId: string
+            issuer?: string
+            domain?: string
+            oidcConfig?: any
+            samlConfig?: any
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Delete SSO provider
+         */
+        deleteProvider: (params: {
+            providerId: string
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Test SSO connection
+         */
+        testConnection: (params: {
+            providerId: string
+        }) => Promise<{
+            data?: {
+                success: boolean
+                message?: string
+            }
+            error?: any
+        }>
+        
+        /**
+         * Get SAML Service Provider metadata
+         */
+        spMetadata: (params: {
+            providerId: string
+            format?: "xml" | "json"
+        }) => Promise<{
+            data?: string | any
+            error?: any
+        }>
+    }
+
+    /**
+     * OAuth2 / OIDC Provider (optional)
+     * Available when using better-auth/plugins oidcProvider
+     * Allows your app to act as an OAuth2/OIDC provider
+     * @see https://www.better-auth.com/docs/plugins/oidc-provider
+     */
+    oauth2?: {
+        /**
+         * Register a new OAuth2/OIDC client application
+         * Supports RFC7591 compliant dynamic client registration
+         */
+        register: (params: {
+            redirect_uris: string[]
+            token_endpoint_auth_method?: "none" | "client_secret_basic" | "client_secret_post"
+            grant_types?: Array<
+                | "authorization_code"
+                | "implicit"
+                | "password"
+                | "client_credentials"
+                | "refresh_token"
+                | "urn:ietf:params:oauth:grant-type:jwt-bearer"
+                | "urn:ietf:params:oauth:grant-type:saml2-bearer"
+            >
+            response_types?: Array<"code" | "token">
+            client_name?: string
+            client_uri?: string
+            logo_uri?: string
+            scope?: string
+            contacts?: string[]
+            tos_uri?: string
+            policy_uri?: string
+            jwks_uri?: string
+            jwks?: Record<string, any>
+        }) => Promise<{
+            data?: {
+                client_id: string
+                client_secret?: string
+                client_name?: string
+                redirect_uris: string[]
+                grant_types?: string[]
+                response_types?: string[]
+                token_endpoint_auth_method?: string
+            }
+            error?: any
+        }>
+        
+        /**
+         * List registered OAuth2 clients
+         */
+        listClients: () => Promise<{
+            data?: Array<{
+                id: string
+                clientId: string
+                name: string
+                type: string
+                redirectURLs: string[]
+                disabled: boolean
+                createdAt: Date
+            }>
+            error?: any
+        }>
+        
+        /**
+         * Get OAuth2 client details
+         */
+        getClient: (params: {
+            clientId: string
+        }) => Promise<{
+            data?: {
+                id: string
+                clientId: string
+                name: string
+                type: string
+                redirectURLs: string[]
+                metadata?: any
+                disabled: boolean
+            }
+            error?: any
+        }>
+        
+        /**
+         * Update OAuth2 client
+         */
+        updateClient: (params: {
+            clientId: string
+            name?: string
+            redirectURLs?: string[]
+            disabled?: boolean
+            metadata?: any
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Delete OAuth2 client
+         */
+        deleteClient: (params: {
+            clientId: string
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Revoke OAuth2 client (disable without deletion)
+         */
+        revokeClient: (params: {
+            clientId: string
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+        
+        /**
+         * Handle OAuth2 consent
+         * Accept or deny authorization request
+         */
+        consent: (params: {
+            accept: boolean
+            consent_code?: string
+        }) => Promise<{
+            data?: {
+                redirect_uri?: string
+            }
+            error?: any
+        }>
+        
+        /**
+         * List active OAuth2 access tokens for current user
+         */
+        listTokens: () => Promise<{
+            data?: Array<{
+                id: string
+                clientId: string
+                scopes: string[]
+                accessTokenExpiresAt: Date
+                createdAt: Date
+            }>
+            error?: any
+        }>
+        
+        /**
+         * Revoke OAuth2 access token
+         */
+        revokeToken: (params: {
+            tokenId: string
+        }) => Promise<{
+            data?: any
+            error?: any
+        }>
+    }
 }
 

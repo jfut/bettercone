@@ -840,6 +840,208 @@ export const authLocalization = {
     /** @default "Access denied" */
     DEVICE_ACCESS_DENIED: "Access denied",
 
+    // SSO Configuration
+    /** @default "SSO Configuration" */
+    SSO_CONFIG: "SSO Configuration",
+
+    /** @default "Configure SAML and OIDC single sign-on for your organization" */
+    SSO_CONFIG_DESCRIPTION: "Configure SAML and OIDC single sign-on for your organization",
+
+    /** @default "Provider Type" */
+    SSO_PROVIDER_TYPE: "Provider Type",
+
+    /** @default "OIDC (OpenID Connect)" */
+    SSO_TYPE_OIDC: "OIDC (OpenID Connect)",
+
+    /** @default "SAML 2.0" */
+    SSO_TYPE_SAML: "SAML 2.0",
+
+    /** @default "Provider ID" */
+    SSO_PROVIDER_ID: "Provider ID",
+
+    /** @default "Unique identifier for this SSO provider" */
+    SSO_PROVIDER_ID_DESCRIPTION: "Unique identifier for this SSO provider",
+
+    /** @default "my-company-sso" */
+    SSO_PROVIDER_ID_PLACEHOLDER: "my-company-sso",
+
+    /** @default "Issuer" */
+    SSO_ISSUER: "Issuer",
+
+    /** @default "Identity provider issuer URL" */
+    SSO_ISSUER_DESCRIPTION: "Identity provider issuer URL",
+
+    /** @default "https://idp.example.com" */
+    SSO_ISSUER_PLACEHOLDER: "https://idp.example.com",
+
+    /** @default "Domain" */
+    SSO_DOMAIN: "Domain",
+
+    /** @default "Email domain for automatic provider matching" */
+    SSO_DOMAIN_DESCRIPTION: "Email domain for automatic provider matching",
+
+    /** @default "example.com" */
+    SSO_DOMAIN_PLACEHOLDER: "example.com",
+
+    /** @default "Organization" */
+    SSO_ORGANIZATION: "Organization",
+
+    /** @default "Link to organization (optional)" */
+    SSO_ORGANIZATION_DESCRIPTION: "Link to organization (optional)",
+
+    /** @default "OIDC Configuration" */
+    SSO_OIDC_CONFIG: "OIDC Configuration",
+
+    /** @default "Client ID" */
+    SSO_CLIENT_ID: "Client ID",
+
+    /** @default "Client Secret" */
+    SSO_CLIENT_SECRET: "Client Secret",
+
+    /** @default "Authorization Endpoint" */
+    SSO_AUTH_ENDPOINT: "Authorization Endpoint",
+
+    /** @default "Token Endpoint" */
+    SSO_TOKEN_ENDPOINT: "Token Endpoint",
+
+    /** @default "JWKS Endpoint" */
+    SSO_JWKS_ENDPOINT: "JWKS Endpoint",
+
+    /** @default "Discovery Endpoint" */
+    SSO_DISCOVERY_ENDPOINT: "Discovery Endpoint",
+
+    /** @default "Scopes" */
+    SSO_SCOPES: "Scopes",
+
+    /** @default "openid email profile" */
+    SSO_SCOPES_PLACEHOLDER: "openid email profile",
+
+    /** @default "Enable PKCE" */
+    SSO_PKCE_ENABLED: "Enable PKCE",
+
+    /** @default "Use PKCE for additional security" */
+    SSO_PKCE_DESCRIPTION: "Use PKCE for additional security",
+
+    /** @default "SAML Configuration" */
+    SSO_SAML_CONFIG: "SAML Configuration",
+
+    /** @default "Entry Point" */
+    SSO_SAML_ENTRY_POINT: "Entry Point",
+
+    /** @default "SAML SSO login URL" */
+    SSO_SAML_ENTRY_POINT_DESCRIPTION: "SAML SSO login URL",
+
+    /** @default "Certificate" */
+    SSO_SAML_CERT: "Certificate",
+
+    /** @default "IdP signing certificate (PEM format)" */
+    SSO_SAML_CERT_DESCRIPTION: "IdP signing certificate (PEM format)",
+
+    /** @default "Callback URL" */
+    SSO_CALLBACK_URL: "Callback URL",
+
+    /** @default "SAML assertion consumer service URL" */
+    SSO_CALLBACK_URL_DESCRIPTION: "SAML assertion consumer service URL",
+
+    /** @default "Entity ID / Audience" */
+    SSO_ENTITY_ID: "Entity ID / Audience",
+
+    /** @default "Service provider entity identifier" */
+    SSO_ENTITY_ID_DESCRIPTION: "Service provider entity identifier",
+
+    /** @default "IdP Metadata XML" */
+    SSO_IDP_METADATA: "IdP Metadata XML",
+
+    /** @default "Paste IdP metadata XML or upload file" */
+    SSO_IDP_METADATA_DESCRIPTION: "Paste IdP metadata XML or upload file",
+
+    /** @default "SP Metadata" */
+    SSO_SP_METADATA: "SP Metadata",
+
+    /** @default "Service Provider metadata for IdP configuration" */
+    SSO_SP_METADATA_DESCRIPTION: "Service Provider metadata for IdP configuration",
+
+    /** @default "Advanced Options" */
+    SSO_ADVANCED_OPTIONS: "Advanced Options",
+
+    /** @default "Show Advanced" */
+    SSO_SHOW_ADVANCED: "Show Advanced",
+
+    /** @default "Hide Advanced" */
+    SSO_HIDE_ADVANCED: "Hide Advanced",
+
+    /** @default "Attribute Mapping" */
+    SSO_ATTRIBUTE_MAPPING: "Attribute Mapping",
+
+    /** @default "Map SSO attributes to user fields" */
+    SSO_ATTRIBUTE_MAPPING_DESCRIPTION: "Map SSO attributes to user fields",
+
+    /** @default "User ID Attribute" */
+    SSO_MAP_ID: "User ID Attribute",
+
+    /** @default "Email Attribute" */
+    SSO_MAP_EMAIL: "Email Attribute",
+
+    /** @default "Name Attribute" */
+    SSO_MAP_NAME: "Name Attribute",
+
+    /** @default "First Name Attribute" */
+    SSO_MAP_FIRST_NAME: "First Name Attribute",
+
+    /** @default "Last Name Attribute" */
+    SSO_MAP_LAST_NAME: "Last Name Attribute",
+
+    /** @default "Email Verified Attribute" */
+    SSO_MAP_EMAIL_VERIFIED: "Email Verified Attribute",
+
+    /** @default "Profile Image Attribute" */
+    SSO_MAP_IMAGE: "Profile Image Attribute",
+
+    /** @default "Extra Fields (JSON)" */
+    SSO_EXTRA_FIELDS: "Extra Fields (JSON)",
+
+    /** @default "Map additional custom attributes as JSON" */
+    SSO_EXTRA_FIELDS_DESCRIPTION: "Map additional custom attributes as JSON",
+
+    /** @default "Test Connection" */
+    SSO_TEST_CONNECTION: "Test Connection",
+
+    /** @default "Testing..." */
+    SSO_TESTING: "Testing...",
+
+    /** @default "Connection successful!" */
+    SSO_TEST_SUCCESS: "Connection successful!",
+
+    /** @default "Connection failed" */
+    SSO_TEST_FAILED: "Connection failed",
+
+    /** @default "Copy SP Metadata" */
+    SSO_COPY_SP_METADATA: "Copy SP Metadata",
+
+    /** @default "Fetch SP Metadata" */
+    SSO_FETCH_SP_METADATA: "Fetch SP Metadata",
+
+    /** @default "SSO provider created successfully" */
+    SSO_PROVIDER_CREATED: "SSO provider created successfully",
+
+    /** @default "SSO provider updated successfully" */
+    SSO_PROVIDER_UPDATED: "SSO provider updated successfully",
+
+    /** @default "SSO provider deleted successfully" */
+    SSO_PROVIDER_DELETED: "SSO provider deleted successfully",
+
+    /** @default "Delete SSO Provider" */
+    SSO_DELETE_PROVIDER: "Delete SSO Provider",
+
+    /** @default "Are you sure? This will remove SSO authentication for this provider." */
+    SSO_DELETE_CONFIRM: "Are you sure? This will remove SSO authentication for this provider.",
+
+    /** @default "Upload File" */
+    SSO_UPLOAD_FILE: "Upload File",
+
+    /** @default "Or paste metadata XML" */
+    SSO_PASTE_METADATA: "Or paste metadata XML",
+
     ...BASE_ERROR_CODES,
     ...ADMIN_ERROR_CODES,
     ...ANONYMOUS_ERROR_CODES,

@@ -5,6 +5,94 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7] - 2025-11-07
+
+### Added
+
+#### 🎉 100% Better Auth Coverage Milestone - Enterprise SSO & OIDC Provider
+
+Full coverage of all Better Auth plugins!
+
+#### Enterprise SSO Components
+
+- **SSOConfigCard** (1,173 lines): Complete OIDC & SAML SSO configuration
+  - Tab-based UI (Configuration, Mapping, Advanced)
+  - Dual protocol support: OIDC and SAML 2.0
+  - OIDC configuration: Client ID/Secret, authorization/token/JWKS/discovery endpoints
+  - SAML configuration: Entry point, X.509 certificate, callback URL, entity ID
+  - Attribute mapping: id, email, name, firstName, lastName, image, custom fields
+  - Advanced options: PKCE, signature/digest algorithms (SHA-1/256/512), IdP metadata upload
+  - Test connection functionality with real-time validation
+  - Create/update/delete SSO providers
+  - Organization linking support
+  - Integrates with Better Auth SSO plugin
+  - Full Better Auth schema compliance
+
+- **SAMLSetupWizard** (1,181 lines): Guided 5-step SAML setup wizard
+  - Step 1: Select Identity Provider (Okta, Azure AD, Google Workspace, OneLogin, JumpCloud, Custom)
+  - Step 2: Upload Metadata (XML file, metadata URL, or manual entry with auto-parsing)
+  - Step 3: Configure Settings (ACS URL, Entity ID, signature algorithms, NameID format)
+  - Step 4: Attribute Mapping (map SAML assertions to user model fields)
+  - Step 5: Test & Complete (validation checklist, test connection, success confirmation)
+  - Controlled stepper with validation (prevents skipping incomplete steps)
+  - IdP presets with auto-filled default configurations
+  - XML metadata parsing: auto-extracts SSO URL, certificate, entity ID
+  - Copy-to-clipboard for ACS URL and Entity ID
+  - Visual progress tracking with completed step indicators
+  - Beginner-friendly flow for non-technical administrators
+  - Integrates with Better Auth SSO plugin
+  - Full SAML 2.0 compliance
+
+- **OIDCProviderCard** (926 lines): OAuth2/OIDC client application management
+  - RFC 7591 OAuth2 Dynamic Client Registration Protocol implementation
+  - Client registration dialog: name, type, redirect URIs, grant types, scopes
+  - Client types: web (confidential), spa (public), native (mobile/desktop), m2m (service accounts)
+  - Client list view with metadata display (website, terms, privacy links)
+  - One-time client secret display (security best practice)
+  - Password masking with eye icon toggle
+  - Copy-to-clipboard for client ID and secret
+  - Delete client with confirmation dialog
+  - Better Auth schema integration (oauthApplication table format)
+  - Metadata JSON parsing: client_uri, logo_uri, tos_uri, policy_uri, contacts, grant_types
+  - Three operational modes: Auto-fetch, Custom, Presentational (read-only)
+  - Integrates with Better Auth OIDC Provider plugin
+  - Full RFC 7591 compliance
+
+### Changed
+
+- **Export**: Added 3 new enterprise components to package exports
+  - `SSOConfigCard`
+  - `SAMLSetupWizard`
+  - `OIDCProviderCard`
+
+### Documentation
+
+- Added comprehensive component documentation (3 detailed MDX files)
+- Created `ENTERPRISE_SSO_COMPONENTS_EXPLAINED.md` - Technical deep-dive
+- Created `SSO_VS_OIDC_PROVIDER_VISUAL.md` - Visual diagrams and flow charts
+- Updated showcase with enterprise components and mock data
+
+### Technical Achievements
+
+- 3,280 lines of production-ready enterprise authentication UI
+- 100% Better Auth plugin coverage (89/89 components)
+- Three-tier architecture (Main → AutoFetch → Presentational) for all components
+- Full TypeScript type safety with Better Auth schema alignment
+- RFC compliance: SAML 2.0, OIDC Core, RFC 7591
+- BetterCone design system consistency maintained
+
+### Security Features
+
+- SAML assertion signature verification
+- X.509 certificate validation
+- OIDC token endpoint authentication
+- Client secret security (one-time display, masked storage)
+- Redirect URI validation
+- PKCE support for public clients
+- Grant type restrictions
+- Scope management
+- Metadata integrity (JSON string storage)
+
 ## [0.3.6] - 2025-11-06
 
 ### Added

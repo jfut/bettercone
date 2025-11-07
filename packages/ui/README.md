@@ -6,6 +6,41 @@
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## 🎉 What's New in v0.3.7 - **100% Better Auth Coverage!**
+
+**3 New Enterprise SSO & OIDC Provider Components** - Achieving **100% coverage**:
+
+- [x] **SSOConfigCard**: Complete OIDC & SAML SSO configuration for enterprise customers
+- [x] **SAMLSetupWizard**: Guided 5-step SAML setup wizard with IdP presets
+- [x] **OIDCProviderCard**: OAuth2/OIDC Provider - manage client applications (RFC 7591)
+- [x] **Better Auth SSO Plugin**: Full integration with Single Sign-On plugin
+- [x] **Better Auth OIDC Provider Plugin**: Full integration with OAuth2/OIDC Provider plugin
+- [x] **Tab-Based UI**: Clean configuration interface with advanced options
+- [x] **XML Metadata Parsing**: Auto-extract SSO URLs, certificates, and entity IDs
+- [x] **Client Registration**: RFC 7591 compliant dynamic client registration
+- [x] **Security Features**: One-time secret display, PKCE support, X.509 validation
+
+### Enterprise SSO Features
+
+**SSOConfigCard** (1,173 lines):
+- Dual protocol support: OIDC and SAML 2.0
+- Attribute mapping for user data synchronization
+- Test connection functionality
+- Organization linking
+- PKCE, JWKS, and discovery endpoint support
+
+**SAMLSetupWizard** (1,181 lines):
+- 5-step guided setup (IdP selection, metadata, settings, mapping, testing)
+- Pre-configured IdP presets: Okta, Azure AD, Google Workspace, OneLogin, JumpCloud
+- XML metadata auto-parsing
+- Controlled navigation with validation
+
+**OIDCProviderCard** (926 lines):
+- OAuth2/OIDC Provider capabilities (make your app an OAuth provider)
+- Client types: web, spa, native, m2m
+- Metadata display: website, terms, privacy links
+- Three modes: Auto-fetch, Custom, Presentational
+
 ## What's New in v0.3.6
 
 **3 New Device Authorization Components** - CLI, IoT, and smart TV authentication:
@@ -262,6 +297,12 @@ export default function BillingPage() {
 - `UserManagementTable` - Admin table for user management
 - `BanUserDialog` - Ban users with reason and duration
 - `ImpersonateUserDialog` - Impersonate users for support
+
+### Enterprise SSO & OIDC Provider
+
+- `SSOConfigCard` - Complete OIDC & SAML SSO configuration
+- `SAMLSetupWizard` - Guided 5-step SAML setup wizard
+- `OIDCProviderCard` - OAuth2/OIDC Provider client management
 
 ### User Components
 

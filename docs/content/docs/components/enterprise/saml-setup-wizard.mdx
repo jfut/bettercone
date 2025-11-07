@@ -1,0 +1,327 @@
+---
+title: SAML Setup Wizard
+description: Guided 5-step wizard for SAML 2.0 SSO configuration with automatic IdP detection and metadata parsing
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+## Overview
+
+Guided 5-step wizard for configuring SAML 2.0 SSO with preset IdP configurations, automatic XML metadata parsing, and visual progress tracking.
+
+## Features
+
+- ✅ **5-Step Guided Flow** - Visual progress stepper with validation
+- ✅ **7 IdP Presets** - Azure AD, Okta, Google Workspace, OneLogin, Auth0, JumpCloud, Custom
+- ✅ **XML Metadata Parser** - Auto-extracts SSO URL, certificate, entityID
+- ✅ **Attribute Mapping** - Map SAML assertions to user model
+- ✅ **Connection Testing** - Verify before completion
+
+## Installation
+
+```bash
+npm install @bettercone/ui
+```
+
+
+## Usage
+
+<Tabs items={['Basic', 'With Callbacks', 'Pre-configured']}>
+  <Tab value="Basic">
+    ```tsx
+    import { SAMLSetupWizard } from '@bettercone/ui'
+
+    export default function SetupSAML() {
+      return (
+        <SAMLSetupWizard
+          organizationId="org_123abc"
+          onSuccess={(config) => {
+            console.log('SAML configured:', config)
+          }}
+        />
+      )
+    }
+    ```
+  </Tab>
+
+  <Tab value="With Callbacks">
+    ```tsx
+    import { SAMLSetupWizard } from '@bettercone/ui'
+    import { useRouter } from 'next/navigation'
+
+    export default function SetupSAML() {
+      const router = useRouter()
+
+      return (
+        <SAMLSetupWizard
+          organizationId="org_123abc"
+          onSuccess={async (config) => {
+            await fetch('/api/sso/saml/save', {
+              method: 'POST',
+              body: JSON.stringify(config),
+            })
+            toast.success('SAML SSO configured!')
+            router.push('/settings/sso')
+          }}
+          onError={(error) => toast.error(error.message)}
+          onCancel={() => router.back()}
+        />
+      )
+    }
+    ```
+  </Tab>
+
+  <Tab value="Pre-configured">
+    ```tsx
+    import { SAMLSetupWizard } from '@bettercone/ui'
+
+    const initialConfig = {
+      callbackUrl: 'https://app.acme.com/api/auth/sso/saml2/callback',
+      entityId: 'https://app.acme.com',
+      signatureAlgorithm: 'sha256' as const,
+      wantAssertionsSigned: true,
+      mapping: {
+        email: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+        name: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+      },
+    }
+
+    <SAMLSetupWizard
+      organizationId="org_123abc"
+      initialConfig={initialConfig}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+## Wizard Steps
+
+1. **Select IdP** - Choose preset (Azure AD, Okta, Google, etc.) or Custom
+2. **Upload Metadata** - Paste XML or configure manually
+3. **Configure** - Set ACS URL, Entity ID, security options
+4. **Attribute Mapping** - Map SAML assertions to user fields
+5. **Test & Complete** - Verify connection and finalize
+
+## IdP Presets
+
+| Provider | Auto-Configuration |
+|----------|-------------------|
+| Azure AD (Entra ID) | ✅ Default algorithms, NameID format |
+| Okta | ✅ Recommended SAML settings |
+| Google Workspace | ✅ Google-specific configuration |
+| OneLogin | ✅ OneLogin defaults |
+| Auth0 | ✅ Auth0 SAML settings |
+| JumpCloud | ✅ JumpCloud configuration |
+| Custom | Manual configuration required |
+
+## XML Metadata Parsing
+
+Paste your IdP's SAML metadata XML to auto-extract:
+- SSO Entry Point URL
+- X.509 Certificate (PEM formatted)
+- Entity ID / Audience
+
+```xml
+<?xml version="1.0"?>
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" 
+                  entityID="https://idp.example.com/saml2/metadata">
+  <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <KeyDescriptor use="signing">
+      <X509Certificate>MIIDdDCCAly...</X509Certificate>
+    </KeyDescriptor>
+    <SingleSignOnService Location="https://idp.example.com/saml2/sso"/>
+  </IDPSSODescriptor>
+</EntityDescriptor>
+```
+
+## Props
+
+```typescript
+interface SAMLSetupWizardProps {
+  organizationId: string
+  authClient?: AnyAuthClient
+  initialConfig?: Partial<SAMLConfiguration>
+  onSuccess?: (config: SAMLConfiguration) => void
+  onError?: (error: Error) => void
+  onCancel?: () => void
+  className?: string
+}
+```
+
+## SAMLConfiguration Type
+
+```typescript
+interface SAMLConfiguration {
+  entryPoint: string
+  cert: string
+  callbackUrl: string
+  audience?: string
+  entityId?: string
+  wantAssertionsSigned?: boolean
+  signatureAlgorithm?: 'sha1' | 'sha256' | 'sha512'
+  digestAlgorithm?: 'sha1' | 'sha256' | 'sha512'
+  identifierFormat?: string
+  mapping?: SAMLAttributeMapping
+}
+```
+
+## Attribute Mapping
+
+```typescript
+interface SAMLAttributeMapping {
+  id?: string
+  email?: string
+  emailVerified?: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string
+  extraFields?: Record<string, string>
+}
+```
+
+## IdP Examples
+
+<Tabs items={['Azure AD', 'Okta', 'Google']}>
+  <Tab value="Azure AD">
+    **Metadata URL:**
+    ```
+    https://login.microsoftonline.com/{tenant-id}/federationmetadata/2007-06/federationmetadata.xml
+    ```
+
+    **Attribute Mapping:**
+    ```tsx
+    const azureMapping = {
+      email: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+      name: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+      firstName: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname',
+      lastName: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname',
+    }
+    ```
+  </Tab>
+
+  <Tab value="Okta">
+    **Metadata URL:**
+    ```
+    https://{your-okta-domain}/app/{app-id}/sso/saml/metadata
+    ```
+
+    **Attribute Mapping:**
+    ```tsx
+    const oktaMapping = {
+      email: 'email',
+      name: 'name',
+      firstName: 'firstName',
+      lastName: 'lastName',
+    }
+    ```
+  </Tab>
+
+  <Tab value="Google">
+    **SSO URL Format:**
+    ```
+    https://accounts.google.com/o/saml2/idp?idpid={idp-id}
+    ```
+
+    **Attribute Mapping:**
+    ```tsx
+    const googleMapping = {
+      email: 'email',
+      name: 'name',
+      firstName: 'first_name',
+      lastName: 'last_name',
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Validation
+
+Each step validates before allowing progression:
+
+1. **Step 1:** IdP selected
+2. **Step 2:** Entry point and certificate provided
+3. **Step 3:** Callback URL exists
+4. **Step 4:** Email mapping configured
+5. **Step 5:** Connection test passed
+
+## Better Auth Setup
+
+```typescript
+import { betterAuth } from "better-auth"
+import { sso } from "better-auth/plugins"
+
+export const auth = betterAuth({
+  plugins: [
+    sso({
+      providers: {
+        saml: {
+          // SAML configuration added by wizard
+        },
+      },
+    }),
+  ],
+})
+```
+
+## Security Notes
+
+<Callout type="warning">
+  **Production Configuration:**
+  - Use SHA-256 or SHA-512 for signatures
+  - Enable `wantAssertionsSigned`
+  - Verify certificates from trusted sources
+  - Use HTTPS for all URLs
+</Callout>
+
+## Best Practices
+
+```tsx
+const productionConfig: Partial<SAMLConfiguration> = {
+  signatureAlgorithm: 'sha256',
+  digestAlgorithm: 'sha256',
+  wantAssertionsSigned: true,
+  identifierFormat: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+}
+
+<SAMLSetupWizard
+  organizationId="org_acme"
+  initialConfig={productionConfig}
+/>
+```
+
+## Troubleshooting
+
+### Metadata Parsing Issues
+
+Ensure XML is valid SAML 2.0 metadata. If parsing fails, use manual configuration.
+
+### Certificate Format
+
+Certificates must be in PEM format:
+```
+-----BEGIN CERTIFICATE-----
+MIIDdDCCAlygAwIBAgIGAYqrJc3fMA0GCSqGSIb3DQEBCwUAMHsxFDASBgNVBAoT
+...
+-----END CERTIFICATE-----
+```
+
+### Connection Test Failures
+
+Common causes:
+- Incorrect SSO URL
+- Invalid/expired certificate
+- Mismatched Entity ID
+- Firewall blocking SAML requests
+
+## Related Components
+
+- [SSOConfigCard](/docs/components/enterprise/sso-config-card) - Manage existing SAML/OIDC providers
+- [OIDCProviderCard](/docs/components/enterprise/oidc-provider-card) - OAuth2/OIDC provider management
+
+## Resources
+
+- [Better Auth SSO Plugin](https://www.better-auth.com/docs/plugins/sso)
+- [SAML 2.0 Specification](http://docs.oasis-open.org/security/saml/v2.0/)
+

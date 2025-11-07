@@ -39,7 +39,7 @@ export default function Home() {
         {/* Badge */}
         <div className="flex items-center justify-center gap-3">
           <Badge variant="outline" className="text-xs">
-            v0.3.6
+            v0.3.7
           </Badge>
           {stars !== null && (
             <Button variant="outline" size="sm" asChild>

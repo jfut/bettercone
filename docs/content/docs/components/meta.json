@@ -3,6 +3,7 @@
   "pages": [
     "authentication",
     "organization",
+    "enterprise",
     "security",
     "account",
     "developer",
