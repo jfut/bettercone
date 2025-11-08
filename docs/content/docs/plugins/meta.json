@@ -1,0 +1,5 @@
+{
+  "title": "Plugins",
+  "description": "Better Auth plugins for extended functionality",
+  "pages": ["overview", "usage-tracking"]
+}

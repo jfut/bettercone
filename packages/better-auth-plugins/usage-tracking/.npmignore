@@ -1,0 +1,12 @@
+# Development files
+src/
+.turbo/
+*.log
+node_modules/
+
+# Config files
+tsconfig.json
+tsup.config.ts
+
+# Build artifacts
+*.map

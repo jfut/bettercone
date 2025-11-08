@@ -1,0 +1,472 @@
+---
+title: Usage Tracking Plugin
+description: Track API usage, enforce limits, and manage feature access at the organization level
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# Usage Tracking Plugin
+
+**Package**: `@bettercone/better-auth-plugin-usage-tracking`
+
+Track API usage, enforce limits, and manage feature access at the organization level with Better Auth.
+
+<Callout type="info">
+  This is a separate package from `@bettercone/ui`. Install it independently to add usage tracking to your Better Auth setup.
+</Callout>
+
+## Features
+
+- 🎯 **Automatic API Tracking** - Tracks all Better Auth API calls per organization
+- 📊 **Usage History** - Complete historical data for analytics and charts
+- 🔄 **Flexible Reset Modes** - Lazy (on-demand), Scheduled (cron), Manual (admin)
+- 🚨 **Smart Callbacks** - Get notified at 80% usage and limit exceeded
+- 💰 **Plan & Features Tracking** - Track plan IDs and feature access per organization
+- 📈 **Usage Analytics** - Built-in time-series data tracking with history table
+- 🔒 **Secure** - Session auth for users, API key for scheduled resets
+- 📦 **Type-Safe** - Full TypeScript support with declarations
+
+## Installation
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add @bettercone/better-auth-plugin-usage-tracking
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install @bettercone/better-auth-plugin-usage-tracking
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn add @bettercone/better-auth-plugin-usage-tracking
+    ```
+  </Tab>
+</Tabs>
+
+## Quick Start
+
+### 1. Server Setup
+
+Add the plugin to your Better Auth configuration:
+
+```typescript title="server/auth.ts"
+import { betterAuth } from "better-auth";
+import { usageTracking } from "@bettercone/better-auth-plugin-usage-tracking";
+
+export const auth = betterAuth({
+  database: /* your database config */,
+  plugins: [
+    usageTracking({
+      resetMode: "lazy",
+      resetPeriod: "monthly",
+      defaultApiLimit: 1000,
+      onLimitExceeded: async (context) => {
+        console.log(`Org ${context.organizationId} exceeded limit!`);
+      },
+    }),
+  ],
+});
+```
+
+### 2. Client Setup
+
+Add the client plugin to your auth client:
+
+```typescript title="client/auth-client.ts"
+import { createAuthClient } from "better-auth/react";
+import { usageTrackingClient } from "@bettercone/better-auth-plugin-usage-tracking/client";
+
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  plugins: [usageTrackingClient()],
+});
+```
+
+### 3. Database Migration
+
+Run Better Auth CLI to generate and apply migrations:
+
+```bash
+npx @better-auth/cli@latest generate
+npx @better-auth/cli@latest migrate
+```
+
+This adds usage tracking fields to your organization table and creates a `usageHistory` table.
+
+### 4. Use with UI Components
+
+<Callout type="info">
+  The plugin works seamlessly with [@bettercone/ui](https://www.npmjs.com/package/@bettercone/ui) components. Install both packages for the complete experience.
+</Callout>
+
+```tsx title="app/dashboard/page.tsx"
+import { ApiUsageCard, UsageDashboard } from "@bettercone/ui";
+import { authClient } from "./auth-client";
+
+export default function Dashboard() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <ApiUsageCard />
+      <UsageDashboard />
+    </AuthUIProvider>
+  );
+}
+```
+
+## Configuration
+
+### Plugin Options
+
+<TypeTable
+  type={{
+    resetMode: {
+      description: "Reset mode for usage counters",
+      type: '"lazy" | "scheduled" | "manual"',
+      default: '"lazy"',
+    },
+    resetPeriod: {
+      description: "Reset period for usage counters",
+      type: '"daily" | "weekly" | "monthly" | "yearly"',
+      default: '"monthly"',
+    },
+    resetDay: {
+      description: "Day of month (1-31) or day of week (0-6) for reset",
+      type: "number",
+      default: "1",
+    },
+    defaultApiLimit: {
+      description: "Default API call limit for new organizations",
+      type: "number",
+      default: "1000",
+    },
+    defaultPlanId: {
+      description: "Default plan for new organizations",
+      type: "string",
+      default: '"free"',
+    },
+    onLimitExceeded: {
+      description: "Callback when organization exceeds usage limit",
+      type: "(context: LimitContext) => Promise<void>",
+    },
+    onUsageWarning: {
+      description: "Callback when organization reaches 80% usage",
+      type: "(context: WarningContext) => Promise<void>",
+    },
+    onUsageReset: {
+      description: "Callback when usage is reset",
+      type: "(context: ResetContext) => Promise<void>",
+    },
+  }}
+/>
+
+### Configuration Examples
+
+<Tabs items={['Production SaaS', 'Development', 'Enterprise']}>
+  <Tab value="Production SaaS">
+    ```typescript
+    usageTracking({
+      resetMode: "scheduled",
+      resetPeriod: "monthly",
+      defaultApiLimit: 10000,
+      apiKey: process.env.USAGE_TRACKING_API_KEY,
+      onLimitExceeded: async ({ organizationId, current, limit }) => {
+        await sendEmail({
+          to: await getOrgAdminEmail(organizationId),
+          subject: "API Limit Exceeded",
+          body: `Your organization has exceeded its API limit (${current}/${limit}).`,
+        });
+      },
+      onUsageWarning: async ({ organizationId, percentage }) => {
+        await sendEmail({
+          to: await getOrgAdminEmail(organizationId),
+          subject: `API Usage at ${percentage}%`,
+          body: `Your organization has reached ${percentage}% of its API limit.`,
+        });
+      },
+    })
+    ```
+  </Tab>
+  <Tab value="Development">
+    ```typescript
+    usageTracking({
+      resetMode: "lazy",
+      resetPeriod: "daily",
+      defaultApiLimit: 1000,
+      onLimitExceeded: async ({ organizationId }) => {
+        console.log(`Org ${organizationId} exceeded limit`);
+      },
+    })
+    ```
+  </Tab>
+  <Tab value="Enterprise">
+    ```typescript
+    usageTracking({
+      resetMode: "manual",
+      defaultApiLimit: 100000,
+      onUsageWarning: async ({ organizationId, percentage }) => {
+        await notifyAdmin({
+          orgId: organizationId,
+          message: `Organization at ${percentage}% usage`,
+        });
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+## Reset Modes
+
+### Lazy Reset (Recommended)
+
+Usage resets automatically on the first API call after the reset date.
+
+```typescript
+usageTracking({ resetMode: "lazy", resetPeriod: "monthly" })
+```
+
+**Pros**: Zero configuration, no cron jobs needed  
+**Cons**: Reset happens on first API call (small delay)  
+**Best for**: Small to medium SaaS applications
+
+### Scheduled Reset
+
+Usage resets at exact scheduled time via cron job.
+
+```typescript
+usageTracking({
+  resetMode: "scheduled",
+  resetPeriod: "monthly",
+  apiKey: process.env.USAGE_TRACKING_API_KEY,
+})
+```
+
+Setup cron job:
+
+```bash
+# Every 1st of month at 00:00 UTC
+0 0 1 * * curl -X POST https://yourdomain.com/api/auth/usage-tracking/reset-expired \
+  -H "Content-Type: application/json" \
+  -d '{"apiKey":"YOUR_API_KEY"}'
+```
+
+**Pros**: Precise timing, predictable behavior  
+**Cons**: Requires cron job setup  
+**Best for**: Production applications with strict billing cycles
+
+### Manual Reset
+
+Admin manually resets usage via API or dashboard.
+
+```typescript
+usageTracking({ resetMode: "manual" })
+```
+
+**Pros**: Full control, audit trail  
+**Cons**: Requires manual intervention  
+**Best for**: Enterprise applications with custom billing
+
+## Client API
+
+### Actions
+
+The client plugin provides type-safe actions:
+
+```typescript
+// Get usage
+const usage = await authClient.usageTracking.getUsage();
+const orgUsage = await authClient.usageTracking.getUsage({
+  organizationId: "org_123",
+});
+
+// Get usage history
+const { history } = await authClient.usageTracking.getUsageHistory();
+const limitedHistory = await authClient.usageTracking.getUsageHistory({
+  limit: 90,
+});
+
+// Reset usage (admin only)
+await authClient.usageTracking.resetUsage({
+  organizationId: "org_123",
+  resetApi: true,
+});
+
+// Update limits (admin only)
+await authClient.usageTracking.updateLimits({
+  organizationId: "org_123",
+  apiLimit: 10000,
+  resetMode: "scheduled",
+  resetPeriod: "monthly",
+});
+```
+
+### Reactive Atoms
+
+The client plugin provides nanostores atoms for reactive state:
+
+```typescript
+import { useStore } from "@nanostores/react";
+import { authClient } from "./auth-client";
+
+function UsageDisplay() {
+  // Access atoms
+  const usage = useStore(authClient.$usageTracking.usageAtom);
+  const loading = useStore(authClient.$usageTracking.loadingAtom);
+  const error = useStore(authClient.$usageTracking.errorAtom);
+
+  // Fetch data
+  React.useEffect(() => {
+    authClient.$usageTracking.fetchUsage();
+  }, []);
+
+  if (loading) return <Skeleton />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return (
+    <div>
+      <p>API Calls: {usage.api.current} / {usage.api.limit}</p>
+      <p>Plan: {usage.planId}</p>
+    </div>
+  );
+}
+```
+
+## UI Integration
+
+<Callout type="info">
+  Requires [@bettercone/ui](https://www.npmjs.com/package/@bettercone/ui) package installed separately.
+</Callout>
+
+### ApiUsageCard
+
+Display current API usage with progress bar:
+
+```tsx
+import { ApiUsageCard } from "@bettercone/ui";
+
+// Auto-fetch from context
+<ApiUsageCard />
+
+// Custom client
+<ApiUsageCard authClient={customAuthClient} />
+
+// Manual props
+<ApiUsageCard current={500} limit={1000} />
+```
+
+[View ApiUsageCard documentation →](/docs/components/usage/api-usage-card)
+
+### UsageDashboard
+
+Complete dashboard with all usage metrics:
+
+```tsx
+import { UsageDashboard } from "@bettercone/ui";
+
+<UsageDashboard />
+```
+
+[View UsageDashboard documentation →](/docs/components/usage/usage-dashboard)
+
+### UsageHistoryChart
+
+Interactive chart with time range controls:
+
+```tsx
+import { UsageHistoryChart } from "@bettercone/ui";
+
+<UsageHistoryChart showTimeRangeControls showChartTypeControls />
+```
+
+[View UsageHistoryChart documentation →](/docs/components/usage/usage-history-chart)
+
+## Usage Patterns
+
+### Feature Gating
+
+```tsx
+import { useStore } from "@nanostores/react";
+import { authClient } from "./auth-client";
+
+function AdvancedFeature() {
+  const usage = useStore(authClient.$usageTracking.usageAtom);
+  const hasAccess = usage?.features?.advanced_analytics === true;
+
+  React.useEffect(() => {
+    authClient.$usageTracking.fetchUsage();
+  }, []);
+
+  if (!hasAccess) {
+    return <UpgradePrompt feature="Advanced Analytics" />;
+  }
+
+  return <AdvancedAnalyticsDashboard />;
+}
+```
+
+### Usage-Based Billing
+
+```tsx
+function BillingSettings() {
+  const usage = useStore(authClient.$usageTracking.usageAtom);
+  const overage = Math.max(0, (usage?.api.current || 0) - (usage?.api.limit || 0));
+  const overageCost = overage * 0.01; // $0.01 per extra call
+
+  return (
+    <div>
+      <p>Included: {usage.api.limit} API calls</p>
+      <p>Used: {usage.api.current}</p>
+      {overage > 0 && <p>Overage: {overage} calls (${overageCost.toFixed(2)})</p>}
+    </div>
+  );
+}
+```
+
+## Troubleshooting
+
+### Usage not tracking
+
+**Problem**: API calls aren't being counted
+
+**Solutions**:
+1. Verify plugin is installed on both server and client
+2. Check database migrations ran successfully
+3. Ensure organization is set in session
+4. Check server logs for errors
+
+### Reset not working
+
+**Problem**: Usage isn't resetting after reset date
+
+**Solutions**:
+- **Lazy mode**: Make an API call to trigger reset
+- **Scheduled mode**: Verify cron job is running and API key is correct
+- **Manual mode**: Call `resetUsage` API endpoint
+
+### Callbacks not firing
+
+**Problem**: `onLimitExceeded` or `onUsageWarning` not called
+
+**Solutions**:
+1. Check callback function is async and returns Promise
+2. Verify organization has reached threshold/limit
+3. Check server logs for callback errors
+4. Ensure callbacks don't throw uncaught exceptions
+
+## Links
+
+- [npm Package](https://www.npmjs.com/package/@bettercone/better-auth-plugin-usage-tracking)
+- [GitHub Repository](https://github.com/vncsleal/bettercone)
+- [Better Auth](https://www.better-auth.com)
+- [UI Components Documentation](/docs/components/usage/api-usage-card)
+
+## Related
+
+- [ApiUsageCard Component](/docs/components/usage/api-usage-card)
+- [FeatureAccessCard Component](/docs/components/usage/feature-access-card)
+- [UsageDashboard Component](/docs/components/usage/usage-dashboard)
+- [UsageHistoryChart Component](/docs/components/usage/usage-history-chart)

@@ -24,7 +24,19 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
   </a>
 </div>
 
-## 🎉 What's New in v0.3.7 - **100% Better Auth Coverage!**
+## 🎉 What's New in v0.3.8 - **Dashboard & View Components**
+
+**3 New Dashboard Components** - Complete dashboard views and interactive charts:
+
+- **OrganizationView** - Full organization management interface with tabbed navigation
+- **UsageHistoryChart** - Interactive usage visualization with Shadcn Charts + Recharts
+- **OrganizationSettingsCards** - Composite organization settings component
+
+**New Ecosystem: Better Auth Plugins** - Extended functionality beyond UI components:
+
+- [**Usage Tracking Plugin**](/docs/plugins/usage-tracking) - Track API usage, enforce limits, and manage feature access (separate package: `@bettercone/better-auth-plugin-usage-tracking`)
+
+### v0.3.7 - **100% Better Auth Coverage!**
 
 **Enterprise SSO & OIDC Provider** - Achieving **89/89 components (100% coverage)**
 
@@ -85,6 +97,11 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 ## Features
 
 <Cards>
+  <Card
+    title="🔌 Better Auth Plugins"
+    description="Usage tracking, rate limiting, and more - extend Better Auth functionality"
+    href="/docs/plugins"
+  />
   <Card
     title="🏢 Enterprise SSO"
     description="OIDC & SAML 2.0 SSO configuration, SAML setup wizard, OAuth2 provider management"
