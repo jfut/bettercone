@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "./mode-toggle";
-import { BookOpen, Github, Package, FileText } from "lucide-react";
+import { BookOpen, Github, Package, FileText, Puzzle } from "lucide-react";
 
 export function Header() {
   const pathname = usePathname();
@@ -32,6 +32,18 @@ export function Header() {
             >
               <Package className="h-4 w-4" />
               <span className="hidden sm:inline">Components</span>
+            </Link>
+            
+            <Link
+              href="/plugins"
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+                pathname.startsWith('/plugins')
+                  ? 'text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Puzzle className="h-4 w-4" />
+              <span className="hidden sm:inline">Plugins</span>
             </Link>
             
             <Link
