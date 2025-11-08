@@ -9,11 +9,37 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 
 # UsageDashboard
 
-The `UsageDashboard` component provides a composed view of usage tracking metrics including API calls, storage consumption, and feature access based on the user's subscription plan.
+The `UsageDashboard` is a composition component that provides a complete overview of organization usage metrics.
+
+<Callout type="warn" title="Plugin Required">
+  This component requires the `@bettercone/better-auth-plugin-usage-tracking` plugin to be installed and configured in your Better Auth setup. See [Plugin Installation](#plugin-installation) below.
+</Callout>
 
 <Callout type="info">
-  This is a composition component that combines ApiUsageCard, StorageUsageCard, and FeatureAccessCard. You provide the data from your backend.
+  This is a composition component that combines ApiUsageCard and FeatureAccessCard. You provide the data from your backend.
 </Callout>
+
+## Plugin Installation
+
+First, install the usage tracking plugin:
+
+```bash
+pnpm add @bettercone/better-auth-plugin-usage-tracking
+```
+
+Then configure it in your Better Auth setup:
+
+```tsx title="lib/auth.ts"
+import { betterAuth } from "better-auth";
+import { usageTracking } from "@bettercone/better-auth-plugin-usage-tracking";
+
+export const auth = betterAuth({
+  // ... other config
+  plugins: [
+    usageTracking(),
+  ],
+});
+```
 
 ## Installation
 
@@ -49,7 +75,6 @@ import { UsageDashboard } from '@bettercone/ui';
           <h1 className="text-3xl font-bold mb-6">Usage & Limits</h1>
           <UsageDashboard
             apiUsage={{ current: 8500, limit: 10000 }}
-            storageUsage={{ currentBytes: 4500000000, limitBytes: 5000000000 }}
             featureAccess={{
               planId: "pro",
               advancedAnalytics: true,
@@ -57,9 +82,6 @@ import { UsageDashboard } from '@bettercone/ui';
               customIntegrations: false
             }}
             apiUsageCardProps={{
-              onUpgrade: () => router.push('/pricing')
-            }}
-            storageUsageCardProps={{
               onUpgrade: () => router.push('/pricing')
             }}
             featureAccessCardProps={{
@@ -406,20 +428,18 @@ export default function AdminUsagePage() {
 
 ## Component Composition
 
-The `UsageDashboard` is composed of three main cards:
+The `UsageDashboard` is composed of two main cards:
 
 1. **ApiUsageCard** - API call tracking
-2. **StorageUsageCard** - Storage monitoring
-3. **FeatureAccessCard** - Feature availability
+2. **FeatureAccessCard** - Feature availability
 
 You can use these cards individually for custom layouts:
 
 ```tsx
 import { 
   ApiUsageCard,
-  StorageUsageCard,
   FeatureAccessCard 
-} from '@/components';
+} from '@bettercone/ui';
 
 export default function CustomUsagePage() {
   return (
@@ -431,15 +451,8 @@ export default function CustomUsagePage() {
         onUpgrade={() => router.push('/pricing')}
       />
       
-      <StorageUsageCard 
-        currentBytes={750000000}
-        limitBytes={1000000000}
-        onUpgrade={() => router.push('/pricing')}
-      />
       
-      {/* Full width feature access */}
-      <div className="lg:col-span-2">
-        <FeatureAccessCard 
+      <FeatureAccessCard 
           features={featureList}
           onUpgrade={() => router.push('/pricing')}
         />
@@ -547,7 +560,6 @@ export const subscriptionPlans = [
 ## Related Components
 
 - [ApiUsageCard](/docs/components/usage/api-usage-card) - API call tracking card
-- [StorageUsageCard](/docs/components/usage/storage-usage-card) - Storage monitoring card
 - [FeatureAccessCard](/docs/components/usage/feature-access-card) - Feature list card
 - [PricingDashboard](/docs/components/pricing/pricing-dashboard) - Upgrade plans
 - [BillingDashboard](/docs/components/billing/billing-dashboard) - Manage billing
@@ -555,6 +567,5 @@ export const subscriptionPlans = [
 ## Next Steps
 
 - [Implement API tracking](/docs/guides/api-tracking)
-- [Configure storage limits](/docs/guides/storage-configuration)
 - [Set up rate limiting](/docs/guides/rate-limiting)
 - [View complete usage example](/docs/examples/usage-page)

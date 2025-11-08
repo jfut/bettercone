@@ -10,7 +10,7 @@ import { allComponentsMap } from "@/lib/components-data";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import dynamic from "next/dynamic";
 import { Component as ReactComponent, ErrorInfo, ReactNode } from "react";
-import { MockDataProvider, mockPricingPlans, mockUsage, mockSeatAllocation, mockOrganization, mockSubscription, mockFeatures, mockAdminUsers, mockSSOProviders, mockOAuth2Clients } from "@/lib/mock-data";
+import { MockDataProvider, mockPricingPlans, mockUsage, mockSeatAllocation, mockOrganization, mockSubscription, mockFeatures, mockAdminUsers, mockSSOProviders, mockOAuth2Clients, mockUsageHistory } from "@/lib/mock-data";
 import { MockAuthUIProvider } from "@/components/mock-auth-provider";
 import { mockAuthClient } from "@/lib/mock-auth-provider";
 
@@ -86,10 +86,6 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
       current: mockUsage.api.current,
       limit: mockUsage.api.limit,
     };
-    componentProps.storageUsage = {
-      currentBytes: mockUsage.storage.current * 1024 * 1024 * 1024, // Convert GB to bytes
-      limitBytes: mockUsage.storage.limit * 1024 * 1024 * 1024,
-    };
     componentProps.featureAccess = mockFeatures;
   }
 
@@ -97,13 +93,6 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
   if (componentName === 'ApiUsageCard') {
     componentProps.current = mockUsage.api.current;
     componentProps.limit = mockUsage.api.limit;
-    componentProps.onUpgrade = () => console.log('Upgrade clicked');
-  }
-
-  // StorageUsageCard needs storage data
-  if (componentName === 'StorageUsageCard') {
-    componentProps.currentBytes = mockUsage.storage.current * 1024 * 1024 * 1024;
-    componentProps.limitBytes = mockUsage.storage.limit * 1024 * 1024 * 1024;
     componentProps.onUpgrade = () => console.log('Upgrade clicked');
   }
 
@@ -294,10 +283,40 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
     componentProps.showTrustedClients = false; // Disable for demo
   }
 
+  // OrganizationView needs organization slug
+  if (componentName === 'OrganizationView') {
+    componentProps.slug = mockOrganization.slug;
+    componentProps.hideNav = false; // Show navigation for demo
+  }
+
+  // OrganizationSettingsCards needs organization slug
+  if (componentName === 'OrganizationSettingsCards') {
+    componentProps.slug = mockOrganization.slug;
+  }
+
+  // UsageHistoryChart needs usage history data
+  if (componentName === 'UsageHistoryChart') {
+    componentProps.data = mockUsageHistory;
+    componentProps.showTimeRangeControls = true;
+    componentProps.showChartTypeControls = true;
+  }
+
+  // Check if this is a usage component that requires the plugin
+  const isUsageComponent = ['UsageDashboard', 'ApiUsageCard', 'FeatureAccessCard', 'UsageHistoryChart'].includes(componentName);
+
   return (
     <ComponentErrorBoundary componentName={componentName}>
       <MockAuthUIProvider>
         <MockDataProvider>
+          {isUsageComponent && (
+            <Alert className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Plugin Required:</strong> This component requires the{' '}
+                <code className="text-sm">@bettercone/better-auth-plugin-usage-tracking</code> plugin to be installed and configured in your Better Auth setup.
+              </AlertDescription>
+            </Alert>
+          )}
           <div className="p-6 border rounded-lg bg-muted/30">
             <Component {...componentProps} />
           </div>

@@ -1,11 +1,16 @@
 /**
  * API Usage Card Component
  * Real-time API call tracking
- * Backend-agnostic - accepts usage data as props
+ * 
+ * Three-Tier Pattern:
+ * - Tier 1 (Self-Contained): Auto-fetches via AuthUIContext
+ * - Tier 2 (Agnostic): Custom authClient prop
+ * - Tier 3 (Presentational): Manual props (backward compatible)
  */
 
 "use client";
 
+import { useContext, useEffect, useState } from "react";
 import { TrendingUp, AlertTriangle } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -13,6 +18,7 @@ import { Progress } from "../ui/progress";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
+import { AuthUIContext } from "../../lib/auth-ui-provider";
 
 export interface ApiUsageCardClassNames {
   base?: string;
@@ -50,11 +56,29 @@ const defaultLocalization: ApiUsageCardLocalization = {
 };
 
 export interface ApiUsageCardProps {
-  /** Current usage count */
-  current: number | undefined;
+  /** 
+   * Current usage count
+   * Tier 3 (Presentational): Required if not using authClient or context
+   */
+  current?: number;
   
-  /** Maximum allowed usage */
-  limit: number | undefined;
+  /** 
+   * Maximum allowed usage
+   * Tier 3 (Presentational): Required if not using authClient or context
+   */
+  limit?: number;
+  
+  /**
+   * Better Auth client instance
+   * Tier 2 (Agnostic): Provide custom authClient with usageTracking plugin
+   */
+  authClient?: any; // ReturnType<typeof createAuthClient>
+  
+  /**
+   * Organization ID - defaults to active organization
+   * Used when fetching data via context or authClient
+   */
+  organizationId?: string;
   
   /** Percentage threshold to show warning (default: 80) */
   warningThreshold?: number;
@@ -72,9 +96,33 @@ export interface ApiUsageCardProps {
   localization?: Partial<ApiUsageCardLocalization>;
 }
 
+/**
+ * ApiUsageCard Component
+ * 
+ * Three-Tier Pattern:
+ * 1. Self-Contained: <ApiUsageCard /> - Auto-fetches via AuthUIContext
+ * 2. Agnostic: <ApiUsageCard authClient={custom} /> - Custom backend
+ * 3. Presentational: <ApiUsageCard current={100} limit={1000} /> - Manual props
+ * 
+ * @example
+ * // Tier 1: Self-Contained (Context-based)
+ * <AuthUIProvider authClient={authClient}>
+ *   <ApiUsageCard />
+ * </AuthUIProvider>
+ * 
+ * @example
+ * // Tier 2: Agnostic (Custom client)
+ * <ApiUsageCard authClient={customAuthClient} />
+ * 
+ * @example
+ * // Tier 3: Presentational (Manual props)
+ * <ApiUsageCard current={8500} limit={10000} />
+ */
 export function ApiUsageCard({
-  current,
-  limit,
+  current: currentProp,
+  limit: limitProp,
+  authClient: authClientProp,
+  organizationId,
   warningThreshold = 80,
   onUpgrade,
   className,
@@ -82,12 +130,102 @@ export function ApiUsageCard({
   localization: localizationProp,
 }: ApiUsageCardProps) {
   const localization = { ...defaultLocalization, ...localizationProp };
-
-  // Handle undefined states
+  const context = useContext(AuthUIContext);
+  
+  // State for fetched data
+  const [usageData, setUsageData] = useState<{ current?: number; limit?: number } | undefined>();
+  const [isPending, setIsPending] = useState(false);
+  
+  // Determine which authClient to use (context or prop)
+  const authClient = authClientProp || context?.authClient;
+  
+  // Tier 1 & 2: Fetch from authClient with plugin
+  useEffect(() => {
+    // Skip if manual props provided (Tier 3)
+    if (currentProp !== undefined || limitProp !== undefined) {
+      return;
+    }
+    
+    // Skip if no authClient or no plugin
+    if (!authClient || !(authClient as any).usageTracking) {
+      return;
+    }
+    
+    const fetchUsage = async () => {
+      setIsPending(true);
+      try {
+        const plugin = (authClient as any).usageTracking;
+        const data = await plugin.getUsage({ organizationId });
+        
+        setUsageData({
+          current: data.api.current,
+          limit: data.api.limit,
+        });
+      } catch (error) {
+        console.error("Failed to fetch usage:", error);
+        setUsageData(undefined);
+      } finally {
+        setIsPending(false);
+      }
+    };
+    
+    fetchUsage();
+  }, [authClient, organizationId, currentProp, limitProp]);
+  
+  // Tier 3: Use manual props
+  const finalData = (currentProp !== undefined || limitProp !== undefined)
+    ? { current: currentProp, limit: limitProp }
+    : usageData;
+  
+  // Show loading skeleton
+  if (isPending) {
+    return <ApiUsageCardSkeleton classNames={classNames} />;
+  }
+  
+  // Extract final values
+  const current = finalData?.current;
+  const limit = finalData?.limit;
+  
+  // Show skeleton if no data
   if (current === undefined || limit === undefined) {
     return <ApiUsageCardSkeleton classNames={classNames} />;
   }
+  
+  // Render UI
+  return (
+    <ApiUsageCardUI
+      current={current}
+      limit={limit}
+      warningThreshold={warningThreshold}
+      onUpgrade={onUpgrade}
+      className={className}
+      classNames={classNames}
+      localization={localization}
+    />
+  );
+}
 
+/**
+ * ApiUsageCardUI - Pure presentational component
+ * Separated for cleanliness and reusability
+ */
+function ApiUsageCardUI({
+  current,
+  limit,
+  warningThreshold = 80,
+  onUpgrade,
+  className,
+  classNames,
+  localization,
+}: {
+  current: number;
+  limit: number;
+  warningThreshold?: number;
+  onUpgrade?: () => void;
+  className?: string;
+  classNames?: ApiUsageCardClassNames;
+  localization: ApiUsageCardLocalization;
+}) {
   const usagePercentage = (current / limit) * 100;
   const isWarning = usagePercentage >= warningThreshold;
   const isNearLimit = usagePercentage >= 90;

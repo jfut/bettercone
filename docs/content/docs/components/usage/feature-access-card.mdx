@@ -11,6 +11,10 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 
 The `FeatureAccessCard` component displays a visual list of features available to the user based on their current subscription plan, with clear indicators for enabled and locked features.
 
+<Callout type="warn" title="Plugin Required">
+  This component requires the `@bettercone/better-auth-plugin-usage-tracking` plugin to be installed and configured in your Better Auth setup. See the [UsageDashboard Plugin Installation](/docs/components/usage/usage-dashboard#plugin-installation) guide.
+</Callout>
+
 <Callout type="info">
   This component helps users understand what features they have access to and encourages upgrades by showing locked premium features.
 </Callout>
@@ -184,9 +188,7 @@ The component includes these default features:
 ### Example 1: Usage Dashboard
 
 ```tsx
-import { FeatureAccessCard } from '@/components/usage/feature-access-card';
-import { ApiUsageCard } from '@/components/usage/api-usage-card';
-import { StorageUsageCard } from '@/components/usage/storage-usage-card';
+import { FeatureAccessCard, ApiUsageCard } from '@bettercone/ui';
 
 export default function UsagePage() {
   const features = {
@@ -203,14 +205,10 @@ export default function UsagePage() {
       
       <div className="grid gap-6 lg:grid-cols-2">
         <ApiUsageCard current={45000} limit={100000} />
-        <StorageUsageCard currentBytes={5000000000} limitBytes={10737418240} />
         
-        <div className="lg:col-span-2">
-          <FeatureAccessCard 
             features={features}
             onUpgrade={() => router.push('/pricing')}
           />
-        </div>
       </div>
     </div>
   );
@@ -497,7 +495,6 @@ const customFeatureConfig = [
 ## Related Components
 
 - [ApiUsageCard](/docs/components/usage/api-usage-card) - Track API usage
-- [StorageUsageCard](/docs/components/usage/storage-usage-card) - Monitor storage
 - [UsageDashboard](/docs/components/usage/usage-dashboard) - Complete usage view
 - [PricingDashboard](/docs/components/pricing/pricing-dashboard) - Upgrade plans
 

@@ -3,7 +3,7 @@
   "pages": [
     "usage-dashboard",
     "api-usage-card",
-    "storage-usage-card",
-    "feature-access-card"
+    "feature-access-card",
+    "usage-history-chart"
   ]
 }

@@ -32,6 +32,16 @@ export { Stepper, type StepperProps, type Step } from "./components/ui/stepper";
 export { UserView, type UserViewProps, type UserViewClassNames } from "./components/ui/user-view";
 
 export {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartStyle,
+  type ChartConfig,
+} from "./components/ui/chart";
+
+export {
   Card,
   CardHeader,
   CardFooter,
@@ -100,12 +110,6 @@ export type {
 } from "./components/usage/api-usage-card";
 
 export {
-  StorageUsageCard,
-  StorageUsageCardSkeleton
-} from "./components/usage/storage-usage-card";
-export type { StorageUsageCardProps } from "./components/usage/storage-usage-card";
-
-export {
   FeatureAccessCard,
   FeatureAccessCardSkeleton
 } from "./components/usage/feature-access-card";
@@ -114,6 +118,9 @@ export type {
   FeatureAccess,
   FeatureConfig
 } from "./components/usage/feature-access-card";
+
+export { UsageHistoryChart } from "./components/usage/usage-history-chart";
+
 
 export {
   UsageDashboard,
@@ -200,6 +207,7 @@ export type { EmailVerificationBannerProps } from "./components/security/email-v
 // ============================================================================
 // Organization Components
 // ============================================================================
+export { OrganizationView } from "./components/organization/organization-view";
 export { OrganizationSwitcher } from "./components/organization/organization-switcher";
 export { CreateOrganizationDialog } from "./components/organization/create-organization-dialog";
 export { DeleteOrganizationCard } from "./components/organization/delete-organization-card";
@@ -213,6 +221,7 @@ export { UserInvitationsCard } from "./components/organization/user-invitations-
 export { OrganizationNameCard } from "./components/organization/organization-name-card";
 export { OrganizationSlugCard } from "./components/organization/organization-slug-card";
 export { OrganizationLogoCard } from "./components/organization/organization-logo-card";
+export { OrganizationSettingsCards } from "./components/organization/organization-settings-cards";
 export { LeaveOrganizationDialog } from "./components/organization/leave-organization-dialog";
 export { TransferOwnershipDialog } from "./components/organization/transfer-ownership-dialog";
 

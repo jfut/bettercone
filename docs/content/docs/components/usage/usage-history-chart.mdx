@@ -1,0 +1,485 @@
+---
+title: UsageHistoryChart
+description: Interactive charts for visualizing usage trends over time
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# UsageHistoryChart
+
+The `UsageHistoryChart` component provides interactive visualizations of usage trends over time with multiple chart types and time ranges powered by Shadcn Charts and Recharts.
+
+<Callout type="warn" title="Plugin Required">
+  This component requires the `@bettercone/better-auth-plugin-usage-tracking` plugin when used with Tiers 1 & 2. See the [UsageDashboard Plugin Installation](/docs/components/usage/usage-dashboard#plugin-installation) guide.
+</Callout>
+
+<Callout type="info">
+  Built with [Shadcn Charts](https://ui.shadcn.com/docs/components/chart) and [Recharts](https://recharts.org/) for beautiful, accessible visualizations.
+</Callout>
+
+## Installation
+
+```bash
+# Install the component
+npm install recharts
+
+# The chart component is already included in @bettercone/ui
+```
+
+```tsx
+import { UsageHistoryChart } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Multiple Chart Types** - Line, Bar, and Area charts
+- ✅ **Time Range Controls** - 7d, 30d, 90d, 1y, all
+- ✅ **Trend Indicators** - Visual up/down trend badges
+- ✅ **Interactive** - Hover tooltips with formatted values
+- ✅ **Responsive** - Adapts to container size
+- ✅ **Theme Support** - Light and dark mode
+- ✅ **Accessible** - Keyboard navigation and screen readers
+- ✅ **Shadcn Styled** - Uses official Shadcn chart colors
+- ✅ **Type-Safe** - Full TypeScript support
+
+## Usage
+
+<Tabs items={['Manual Data', 'With Context', 'Custom Client', 'Styled']}>
+  <Tab value="Manual Data">
+    ```tsx
+    import { UsageHistoryChart } from '@bettercone/ui';
+
+    export default function DashboardPage() {
+      const usageData = [
+        { date: "2024-01-01", value: 450 },
+        { date: "2024-01-02", value: 620 },
+        { date: "2024-01-03", value: 550 },
+        // ... more data
+      ];
+
+      return (
+        <UsageHistoryChart 
+          data={usageData}
+          showTimeRangeControls
+          showChartTypeControls
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Context">
+    ```tsx
+    import { AuthUIProvider, UsageHistoryChart } from '@bettercone/ui';
+
+    export default function App() {
+      return (
+        <AuthUIProvider authClient={authClient}>
+          <UsageHistoryChart 
+            organizationId="org_123"
+            showTimeRangeControls
+            showChartTypeControls
+          />
+        </AuthUIProvider>
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Custom Client">
+    ```tsx
+    import { UsageHistoryChart } from '@bettercone/ui';
+    import { customAuthClient } from './auth';
+
+    export default function DashboardPage() {
+      return (
+        <UsageHistoryChart 
+          authClient={customAuthClient}
+          organizationId="org_123"
+          metric="api_calls"
+          timeRange="30d"
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Styled">
+    ```tsx
+    import { UsageHistoryChart } from '@bettercone/ui';
+
+    export default function DashboardPage() {
+      return (
+        <UsageHistoryChart 
+          data={usageData}
+          className="border-2"
+          classNames={{
+            header: "bg-muted/50",
+            title: "text-xl",
+            badge: "bg-green-500",
+          }}
+          showTimeRangeControls
+          showChartTypeControls
+        />
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Three-Tier Pattern
+
+UsageHistoryChart follows the **Three-Tier Architecture** pattern:
+
+### Tier 1: Self-Contained (Context)
+
+Auto-fetches data using the usage tracking plugin via `AuthUIProvider`:
+
+```tsx
+import { AuthUIProvider } from '@bettercone/ui';
+import { UsageHistoryChart } from '@bettercone/ui';
+import { authClient } from './auth';
+
+export default function App() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <UsageHistoryChart />
+    </AuthUIProvider>
+  );
+}
+```
+
+### Tier 2: Agnostic (Custom Client)
+
+Provide a custom auth client with the usage tracking plugin:
+
+```tsx
+import { UsageHistoryChart } from '@bettercone/ui';
+import { createAuthClient } from 'better-auth/client';
+import { usageTrackingClient } from '@bettercone/better-auth-plugin-usage-tracking/client';
+
+const customClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  plugins: [usageTrackingClient()],
+});
+
+export default function DashboardPage() {
+  return (
+    <UsageHistoryChart 
+      authClient={customClient}
+      organizationId="org_123"
+    />
+  );
+}
+```
+
+### Tier 3: Presentational (Manual Data)
+
+Pass data directly for full control:
+
+```tsx
+import { UsageHistoryChart } from '@bettercone/ui';
+
+export default function DashboardPage() {
+  const data = [
+    { date: "2024-01-01", value: 450 },
+    { date: "2024-01-02", value: 620 },
+    { date: "2024-01-03", value: 550 },
+  ];
+
+  return (
+    <UsageHistoryChart 
+      data={data}
+      showTimeRangeControls
+      showChartTypeControls
+    />
+  );
+}
+```
+
+## Chart Types
+
+The component supports three chart types:
+
+### Line Chart (Default)
+
+Smooth line chart ideal for showing trends:
+
+```tsx
+<UsageHistoryChart 
+  data={data}
+  chartType="line"
+/>
+```
+
+### Bar Chart
+
+Bar chart for comparing discrete values:
+
+```tsx
+<UsageHistoryChart 
+  data={data}
+  chartType="bar"
+/>
+```
+
+### Area Chart
+
+Area chart for showing volume trends:
+
+```tsx
+<UsageHistoryChart 
+  data={data}
+  chartType="area"
+/>
+```
+
+## Time Ranges
+
+Filter data by time period:
+
+- **7d** - Last 7 days
+- **30d** - Last 30 days (default)
+- **90d** - Last 90 days
+- **1y** - Last year (365 days)
+- **all** - All available data
+
+```tsx
+<UsageHistoryChart 
+  data={data}
+  timeRange="90d"
+  showTimeRangeControls // Enable time range buttons
+/>
+```
+
+<Callout type="info">
+  Time range filtering works automatically for both manual data and plugin-fetched data.
+</Callout>
+
+## Props
+
+<TypeTable
+  type={{
+    data: {
+      type: 'UsageHistoryEntry[]',
+      description: 'Manual usage history data (Tier 3)',
+    },
+    authClient: {
+      type: 'BetterAuthClient',
+      description: 'Custom auth client with usage tracking plugin (Tier 2)',
+    },
+    organizationId: {
+      type: 'string',
+      description: 'Organization ID for filtering usage data',
+    },
+    metric: {
+      type: 'string',
+      description: 'Usage metric to track',
+      default: '"api_calls"',
+    },
+    timeRange: {
+      type: '"7d" | "30d" | "90d" | "1y" | "all"',
+      description: 'Default time range to display',
+      default: '"30d"',
+    },
+    chartType: {
+      type: '"line" | "bar" | "area"',
+      description: 'Default chart type',
+      default: '"line"',
+    },
+    showTimeRangeControls: {
+      type: 'boolean',
+      description: 'Show time range selection buttons',
+      default: 'true',
+    },
+    showChartTypeControls: {
+      type: 'boolean',
+      description: 'Show chart type selection buttons',
+      default: 'false',
+    },
+    className: {
+      type: 'string',
+      description: 'Additional CSS class name',
+    },
+    classNames: {
+      type: 'UsageHistoryChartClassNames',
+      description: 'CSS class names for specific parts',
+    },
+    localization: {
+      type: 'UsageHistoryChartLocalization',
+      description: 'Localization strings',
+    },
+  }}
+/>
+
+### UsageHistoryEntry
+
+```tsx
+interface UsageHistoryEntry {
+  date: string; // ISO date string (YYYY-MM-DD)
+  value: number; // Usage value
+}
+```
+
+### ClassNames
+
+Customize specific parts of the component:
+
+```tsx
+interface UsageHistoryChartClassNames {
+  base?: string;
+  header?: string;
+  title?: string;
+  description?: string;
+  badge?: string;
+  content?: string;
+  skeleton?: string;
+}
+```
+
+## Trend Indicators
+
+The component automatically calculates and displays trend indicators:
+
+- **TrendingUp** badge - When current period usage is higher than start
+- **TrendingDown** badge - When current period usage is lower than start
+
+Trends are calculated by comparing the first and last values in the displayed range.
+
+## Theming
+
+Charts use Shadcn's official chart color system defined in your `globals.css`:
+
+```css title="app/globals.css"
+@layer base {
+  :root {
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    /* ... more chart colors */
+  }
+
+  .dark {
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    /* ... more chart colors */
+  }
+}
+```
+
+The component uses `--chart-1` by default. Colors automatically adapt to light/dark mode.
+
+## Localization
+
+Customize all text strings:
+
+```tsx
+<UsageHistoryChart 
+  data={data}
+  localization={{
+    USAGE_HISTORY: "API Usage History",
+    USAGE_HISTORY_DESCRIPTION: "Track your API calls over time",
+    TREND_UP: "Trending Up",
+    TREND_DOWN: "Trending Down",
+    NO_DATA: "No usage data available",
+    TIME_RANGE_7D: "Last 7 days",
+    TIME_RANGE_30D: "Last 30 days",
+    TIME_RANGE_90D: "Last 90 days",
+    TIME_RANGE_1Y: "Last year",
+    TIME_RANGE_ALL: "All time",
+    CHART_TYPE_LINE: "Line",
+    CHART_TYPE_BAR: "Bar",
+    CHART_TYPE_AREA: "Area",
+  }}
+/>
+```
+
+## Examples
+
+### Minimal Setup
+
+```tsx
+<UsageHistoryChart data={data} />
+```
+
+### Full Features
+
+```tsx
+<UsageHistoryChart 
+  data={data}
+  timeRange="30d"
+  chartType="line"
+  showTimeRangeControls
+  showChartTypeControls
+/>
+```
+
+### Custom Styling
+
+```tsx
+<UsageHistoryChart 
+  data={data}
+  className="rounded-xl border-2 shadow-lg"
+  classNames={{
+    header: "bg-gradient-to-r from-blue-500 to-purple-500 text-white",
+    title: "text-2xl font-bold",
+    badge: "bg-white text-blue-500",
+  }}
+/>
+```
+
+### Real-Time Updates
+
+```tsx
+'use client';
+
+import { UsageHistoryChart } from '@bettercone/ui';
+import { useEffect, useState } from 'react';
+
+export default function LiveChart() {
+  const [data, setData] = useState<UsageHistoryEntry[]>([]);
+
+  useEffect(() => {
+    // Subscribe to real-time usage updates
+    const unsubscribe = subscribeToUsage((newData) => {
+      setData(newData);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  return <UsageHistoryChart data={data} />;
+}
+```
+
+## Accessibility
+
+The component includes:
+
+- **Keyboard Navigation** - Full keyboard support via Recharts `accessibilityLayer`
+- **Screen Reader Support** - Proper ARIA labels and descriptions
+- **High Contrast** - Works in high contrast mode
+- **Focus Indicators** - Clear focus states on controls
+
+## Integration with UsageDashboard
+
+UsageHistoryChart can be used standalone or within UsageDashboard:
+
+```tsx
+import { UsageDashboard, UsageHistoryChart } from '@bettercone/ui';
+
+// Standalone
+<UsageHistoryChart data={data} />
+
+// Within dashboard (automatically included)
+<UsageDashboard />
+```
+
+## Related Components
+
+- [UsageDashboard](/docs/components/usage/usage-dashboard) - Complete usage dashboard
+- [ApiUsageCard](/docs/components/usage/api-usage-card) - API usage metrics card
+- [FeatureAccessCard](/docs/components/usage/feature-access-card) - Feature access status

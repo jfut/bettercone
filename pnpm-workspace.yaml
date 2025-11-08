@@ -1,6 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "packages/better-auth-plugins/*"
   - "docs"
 ignoredBuiltDependencies:
   - '@tailwindcss/oxide'

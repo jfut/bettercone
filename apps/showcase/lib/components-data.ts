@@ -58,7 +58,9 @@ export const componentsByCategory = {
     { name: "SessionCell", description: "Individual session list item", slug: "session-cell" },
   ],
   Organizations: [
+    { name: "OrganizationView", description: "Complete organization settings and management view", slug: "organization-view" },
     { name: "OrganizationSwitcher", description: "Switch between organizations", slug: "organization-switcher" },
+    { name: "OrganizationSettingsCards", description: "Organization settings cards (logo, name, slug, delete)", slug: "organization-settings-cards" },
     { name: "OrganizationMembersCard", description: "Organization members list and management", slug: "organization-members-card" },
     { name: "OrganizationInvitationsCard", description: "Manage organization invitations", slug: "organization-invitations-card" },
     { name: "OrganizationLogoCard", description: "Organization logo upload and management", slug: "organization-logo-card" },
@@ -99,8 +101,8 @@ export const componentsByCategory = {
     { name: "SeatAllocationCard", description: "Seat usage and allocation", slug: "seat-allocation-card" },
     { name: "UsageDashboard", description: "Usage metrics dashboard", slug: "usage-dashboard" },
     { name: "ApiUsageCard", description: "API usage metrics", slug: "api-usage-card" },
-    { name: "StorageUsageCard", description: "Storage usage metrics", slug: "storage-usage-card" },
     { name: "FeatureAccessCard", description: "Feature access based on plan", slug: "feature-access-card" },
+    { name: "UsageHistoryChart", description: "Visualize usage trends over time with interactive charts", slug: "usage-history-chart" },
   ],
   "Enterprise SSO": [
     { name: "SSOConfigCard", description: "Configure SAML and OIDC SSO providers", slug: "sso-config-card" },

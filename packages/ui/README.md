@@ -1,12 +1,45 @@
 # @bettercone/ui
 
-**Comprehensive Better Auth UI component library** with production-ready components for authentication, billing, teams, and Web3.
+**Comprehensive Better Auth UI component library** with production-ready components for authentication, billing, teams, and usage analytics.
 
 [![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🎉 What's New in v0.3.7 - **100% Better Auth Coverage!**
+## 🎉 What's New in v0.3.8 - **Dashboard & View Components!**
+
+**3 New Dashboard Components** - Complete dashboard views and interactive charts:
+
+### Dashboard & View Components
+
+- [x] **OrganizationView** (219 lines): Full organization management interface
+  - Tab-based navigation: Settings, Members, API Keys
+  - Responsive design: desktop sidebar, mobile drawer
+  - Deep linking support for section navigation
+  - Follows AccountView pattern
+  - Optional navigation hiding for embedded layouts
+  - Full customization via classNames
+
+- [x] **UsageHistoryChart** (400 lines): Interactive usage visualization
+  - Multiple chart types: Line, Bar, Area
+  - Time range controls: 7d, 30d, 90d, 1y, all time
+  - Trend indicators (TrendingUp/TrendingDown)
+  - Powered by Shadcn Charts + Recharts
+  - Three-tier architecture support
+  - Accessibility layer for keyboard navigation
+  - Client-side time range filtering
+
+- [x] **OrganizationSettingsCards**: Composite organization settings component
+  - Groups organization logo, name, slug, and delete cards
+  - Ready for organization dashboards
+
+### Enhanced Usage Components
+
+- [x] **ApiUsageCard**: Updated with plugin support
+- [x] **FeatureAccessCard**: Updated with plugin support
+- [x] **UsageDashboard**: Composition of usage monitoring components
+
+## What's New in v0.3.7 - **100% Better Auth Coverage!**
 
 **3 New Enterprise SSO & OIDC Provider Components** - Achieving **100% coverage**:
 
@@ -262,6 +295,8 @@ export default function BillingPage() {
 
 ### Organizations
 
+- `OrganizationView` - Complete organization management interface
+- `OrganizationSettingsCards` - Organization settings cards (logo, name, slug, delete)
 - `OrganizationSwitcher` - Switch between organizations
 - `CreateOrganizationDialog` - Create new organization
 - `DeleteOrganizationCard` - Delete organization
@@ -285,6 +320,13 @@ export default function BillingPage() {
 - `DeleteAccountDialog` - Confirm deletion
 - `LinkAccountCard` - Link OAuth providers to account
 - `UnlinkAccountCard` - Unlink OAuth providers from account
+
+### Dashboard & Analytics
+
+- `UsageHistoryChart` - Interactive usage visualization with charts
+- `UsageDashboard` - Complete usage metrics dashboard
+- `ApiUsageCard` - API usage tracking with limits
+- `FeatureAccessCard` - Feature availability by plan
 
 ### Developer Tools
 

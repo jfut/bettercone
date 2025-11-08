@@ -5,6 +5,69 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.8] - 2025-11-08
+
+### Added
+
+#### Dashboard & View Components
+
+- **OrganizationView** (219 lines): Complete organization management interface
+  - Tab-based navigation (Settings, Members, API Keys)
+  - Responsive design: desktop sidebar, mobile drawer
+  - Composition of OrganizationSettingsCards, OrganizationMembersCard, OrganizationInvitationsCard, ApiKeysCard
+  - Deep linking support for direct section navigation
+  - Follows AccountView pattern for consistency
+  - Optional navigation hiding for embedded layouts
+  - Full customization via classNames prop
+  - Three-tier architecture support
+  - Made organizationOptions optional with safe navigation
+
+- **UsageHistoryChart** (400 lines): Interactive usage visualization with Shadcn Charts + Recharts
+  - Multiple chart types: Line (default), Bar, Area with smooth switching
+  - Time range controls: 7d, 30d, 90d, 1y, all time
+  - Automatic trend indicators (TrendingUp/TrendingDown badges)
+  - Shadcn chart color system integration (--chart-1 through --chart-5)
+  - Interactive tooltips with formatted values
+  - Three-tier pattern: Context, Custom Client, Manual Data
+  - Responsive design with aspect-video container
+  - Accessibility layer for keyboard navigation and screen readers
+  - Client-side time-based filtering for manual data
+  - Skeleton loading states
+  - getFilteredData function for time range filtering
+
+- **OrganizationSettingsCards**: Added to components list
+  - Composite component grouping organization settings
+  - Contains logo, name, slug, and delete cards
+
+### Changed
+
+#### Usage Components Enhanced with Plugin Support
+
+- **ApiUsageCard**: Enhanced with three-tier pattern
+  - Tier 1: Context (AuthUIProvider)
+  - Tier 2: Custom Client with usage tracking plugin
+  - Tier 3: Manual Props
+  - Auto-fetches usage data when plugin is available
+  - Real-time usage monitoring with live updates
+  - Enhanced loading states and error handling
+
+- **FeatureAccessCard**: Enhanced with three-tier pattern
+  - Flexible data sourcing (Context/Client/Manual)
+  - Auto-checks feature limits when plugin is available
+  - Real-time feature availability checking
+  - Enhanced status indicators
+
+- **UsageDashboard**: Enhanced with plugin support
+  - Composition of ApiUsageCard, FeatureAccessCard, and usage components
+  - Plugin-powered data fetching when available
+  - Unified usage monitoring interface
+
+- **OrganizationView**: Made organizationOptions optional
+  - Uses optional chaining for viewPaths access
+  - More resilient component that doesn't require strict context configuration
+  - Matches pattern of other view components
+  - Works without organization configuration in AuthUIProvider
+
 ## [0.3.7] - 2025-11-07
 
 ### Added

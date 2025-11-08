@@ -1,17 +1,23 @@
 /**
  * Feature Access Card Component
  * Display available features based on subscription
- * Backend-agnostic - accepts feature configuration as props
+ * 
+ * Three-Tier Pattern:
+ * - Tier 1 (Self-Contained): Auto-fetches via AuthUIContext
+ * - Tier 2 (Agnostic): Custom authClient prop
+ * - Tier 3 (Presentational): Manual props (backward compatible)
  */
 
 "use client";
 
+import { useContext, useEffect, useState } from "react";
 import { Zap, Check, Lock } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
+import { AuthUIContext } from "../../lib/auth-ui-provider";
 
 export interface FeatureAccess {
   planId?: string;
@@ -29,8 +35,23 @@ export interface FeatureConfig {
 }
 
 export interface FeatureAccessCardProps {
-  /** Feature access configuration */
-  features: FeatureAccess | undefined;
+  /** 
+   * Feature access configuration
+   * Tier 3 (Presentational): Required if not using authClient or context
+   */
+  features?: FeatureAccess;
+  
+  /**
+   * Better Auth client instance
+   * Tier 2 (Agnostic): Provide custom authClient with usageTracking plugin
+   */
+  authClient?: any;
+  
+  /**
+   * Organization ID - defaults to active organization
+   * Used when fetching data via context or authClient
+   */
+  organizationId?: string;
   
   /** Optional custom feature configuration */
   featureConfig?: FeatureConfig[];
@@ -65,17 +86,106 @@ const defaultFeatureConfig: FeatureConfig[] = [
   },
 ];
 
+/**
+ * FeatureAccessCard Component
+ * 
+ * Three-Tier Pattern:
+ * 1. Self-Contained: <FeatureAccessCard /> - Auto-fetches via AuthUIContext
+ * 2. Agnostic: <FeatureAccessCard authClient={custom} /> - Custom backend
+ * 3. Presentational: <FeatureAccessCard features={myFeatures} /> - Manual props
+ * 
+ * @example
+ * // Tier 1: Self-Contained (Context-based)
+ * <AuthUIProvider authClient={authClient}>
+ *   <FeatureAccessCard />
+ * </AuthUIProvider>
+ * 
+ * @example
+ * // Tier 2: Agnostic (Custom client)
+ * <FeatureAccessCard authClient={customAuthClient} />
+ * 
+ * @example
+ * // Tier 3: Presentational (Manual props)
+ * <FeatureAccessCard features={{ planId: "pro", advancedAnalytics: true }} />
+ */
 export function FeatureAccessCard({ 
-  features, 
+  features: featuresProp,
+  authClient: authClientProp,
+  organizationId,
   featureConfig = defaultFeatureConfig,
   onUpgrade,
   className,
 }: FeatureAccessCardProps) {
-  // Handle undefined states
-  if (!features) {
-    return <FeatureAccessCardSkeleton className={className} />;
-  }
+  const context = useContext(AuthUIContext);
+  
+  // State for fetched data
+  const [features, setFeatures] = useState<FeatureAccess | undefined>();
+  const [isPending, setIsPending] = useState(false);
+  
+  // Determine which authClient to use (context or prop)
+  const authClient = authClientProp || context?.authClient;
+  
+  // Tier 1 & 2: Fetch from authClient with plugin
+  useEffect(() => {
+    // Skip if manual props provided (Tier 3)
+    if (featuresProp) {
+      return;
+    }
+    
+    // Skip if no authClient or no plugin
+    if (!authClient || !(authClient as any).usageTracking) {
+      return;
+    }
+    
+    const fetchFeatures = async () => {
+      setIsPending(true);
+      try {
+        const plugin = (authClient as any).usageTracking;
+        const data = await plugin.getUsage({ organizationId });
+        
+        setFeatures(data.features);
+      } catch (error) {
+        console.error("Failed to fetch features:", error);
+        setFeatures(undefined);
+      } finally {
+        setIsPending(false);
+      }
+    };
+    
+    fetchFeatures();
+  }, [authClient, organizationId, featuresProp]);
+  
+  // Tier 3: Use manual props
+  const finalFeatures = featuresProp || features;
+  
+  if (isPending) return <FeatureAccessCardSkeleton className={className} />;
+  if (!finalFeatures) return <FeatureAccessCardSkeleton className={className} />;
+  
+  return (
+    <FeatureAccessCardUI
+      features={finalFeatures}
+      featureConfig={featureConfig}
+      onUpgrade={onUpgrade}
+      className={className}
+    />
+  );
+}
 
+/**
+ * FeatureAccessCardUI - Pure presentational component
+ * Separated for cleanliness and reusability
+ */
+function FeatureAccessCardUI({
+  features,
+  featureConfig = defaultFeatureConfig,
+  onUpgrade,
+  className,
+}: {
+  features: FeatureAccess;
+  featureConfig?: FeatureConfig[];
+  onUpgrade?: () => void;
+  className?: string;
+}) {
   const enabledFeatures = featureConfig.filter(f => features[f.key] === true);
   const disabledFeatures = featureConfig.filter(f => features[f.key] === false);
 

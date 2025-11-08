@@ -1,6 +1,7 @@
 {
   "title": "Organization",
   "pages": [
+    "organization-view",
     "transfer-ownership-dialog"
   ]
 }

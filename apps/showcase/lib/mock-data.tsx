@@ -608,6 +608,17 @@ export const mockUsage = {
   },
 };
 
+// Mock usage history data (last 365 days for complete time range testing)
+export const mockUsageHistory = Array.from({ length: 365 }, (_, i) => {
+  const date = new Date();
+  date.setDate(date.getDate() - (364 - i));
+  return {
+    date: date.toISOString().split('T')[0],
+    value: Math.floor(Math.random() * 800) + 200, // Random value between 200-1000
+  };
+});
+
+
 // Mock feature flags
 export const mockFeatures = {
   apiAccess: true,

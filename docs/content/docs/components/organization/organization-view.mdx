@@ -1,0 +1,380 @@
+---
+title: OrganizationView
+description: Complete organization management interface with tabbed navigation
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# OrganizationView
+
+The `OrganizationView` component provides a complete organization management interface with tabbed navigation for settings, members, and API keys.
+
+<Callout type="info">
+  This component follows the same pattern as `AccountView` and provides a full-page organization management experience with responsive navigation.
+</Callout>
+
+## Installation
+
+```tsx
+import { OrganizationView } from '@bettercone/ui';
+```
+
+## Features
+
+- ✅ **Tab-Based Navigation** - Settings, Members, and API Keys tabs
+- ✅ **Responsive Design** - Desktop sidebar, mobile drawer
+- ✅ **Organization Settings** - Logo, name, slug, and deletion
+- ✅ **Member Management** - View and manage organization members
+- ✅ **Invitation System** - Send and manage invitations
+- ✅ **API Key Management** - Create and manage API keys
+- ✅ **Deep Linking** - Direct navigation to specific sections
+- ✅ **Customizable** - Hide navigation, custom styling
+- ✅ **Type-Safe** - Full TypeScript support
+
+## Usage
+
+<Tabs items={['Basic', 'With Custom Path', 'Hide Navigation', 'Styled']}>
+  <Tab value="Basic">
+    ```tsx
+    import { OrganizationView } from '@bettercone/ui';
+
+    export default function OrganizationPage() {
+      return (
+        <OrganizationView 
+          slug="my-organization"
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="With Custom Path">
+    ```tsx
+    import { OrganizationView } from '@bettercone/ui';
+
+    export default function OrganizationPage() {
+      return (
+        <OrganizationView 
+          slug="my-organization"
+          pathname="/organizations/my-organization/settings"
+          view="settings" // or "members" or "api_keys"
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Hide Navigation">
+    ```tsx
+    import { OrganizationView } from '@bettercone/ui';
+
+    export default function OrganizationPage() {
+      // Useful for embedding in custom layouts
+      return (
+        <OrganizationView 
+          slug="my-organization"
+          hideNav={true}
+          view="members"
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab value="Styled">
+    ```tsx
+    import { OrganizationView } from '@bettercone/ui';
+
+    export default function OrganizationPage() {
+      return (
+        <OrganizationView 
+          slug="my-organization"
+          className="rounded-lg border"
+          classNames={{
+            container: "bg-muted/50",
+            content: "p-8",
+            nav: "border-r-2",
+            navItem: "text-lg",
+          }}
+        />
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Three-Tier Pattern
+
+OrganizationView follows the **Three-Tier Architecture** pattern:
+
+### Tier 1: Self-Contained (Context)
+
+Uses `AuthUIProvider` context to automatically fetch organization data:
+
+```tsx
+import { AuthUIProvider } from '@bettercone/ui';
+import { OrganizationView } from '@bettercone/ui';
+
+export default function App() {
+  return (
+    <AuthUIProvider authClient={authClient}>
+      <OrganizationView slug="my-org" />
+    </AuthUIProvider>
+  );
+}
+```
+
+### Tier 2: Agnostic (Custom Client)
+
+Provide a custom auth client for different backends:
+
+```tsx
+import { OrganizationView } from '@bettercone/ui';
+import { createCustomAuthClient } from './custom-auth';
+
+export default function OrganizationPage() {
+  const customClient = createCustomAuthClient();
+  
+  return (
+    <OrganizationView 
+      slug="my-org"
+      // Component will use context from AuthUIProvider
+    />
+  );
+}
+```
+
+### Tier 3: Manual Props (Presentational)
+
+The organization slug is required for fetching data:
+
+```tsx
+import { OrganizationView } from '@bettercone/ui';
+
+export default function OrganizationPage() {
+  return (
+    <OrganizationView 
+      slug="my-organization"
+      view="settings"
+    />
+  );
+}
+```
+
+## Navigation Structure
+
+The component provides three main sections:
+
+### Settings Tab
+
+Contains organization settings cards:
+- **Logo Card** - Upload and manage organization logo
+- **Name Card** - Edit organization display name
+- **Slug Card** - Change organization URL slug
+- **Delete Card** - Delete organization with confirmation
+
+### Members Tab
+
+Contains member management:
+- **Members Card** - View and manage organization members
+- **Invitations Card** - Send and manage pending invitations
+
+### API Keys Tab
+
+Contains API key management:
+- **API Keys Card** - Create, view, and revoke API keys
+
+## Props
+
+<TypeTable
+  type={{
+    slug: {
+      type: 'string',
+      description: 'Organization slug for fetching data',
+    },
+    pathname: {
+      type: 'string',
+      description: 'Current pathname for deep linking',
+    },
+    view: {
+      type: '"settings" | "members" | "api_keys"',
+      description: 'Default view to display',
+      default: '"settings"',
+    },
+    hideNav: {
+      type: 'boolean',
+      description: 'Hide the navigation sidebar/drawer',
+      default: 'false',
+    },
+    className: {
+      type: 'string',
+      description: 'Additional CSS class name',
+    },
+    classNames: {
+      type: 'OrganizationViewClassNames',
+      description: 'CSS class names for specific parts',
+    },
+    localization: {
+      type: 'AuthLocalization',
+      description: 'Localization strings',
+    },
+  }}
+/>
+
+### ClassNames
+
+Customize specific parts of the component:
+
+```tsx
+interface OrganizationViewClassNames {
+  container?: string;
+  content?: string;
+  nav?: string;
+  navItem?: string;
+  navItemActive?: string;
+  cards?: string;
+  card?: SettingsCardClassNames;
+}
+```
+
+## Routing Integration
+
+### Next.js App Router
+
+```tsx title="app/organizations/[slug]/page.tsx"
+import { OrganizationView } from '@bettercone/ui';
+
+export default function OrganizationPage({ 
+  params 
+}: { 
+  params: { slug: string } 
+}) {
+  return (
+    <OrganizationView 
+      slug={params.slug}
+    />
+  );
+}
+```
+
+### Next.js with Dynamic Views
+
+```tsx title="app/organizations/[slug]/[[...view]]/page.tsx"
+import { OrganizationView } from '@bettercone/ui';
+
+export default function OrganizationPage({ 
+  params 
+}: { 
+  params: { slug: string; view?: string[] } 
+}) {
+  const view = params.view?.[0] as OrganizationViewPath | undefined;
+  
+  return (
+    <OrganizationView 
+      slug={params.slug}
+      view={view}
+    />
+  );
+}
+```
+
+## Permissions
+
+The component respects Better Auth organization permissions:
+
+- **Owner** - Full access to all tabs and actions
+- **Admin** - Can manage members and API keys, limited settings access
+- **Member** - Read-only access, cannot modify settings
+
+Buttons and actions are automatically disabled based on user role.
+
+## Localization
+
+All strings are customizable via the `localization` prop:
+
+```tsx
+<OrganizationView 
+  slug="my-org"
+  localization={{
+    SETTINGS: "Settings",
+    MEMBERS: "Members", 
+    API_KEYS: "API Keys",
+    // ... more strings
+  }}
+/>
+```
+
+See the [AuthLocalization](/docs/guides/localization) guide for all available strings.
+
+## Examples
+
+### Minimal Setup
+
+```tsx
+import { OrganizationView } from '@bettercone/ui';
+
+export default function Page() {
+  return <OrganizationView slug="acme-corp" />;
+}
+```
+
+### Custom Layout
+
+```tsx
+import { OrganizationView } from '@bettercone/ui';
+
+export default function Page() {
+  return (
+    <div className="container mx-auto py-8">
+      <h1 className="mb-6 text-3xl font-bold">
+        Organization Settings
+      </h1>
+      <OrganizationView 
+        slug="acme-corp"
+        className="rounded-lg border bg-card"
+      />
+    </div>
+  );
+}
+```
+
+### Deep Linking
+
+```tsx
+'use client';
+
+import { OrganizationView } from '@bettercone/ui';
+import { usePathname } from 'next/navigation';
+
+export default function Page() {
+  const pathname = usePathname();
+  
+  return (
+    <OrganizationView 
+      slug="acme-corp"
+      pathname={pathname}
+    />
+  );
+}
+```
+
+## Composition
+
+OrganizationView is composed of these components:
+
+- `OrganizationSettingsCards` - Logo, name, slug, delete cards
+- `OrganizationMembersCard` - Member list and management
+- `OrganizationInvitationsCard` - Invitation management
+- `ApiKeysCard` - API key management
+
+You can use these individually for custom layouts.
+
+## Related Components
+
+- [OrganizationSettingsCards](/docs/components/organization/organization-settings-cards) - Organization settings cards
+- [OrganizationMembersCard](/docs/components/organization/organization-members-card) - Member management
+- [OrganizationSwitcher](/docs/components/organization/organization-switcher) - Switch between organizations
+- [ApiKeysCard](/docs/components/developer/api-keys-card) - API key management
+- [AccountView](/docs/components/account/account-view) - Similar pattern for user accounts

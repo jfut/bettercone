@@ -8,6 +8,45 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.3.8",
+    date: "2025-11-08",
+    title: "Dashboard & View Components",
+    type: "feature",
+    changes: [
+      {
+        category: "New Components",
+        items: [
+          "OrganizationView - Complete organization management interface",
+          "UsageHistoryChart - Interactive usage visualization with Shadcn Charts + Recharts",
+          "OrganizationSettingsCards - Composite organization settings component",
+        ],
+      },
+      {
+        category: "Features",
+        items: [
+          "Tab-based navigation for OrganizationView (Settings, Members, API Keys)",
+          "Responsive design: desktop sidebar, mobile drawer",
+          "Multiple chart types: Line, Bar, Area with smooth transitions",
+          "Time range controls: 7d, 30d, 90d, 1y, all time",
+          "Automatic trend indicators (TrendingUp/TrendingDown badges)",
+          "Interactive tooltips with formatted values",
+          "Client-side time range filtering",
+          "Deep linking support for section navigation",
+          "Accessibility layer for keyboard navigation and screen readers",
+        ],
+      },
+      {
+        category: "Enhancements",
+        items: [
+          "ApiUsageCard - Enhanced with plugin support",
+          "FeatureAccessCard - Enhanced with plugin support",
+          "UsageDashboard - Enhanced with plugin support",
+          "OrganizationView - Made organizationOptions optional with safe navigation",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.3.7",
     date: "2025-11-07",
     title: "🎉 Complete Better Auth Coverage - Enterprise SSO & OIDC Provider",

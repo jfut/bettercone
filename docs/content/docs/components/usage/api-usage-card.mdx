@@ -11,6 +11,10 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 
 The `ApiUsageCard` component displays real-time API usage tracking with visual progress indicators, warning thresholds, and upgrade prompts when approaching limits.
 
+<Callout type="warn" title="Plugin Required">
+  This component requires the `@bettercone/better-auth-plugin-usage-tracking` plugin to be installed and configured in your Better Auth setup. See the [UsageDashboard Plugin Installation](/docs/components/usage/usage-dashboard#plugin-installation) guide.
+</Callout>
+
 <Callout type="info">
   This component is part of the UsageDashboard but can be used standalone for custom dashboards or widgets.
 </Callout>
@@ -154,9 +158,8 @@ const isNearLimit = usagePercentage >= 90;
 ### Example 1: Usage Dashboard
 
 ```tsx
-import { ApiUsageCard } from '@/components/usage/api-usage-card';
-import { StorageUsageCard } from '@/components/usage/storage-usage-card';
-import { FeatureAccessCard } from '@/components/usage/feature-access-card';
+import { ApiUsageCard, FeatureAccessCard } from '@bettercone/ui';
+import { useRouter } from 'next/navigation';
 
 export default function UsagePage() {
   const router = useRouter();
@@ -175,19 +178,11 @@ export default function UsagePage() {
           limit={100000}
           onUpgrade={handleUpgrade}
         />
-        
-        <StorageUsageCard
-          currentBytes={750000000}
-          limitBytes={1000000000}
-          onUpgrade={handleUpgrade}
-        />
-        
-        <div className="lg:col-span-2">
+                
           <FeatureAccessCard
             features={featureList}
             onUpgrade={handleUpgrade}
           />
-        </div>
       </div>
     </div>
   );
@@ -420,7 +415,6 @@ const resetDate = new Date(subscription.currentPeriodEnd);
 
 ## Related Components
 
-- [StorageUsageCard](/docs/components/usage/storage-usage-card) - Track storage usage
 - [FeatureAccessCard](/docs/components/usage/feature-access-card) - Display available features
 - [UsageDashboard](/docs/components/usage/usage-dashboard) - Complete usage view
 
