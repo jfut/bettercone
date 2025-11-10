@@ -8,6 +8,21 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.3.10",
+    date: "2025-11-10",
+    title: "CSS Export Fix",
+    type: "fix",
+    changes: [
+      {
+        category: "Build",
+        items: [
+          "Added styles.css to published package distribution",
+          "Fixed CSS export path (@bettercone/ui/css) resolution",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.3.9",
     date: "2025-11-10",
     title: "Modern Design System Update",
