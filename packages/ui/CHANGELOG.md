@@ -5,6 +5,24 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.12] - 2025-11-10
+
+### Fixed
+
+- **Build**: Added "use client" directive to bundled output files
+  - Resolved Next.js client component errors when importing from the package
+  - Implemented post-build script to inject directive into dist files
+  - Ensures compatibility with Next.js App Router
+
+## [0.3.11] - 2025-11-10
+
+### Fixed
+
+- **Build**: Externalized `react-hook-form` dependency
+  - Fixed module resolution errors where FormProvider, Controller, useForm, etc. were not found
+  - Added `react-hook-form` to tsup external dependencies to prevent bundling
+  - Now properly uses peer/consumer's react-hook-form installation
+
 ## [0.3.10] - 2025-11-10
 
 ### Fixed

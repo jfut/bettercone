@@ -8,6 +8,39 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.3.12",
+    date: "2025-11-10",
+    title: "Build Fix - Use Client Directive",
+    type: "fix",
+    changes: [
+      {
+        category: "Build",
+        items: [
+          "Added 'use client' directive to bundled output files",
+          "Fixed Next.js client component errors when importing from package",
+          "Implemented post-build script to inject directive into dist files",
+          "Bundled react-hook-form internally for better compatibility",
+        ],
+      },
+    ],
+  },
+  {
+    version: "0.3.11",
+    date: "2025-11-10",
+    title: "React Hook Form Dependency Fix",
+    type: "fix",
+    changes: [
+      {
+        category: "Build",
+        items: [
+          "Externalized react-hook-form dependency to fix module resolution errors",
+          "Fixed 'FormProvider is not exported' errors in consuming applications",
+          "Added react-hook-form to tsup external dependencies configuration",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.3.10",
     date: "2025-11-10",
     title: "CSS Export Fix",

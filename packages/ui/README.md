@@ -6,7 +6,31 @@
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🎉 What's New in v0.3.9 - **Modern Design System Update!**
+## What's New in v0.3.12
+
+**Build Fix** - Added "use client" directive to bundled output:
+
+- [x] **Next.js Compatibility**: Fixed client component errors in Next.js App Router
+- [x] **Build Process**: Post-build script injects "use client" directive
+- [x] **react-hook-form**: Now bundled internally for better compatibility
+
+## What's New in v0.3.11
+
+**Build Fix** - Externalized react-hook-form dependency:
+
+- [x] **Module Resolution**: Fixed "FormProvider is not exported" errors
+- [x] **Build Configuration**: Added react-hook-form to tsup external dependencies
+- [x] **Dependency Management**: Now properly uses consumer's react-hook-form installation
+
+## What's New in v0.3.10
+
+**Build Fix** - Added missing CSS file to published package:
+
+- [x] **CSS Export**: Fixed `@bettercone/ui/css` import path resolution
+- [x] **Package Distribution**: Added `styles.css` to dist folder in published package
+- [x] **Build Script**: Updated to ensure CSS file is included in npm package
+
+## What's New in v0.3.9 - **Modern Design System Update!**
 
 **Visual Styling Improvements** - Modernized component design to match current UI patterns:
 

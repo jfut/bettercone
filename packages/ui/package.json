@@ -1,7 +1,7 @@
 {
-    "name": "@bettercone/ui",
-  "version": "0.3.10",
-  "description": "Bettercone UI components",
+  "name": "@bettercone/ui",
+  "version": "0.3.12",
+  "description": "Production-ready Better Auth UI components.",
   "keywords": [
     "better-auth",
     "react",
@@ -64,7 +64,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup && cp src/styles.css dist/styles.css",
+    "build": "tsup && cp src/styles.css dist/styles.css && node scripts/add-use-client.js",
     "dev": "tsup --watch",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit",
