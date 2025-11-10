@@ -6,7 +6,25 @@
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🎉 What's New in v0.3.8 - **Dashboard & View Components!**
+## 🎉 What's New in v0.3.9 - **Modern Design System Update!**
+
+**Visual Styling Improvements** - Modernized component design to match current UI patterns:
+
+### Component Style Updates
+
+- **Avatar Components**: Updated `UserAvatar` and `OrganizationLogo` with `rounded-lg` styling (sm size remains `rounded-full`)
+- **Typography**: Changed from `font-semibold` to `font-medium` across all view components for refined appearance
+- **Colors**: Replaced `opacity-70` with semantic `text-muted-foreground` for better consistency
+- **Spacing**: Modernized button and menu item spacing with consistent `gap-2` and `px-2 py-1.5` patterns
+- **UserButton**: Updated to match modern design pattern with improved dropdown positioning
+- **OrganizationSwitcher**: Redesigned style with proper labels and visual hierarchy
+
+### Bug Fixes
+
+- Fixed `setActiveSession` undefined guard check in UserButton
+- Removed deprecated warning message for UserButton size prop
+
+## What's New in v0.3.8 - **Dashboard & View Components!**
 
 **3 New Dashboard Components** - Complete dashboard views and interactive charts:
 

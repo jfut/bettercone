@@ -87,14 +87,14 @@ export function UserAvatar({
         return (
             <Skeleton
                 className={cn(
-                    "shrink-0 rounded-full",
+                    "shrink-0",
                     size === "sm"
-                        ? "size-6"
+                        ? "size-6 rounded-full"
                         : size === "lg"
-                          ? "size-10"
+                          ? "size-10 rounded-lg"
                           : size === "xl"
-                            ? "size-12"
-                            : "size-8",
+                            ? "size-12 rounded-lg"
+                            : "size-8 rounded-lg",
                     className,
                     classNames?.base,
                     classNames?.skeleton
@@ -108,12 +108,12 @@ export function UserAvatar({
             className={cn(
                 "bg-muted",
                 size === "sm"
-                    ? "size-6"
+                    ? "size-6 rounded-full"
                     : size === "lg"
-                      ? "size-10"
+                      ? "size-10 rounded-lg"
                       : size === "xl"
-                        ? "size-12"
-                        : "size-8",
+                        ? "size-12 rounded-lg"
+                        : "size-8 rounded-lg",
                 className,
                 classNames?.base
             )}
@@ -136,6 +136,7 @@ export function UserAvatar({
             <AvatarFallback
                 className={cn(
                     "text-foreground uppercase",
+                    size === "sm" ? "rounded-full" : "rounded-lg",
                     classNames?.fallback
                 )}
                 delayMs={src ? 600 : undefined}

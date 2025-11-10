@@ -8,6 +8,32 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.3.9",
+    date: "2025-11-10",
+    title: "Modern Design System Update",
+    type: "feature",
+    changes: [
+      {
+        category: "Style Modernization",
+        items: [
+          "UserAvatar and OrganizationLogo - Updated to rounded-lg styling (sm size remains rounded-full)",
+          "Typography - Changed from font-semibold to font-medium across all view components",
+          "Colors - Replaced opacity-70 with semantic text-muted-foreground for consistency",
+          "Spacing - Modernized with consistent gap-2 and px-2 py-1.5 patterns",
+          "UserButton - Updated to match modern design patterns",
+          "OrganizationSwitcher - Redesigned style with proper labels",
+        ],
+      },
+      {
+        category: "Bug Fixes",
+        items: [
+          "Fixed setActiveSession undefined guard check in UserButton",
+          "Removed deprecated warning message for UserButton size prop",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.3.8",
     date: "2025-11-08",
     title: "Dashboard & View Components",

@@ -5,6 +5,26 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.9] - 2025-11-10
+
+### Changed
+
+#### UI Components - Style Modernization
+
+Updated component styling to match modern design patterns:
+
+- **Avatar Components**: Changed `UserAvatar` and `OrganizationLogo` to use `rounded-lg` styling (except sm size which remains `rounded-full`)
+- **Typography**: Updated all view components to use `font-medium` instead of `font-semibold` for more refined appearance
+- **Colors**: Replaced `opacity-70` with semantic `text-muted-foreground` for better consistency
+- **Spacing**: Modernized button and menu item spacing with consistent `gap-2` and `px-2 py-1.5` patterns
+- **UserButton**: Updated layout to match modern design pattern with improved dropdown positioning
+- **OrganizationSwitcher**: Redesigned style with proper labels and improved visual hierarchy
+
+### Fixed
+
+- Removed deprecated warning message for UserButton size prop
+- Fixed `setActiveSession` undefined guard check in UserButton
+
 ## [0.3.8] - 2025-11-08
 
 ### Added

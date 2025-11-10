@@ -101,7 +101,7 @@ export function OrganizationCellView({
                     <>
                         <span
                             className={cn(
-                                "truncate font-semibold",
+                                "truncate font-medium",
                                 size === "lg" ? "text-base" : "text-sm",
                                 classNames?.title
                             )}
@@ -112,8 +112,8 @@ export function OrganizationCellView({
                         {size !== "sm" && organization?.slug && (
                             <span
                                 className={cn(
-                                    "truncate opacity-70",
-                                    size === "lg" ? "text-sm" : "text-xs",
+                                    "truncate text-xs text-muted-foreground",
+                                    size === "lg" ? "text-sm" : "",
                                     classNames?.subtitle
                                 )}
                             >

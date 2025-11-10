@@ -21,7 +21,6 @@ import {
     useContext,
     useEffect,
     useMemo,
-    useRef,
     useState
 } from "react"
 
@@ -36,6 +35,8 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuGroup,
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "../ui/dropdown-menu"
@@ -147,6 +148,8 @@ export function UserButton({
 
     const switchAccount = useCallback(
         async (sessionToken: string) => {
+            if (!setActiveSession) return
+            
             setActiveSessionPending(true)
 
             try {
@@ -170,18 +173,6 @@ export function UserButton({
 
         setActiveSessionPending(false)
     }, [sessionData, multiSession])
-
-    const warningLogged = useRef(false)
-
-    useEffect(() => {
-        if (size || warningLogged.current) return
-
-        console.warn(
-            "[Better Auth UI] The `size` prop of `UserButton` no longer defaults to `icon`. Please pass `size='icon'` to the `UserButton` component to get the same behaviour as before. This warning will be removed in a future release. It can be suppressed in the meantime by defining the `size` prop."
-        )
-
-        warningLogged.current = true
-    }, [size])
 
     return (
         <DropdownMenu>
@@ -212,10 +203,11 @@ export function UserButton({
                     ) : (
                         <Button
                             className={cn(
-                                "!p-2 h-fit",
+                                "h-auto w-full justify-start gap-2 px-2 py-1.5 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
                                 className,
                                 classNames?.trigger?.base
                             )}
+                            variant="ghost"
                             size={size}
                             {...props}
                         >
@@ -229,40 +221,49 @@ export function UserButton({
                                 localization={localization}
                             />
 
-                            <ChevronsUpDown className="ml-auto" />
+                            <ChevronsUpDown className="ml-auto size-4" />
                         </Button>
                     ))}
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
                 className={cn(
-                    "w-[--radix-dropdown-menu-trigger-width] min-w-56 max-w-64",
+                    "w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg",
                     classNames?.content?.base
                 )}
-                align={align}
+                align={align || "start"}
                 alignOffset={alignOffset}
-                side={side}
-                sideOffset={sideOffset}
+                side={side || "bottom"}
+                sideOffset={sideOffset || 4}
                 onCloseAutoFocus={(e) => e.preventDefault()}
             >
-                <div className={cn("p-2", classNames?.content?.menuItem)}>
-                    {(user && !(user as User).isAnonymous) || isPending ? (
-                        <UserView
-                            user={user}
-                            isPending={isPending}
-                            classNames={classNames?.content?.user}
-                            localization={localization}
+                {((user && !(user as User).isAnonymous) || isPending) && (
+                    <>
+                        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                            <UserView
+                                user={user}
+                                isPending={isPending}
+                                classNames={classNames?.content?.user}
+                                localization={localization}
+                            />
+                        </div>
+
+                        <DropdownMenuSeparator
+                            className={classNames?.content?.separator}
                         />
-                    ) : (
-                        <div className="-my-1 text-muted-foreground text-xs">
+                    </>
+                )}
+
+                {!user && !isPending && (
+                    <>
+                        <div className="px-1 py-1.5 text-xs text-muted-foreground">
                             {localization.ACCOUNT}
                         </div>
-                    )}
-                </div>
-
-                <DropdownMenuSeparator
-                    className={classNames?.content?.separator}
-                />
+                        <DropdownMenuSeparator
+                            className={classNames?.content?.separator}
+                        />
+                    </>
+                )}
 
                 {additionalLinks?.map(
                     ({ href, icon, label, signedIn, separator }, index) =>

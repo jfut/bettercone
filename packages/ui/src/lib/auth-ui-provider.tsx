@@ -653,7 +653,21 @@ export const AuthUIProvider = ({
                 replace: replace || navigate || defaultReplace,
                 viewPaths,
                 Link,
-                ...props
+                additionalFields: props.additionalFields,
+                apiKey: props.apiKey,
+                emailVerification: props.emailVerification,
+                gravatar: props.gravatar,
+                magicLink: props.magicLink,
+                emailOTP: props.emailOTP,
+                multiSession: props.multiSession,
+                oneTap: props.oneTap,
+                optimistic: props.optimistic,
+                passkey: props.passkey,
+                anonymous: props.anonymous,
+                siwe: props.siwe,
+                persistClient: props.persistClient,
+                twoFactor: props.twoFactor,
+                onSessionChange: props.onSessionChange
             }}
         >
             {sessionData && organization && <OrganizationRefetcher />}

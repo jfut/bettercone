@@ -10,6 +10,7 @@ import type { Organization } from "better-auth/plugins/organization"
 import {
     ChevronsUpDown,
     LogInIcon,
+    Plus,
     PlusCircleIcon,
     SettingsIcon
 } from "lucide-react"
@@ -40,7 +41,7 @@ import {
 } from "./organization-cell-view"
 import { OrganizationLogo } from "./organization-logo"
 import { PersonalAccountView } from "./personal-account-view"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
 
 export interface OrganizationSwitcherClassNames {
     base?: string
@@ -297,11 +298,13 @@ export function OrganizationSwitcher({
                         ) : (
                             <Button
                                 className={cn(
-                                    "!p-2 h-fit",
+                                    "h-auto w-full justify-start gap-2 px-2 py-1.5 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
                                     className,
                                     classNames?.trigger?.base
                                 )}
+                                variant="ghost"
                                 size={size}
+                                type="button"
                                 {...props}
                             >
                                 {isPending ||
@@ -327,92 +330,31 @@ export function OrganizationSwitcher({
                                     />
                                 )}
 
-                                <ChevronsUpDown className="ml-auto" />
+                                <ChevronsUpDown className="ml-auto size-4" />
                             </Button>
                         ))}
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent
                     className={cn(
-                        "w-[--radix-dropdown-menu-trigger-width] min-w-56 max-w-64",
+                        "w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg",
                         classNames?.content?.base
                     )}
-                    align={align}
+                    align={align || "start"}
                     alignOffset={alignOffset}
-                    side={side}
-                    sideOffset={sideOffset}
+                    side={side || "bottom"}
+                    sideOffset={sideOffset || 4}
                     onCloseAutoFocus={(e) => e.preventDefault()}
                 >
-                    <div
-                        className={cn(
-                            "flex items-center justify-between gap-2 p-2",
-                            classNames?.content?.menuItem
-                        )}
-                    >
-                        {(user && !(user as User).isAnonymous) || isPending ? (
-                            <>
-                                {activeOrganizationPending ||
-                                activeOrganization ||
-                                hidePersonal ? (
-                                    <OrganizationCellView
-                                        classNames={
-                                            classNames?.content?.organization
-                                        }
-                                        isPending={
-                                            isPending ||
-                                            activeOrganizationPending
-                                        }
-                                        organization={activeOrganization}
-                                        localization={localization}
-                                    />
-                                ) : (
-                                    <PersonalAccountView
-                                        classNames={classNames?.content?.user}
-                                        isPending={isPending}
-                                        localization={localization}
-                                        user={user}
-                                    />
-                                )}
-
-                                {!isPending && (
-                                    <Link
-                                        href={
-                                            activeOrganization
-                                                ? pathMode === "slug"
-                                                    ? `${organizationOptions?.basePath}/${activeOrganization.slug}/${organizationOptions?.viewPaths.SETTINGS}`
-                                                    : `${organizationOptions?.basePath}/${organizationOptions?.viewPaths.SETTINGS}`
-                                                : `${accountOptions?.basePath}/${accountOptions?.viewPaths.SETTINGS}`
-                                        }
-                                    >
-                                        <Button
-                                            size="icon"
-                                            variant="outline"
-                                            className="!size-8 ml-auto"
-                                            onClick={() =>
-                                                setDropdownOpen(false)
-                                            }
-                                        >
-                                            <SettingsIcon className="size-4" />
-                                        </Button>
-                                    </Link>
-                                )}
-                            </>
-                        ) : (
-                            <div className="-my-1 text-muted-foreground text-xs">
-                                {localization.ORGANIZATION}
-                            </div>
-                        )}
-                    </div>
-
-                    <DropdownMenuSeparator
-                        className={classNames?.content?.separator}
-                    />
+                    <DropdownMenuLabel className="text-xs text-muted-foreground">
+                        {hidePersonal ? localization.ORGANIZATION : localization.ACCOUNT}
+                    </DropdownMenuLabel>
 
                     {activeOrganization &&
                         !hidePersonal &&
                         (pathMode === "slug" ? (
                             <Link href={personalPath ?? redirectTo}>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem className="gap-2 p-2">
                                     <PersonalAccountView
                                         classNames={classNames?.content?.user}
                                         isPending={isPending}
@@ -424,6 +366,7 @@ export function OrganizationSwitcher({
                         ) : (
                             <DropdownMenuItem
                                 onClick={() => switchOrganization(null)}
+                                className="gap-2 p-2"
                             >
                                 <PersonalAccountView
                                     classNames={classNames?.content?.user}
@@ -442,7 +385,7 @@ export function OrganizationSwitcher({
                                     key={organization.id}
                                     href={`${organizationOptions?.basePath}/${organization.slug}`}
                                 >
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem className="gap-2 p-2">
                                         <OrganizationCellView
                                             classNames={
                                                 classNames?.content
@@ -460,6 +403,7 @@ export function OrganizationSwitcher({
                                     onClick={() =>
                                         switchOrganization(organization)
                                     }
+                                    className="gap-2 p-2"
                                 >
                                     <OrganizationCellView
                                         classNames={
@@ -485,16 +429,20 @@ export function OrganizationSwitcher({
                     sessionData &&
                     !(user as User).isAnonymous ? (
                         <DropdownMenuItem
-                            className={cn(classNames?.content?.menuItem)}
+                            className={cn("gap-2 p-2", classNames?.content?.menuItem)}
                             onClick={() => setIsCreateOrgDialogOpen(true)}
                         >
-                            <PlusCircleIcon />
-                            {localization.CREATE_ORGANIZATION}
+                            <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+                                <Plus className="size-4" />
+                            </div>
+                            <div className="font-medium text-muted-foreground">
+                                {localization.CREATE_ORGANIZATION}
+                            </div>
                         </DropdownMenuItem>
                     ) : (
                         <Link href={`${basePath}/${viewPaths.SIGN_IN}`}>
                             <DropdownMenuItem
-                                className={cn(classNames?.content?.menuItem)}
+                                className={cn("gap-2 p-2", classNames?.content?.menuItem)}
                             >
                                 <LogInIcon />
                                 {localization.SIGN_IN}

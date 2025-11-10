@@ -1,7 +1,7 @@
 {
-  "name": "@bettercone/ui",
-  "version": "0.3.8",
-  "description": "Comprehensive Better Auth components: authentication, security, organizations, billing, team management, and usage analytics for React",
+    "name": "@bettercone/ui",
+  "version": "0.3.9",
+  "description": "Bettercone UI components",
   "keywords": [
     "better-auth",
     "react",

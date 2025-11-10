@@ -66,10 +66,31 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
 
   // Component-specific props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const componentProps: Record<string, any> = {
-    // All billing components need authClient
-    authClient: mockAuthClient,
-  };
+  const componentProps: Record<string, any> = {};
+  
+  // List of components that accept authClient prop
+  const componentsWithAuthClient = [
+    'ApiUsageCard',
+    'FeatureAccessCard', 
+    'UsageDashboard',
+    'UsageHistoryChart',
+    'SubscriptionCard',
+    'PaymentMethodCard',
+    'TeamBillingCard',
+    'SeatAllocationCard',
+    'BillingDashboard',
+    'PricingCard',
+    'OIDCProviderCard',
+    'SSOConfigCard',
+    'SAMLSetupWizard',
+    'AnonymousSignInButton',
+    'EmailVerificationBanner'
+  ];
+  
+  // Only add authClient for components that accept it
+  if (componentsWithAuthClient.includes(componentName)) {
+    componentProps.authClient = mockAuthClient;
+  }
 
   // PricingCard needs specific props
   if (componentName === 'PricingCard') {
