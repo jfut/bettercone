@@ -5,6 +5,14 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.10] - 2025-11-10
+
+### Fixed
+
+- **Build**: Added `styles.css` to published package distribution
+  - CSS export path (`@bettercone/ui/css`) now resolves correctly
+  - Build script ensures `dist/styles.css` is copied during package build
+
 ## [0.3.9] - 2025-11-10
 
 ### Changed
