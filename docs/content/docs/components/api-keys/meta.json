@@ -1,0 +1,10 @@
+{
+  "title": "API Keys",
+  "pages": [
+    "api-keys-card",
+    "api-key-cell",
+    "create-api-key-dialog",
+    "update-api-key-dialog",
+    "api-key-usage-card"
+  ]
+}

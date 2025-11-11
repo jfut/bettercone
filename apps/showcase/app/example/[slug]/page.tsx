@@ -10,7 +10,7 @@ import { allComponentsMap } from "@/lib/components-data";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import dynamic from "next/dynamic";
 import { Component as ReactComponent, ErrorInfo, ReactNode } from "react";
-import { MockDataProvider, mockPricingPlans, mockSeatAllocation, mockOrganization, mockSubscription, mockAdminUsers, mockSSOProviders, mockOAuth2Clients } from "@/lib/mock-data";
+import { MockDataProvider, mockPricingPlans, mockSeatAllocation, mockOrganization, mockSubscription, mockAdminUsers, mockSSOProviders, mockOAuth2Clients, mockApiKeys } from "@/lib/mock-data";
 import { MockAuthUIProvider } from "@/components/mock-auth-provider";
 import { mockAuthClient } from "@/lib/mock-auth-provider";
 
@@ -80,7 +80,11 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
     'SSOConfigCard',
     'SAMLSetupWizard',
     'AnonymousSignInButton',
-    'EmailVerificationBanner'
+    'EmailVerificationBanner',
+    'ApiKeysCard',
+    'ApiKeyCell',
+    'CreateApiKeyDialog',
+    'UpdateApiKeyDialog',
   ];
   
   // Only add authClient for components that accept it
@@ -276,6 +280,32 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
     componentProps.allowRegistration = true;
     componentProps.showActiveTokens = false; // Disable for demo
     componentProps.showTrustedClients = false; // Disable for demo
+  }
+
+  // ApiKeyCell needs a single API key
+  if (componentName === 'ApiKeyCell') {
+    componentProps.apiKey = mockApiKeys[0]; // Production API Key
+    componentProps.onRevoke = (keyId: string) => console.log('Revoke key:', keyId);
+    componentProps.onEdit = (key: typeof mockApiKeys[0]) => console.log('Edit key:', key);
+  }
+
+  // ApiKeyUsageCard needs a single API key
+  if (componentName === 'ApiKeyUsageCard') {
+    componentProps.apiKey = mockApiKeys[0]; // Production API Key with usage data
+  }
+
+  // CreateApiKeyDialog and UpdateApiKeyDialog need callback props
+  if (componentName === 'CreateApiKeyDialog') {
+    componentProps.open = true;
+    componentProps.onOpenChange = (open: boolean) => console.log('Dialog open:', open);
+    componentProps.onSuccess = (key: typeof mockApiKeys[0]) => console.log('Key created:', key);
+  }
+
+  if (componentName === 'UpdateApiKeyDialog') {
+    componentProps.apiKey = mockApiKeys[1]; // Development Key
+    componentProps.open = true;
+    componentProps.onOpenChange = (open: boolean) => console.log('Dialog open:', open);
+    componentProps.onSuccess = (key: typeof mockApiKeys[0]) => console.log('Key updated:', key);
   }
 
   // OrganizationView needs organization slug

@@ -382,40 +382,147 @@ export const mockPasskeys = [
   },
 ];
 
-// Mock API keys
+// Mock API keys (Better Auth native format)
 export const mockApiKeys = [
   {
     id: "key_1",
     name: "Production API Key",
-    key: "sk_live_*********************abc123",
-    prefix: "sk_live_",
-    createdAt: new Date("2024-02-01"),
-    lastUsed: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    key: "pk_live_*********************abc123",
+    start: "pk_live_abc",
+    prefix: "pk_live_",
+    userId: "user_123",
+    
+    // Usage & Refill
+    remaining: 7500,
+    refillAmount: 10000,
+    refillInterval: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
+    lastRefillAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+    
+    // Rate Limiting
+    rateLimitEnabled: true,
+    rateLimitTimeWindow: 60 * 60 * 1000, // 1 hour in ms
+    rateLimitMax: 1000,
+    requestCount: 247,
+    lastRequest: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    
+    // Status
+    enabled: true,
     expiresAt: null,
-    permissions: ["read", "write"],
-    isActive: true,
+    
+    // Permissions
+    permissions: JSON.stringify(["read", "write", "delete"]),
+    
+    // Metadata
+    metadata: { environment: "production", team: "backend" },
+    
+    // Timestamps
+    createdAt: new Date("2024-02-01"),
+    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
   },
   {
     id: "key_2",
     name: "Development Key",
-    key: "sk_test_*********************def456",
-    prefix: "sk_test_",
-    createdAt: new Date("2024-03-01"),
-    lastUsed: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    key: "pk_test_*********************def456",
+    start: "pk_test_def",
+    prefix: "pk_test_",
+    userId: "user_123",
+    
+    // Usage & Refill
+    remaining: 980,
+    refillAmount: 1000,
+    refillInterval: 24 * 60 * 60 * 1000, // 1 day in ms
+    lastRefillAt: new Date(Date.now() - 12 * 60 * 60 * 1000),
+    
+    // Rate Limiting
+    rateLimitEnabled: true,
+    rateLimitTimeWindow: 60 * 60 * 1000, // 1 hour in ms
+    rateLimitMax: 100,
+    requestCount: 45,
+    lastRequest: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    
+    // Status
+    enabled: true,
     expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    permissions: ["read"],
-    isActive: true,
+    
+    // Permissions
+    permissions: JSON.stringify(["read"]),
+    
+    // Metadata
+    metadata: { environment: "development" },
+    
+    // Timestamps
+    createdAt: new Date("2024-03-01"),
+    updatedAt: new Date("2024-03-01"),
   },
   {
     id: "key_3",
-    name: "Legacy Key (Revoked)",
-    key: "sk_live_*********************xyz789",
-    prefix: "sk_live_",
-    createdAt: new Date("2024-01-01"),
-    lastUsed: new Date("2024-02-15"),
+    name: "Legacy Key (Disabled)",
+    key: "pk_live_*********************xyz789",
+    start: "pk_live_xyz",
+    prefix: "pk_live_",
+    userId: "user_123",
+    
+    // Usage & Refill
+    remaining: 0,
+    refillAmount: 5000,
+    refillInterval: 30 * 24 * 60 * 60 * 1000,
+    lastRefillAt: new Date("2024-02-15"),
+    
+    // Rate Limiting
+    rateLimitEnabled: false,
+    rateLimitTimeWindow: null,
+    rateLimitMax: null,
+    requestCount: 0,
+    lastRequest: new Date("2024-02-15"),
+    
+    // Status
+    enabled: false,
     expiresAt: null,
-    permissions: ["read", "write"],
-    isActive: false,
+    
+    // Permissions
+    permissions: JSON.stringify(["read", "write"]),
+    
+    // Metadata
+    metadata: { archived: true },
+    
+    // Timestamps
+    createdAt: new Date("2024-01-01"),
+    updatedAt: new Date("2024-02-15"),
+  },
+  {
+    id: "key_4",
+    name: "High Usage Key",
+    key: "pk_live_*********************ghi012",
+    start: "pk_live_ghi",
+    prefix: "pk_live_",
+    userId: "user_123",
+    
+    // Usage & Refill - Near limit (warning state)
+    remaining: 450,
+    refillAmount: 5000,
+    refillInterval: 30 * 24 * 60 * 60 * 1000,
+    lastRefillAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
+    
+    // Rate Limiting - Near limit
+    rateLimitEnabled: true,
+    rateLimitTimeWindow: 60 * 60 * 1000,
+    rateLimitMax: 500,
+    requestCount: 475,
+    lastRequest: new Date(Date.now() - 5 * 60 * 1000),
+    
+    // Status
+    enabled: true,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expires in 7 days
+    
+    // Permissions
+    permissions: JSON.stringify(["read", "write"]),
+    
+    // Metadata
+    metadata: { environment: "staging", critical: true },
+    
+    // Timestamps
+    createdAt: new Date("2024-02-15"),
+    updatedAt: new Date(Date.now() - 5 * 60 * 1000),
   },
 ];
 

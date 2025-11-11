@@ -1,0 +1,178 @@
+---
+title: UpdateApiKeyDialog
+description: Dialog for editing existing API keys
+---
+
+# UpdateApiKeyDialog
+
+The `UpdateApiKeyDialog` component provides a modal interface for editing existing API keys, allowing updates to name, expiration, scopes, and rate limit settings.
+
+## Usage
+
+```tsx
+import { UpdateApiKeyDialog } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function ApiKeyManagement() {
+  const [editingKey, setEditingKey] = useState<ApiKey | null>(null);
+  
+  return (
+    <>
+      <Button onClick={() => setEditingKey(selectedKey)}>
+        Edit Key
+      </Button>
+      
+      <UpdateApiKeyDialog
+        authClient={authClient}
+        apiKey={editingKey}
+        open={!!editingKey}
+        onOpenChange={(open) => !open && setEditingKey(null)}
+        onSuccess={(updatedKey) => {
+          console.log('Updated:', updatedKey);
+          setEditingKey(null);
+          refetchKeys();
+        }}
+      />
+    </>
+  );
+}
+```
+
+## Features
+
+- ✅ Update key name
+- ✅ Modify expiration date
+- ✅ Change scopes/permissions
+- ✅ Adjust rate limits
+- ✅ Update refill rate
+- ✅ Form validation
+- ✅ Confirmation on save
+- ✅ Cannot modify the actual key value (security)
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `authClient` | `AnyAuthClient` | required | Better Auth client instance |
+| `apiKey` | `ApiKey \| null` | required | The API key to edit |
+| `open` | `boolean` | `false` | Controls dialog visibility |
+| `onOpenChange` | `(open: boolean) => void` | - | Callback when dialog open state changes |
+| `onSuccess` | `(key: ApiKey) => void` | - | Callback after successful update |
+| `onCancel` | `() => void` | - | Callback when dialog is cancelled |
+| `availableScopes` | `Scope[]` | - | Available scope options |
+
+## Examples
+
+### Basic Update
+
+```tsx
+<UpdateApiKeyDialog
+  authClient={authClient}
+  apiKey={selectedKey}
+  open={isOpen}
+  onOpenChange={setIsOpen}
+  onSuccess={(key) => {
+    toast.success(`API key "${key.name}" updated`);
+    refetchKeys();
+  }}
+/>
+```
+
+### With Scope Management
+
+```tsx
+const scopes = [
+  { id: 'read', name: 'Read', description: 'Read-only access' },
+  { id: 'write', name: 'Write', description: 'Create and update' },
+  { id: 'delete', name: 'Delete', description: 'Delete resources' },
+];
+
+<UpdateApiKeyDialog
+  authClient={authClient}
+  apiKey={selectedKey}
+  open={isOpen}
+  onOpenChange={setIsOpen}
+  availableScopes={scopes}
+  onSuccess={(key) => {
+    console.log('Updated scopes:', key.scopes);
+  }}
+/>
+```
+
+### Inline with ApiKeyCell
+
+```tsx
+const [editingKey, setEditingKey] = useState<ApiKey | null>(null);
+
+return (
+  <>
+    {apiKeys.map((key) => (
+      <ApiKeyCell
+        key={key.id}
+        apiKey={key}
+        onEdit={setEditingKey}
+      />
+    ))}
+    
+    <UpdateApiKeyDialog
+      authClient={authClient}
+      apiKey={editingKey}
+      open={!!editingKey}
+      onOpenChange={(open) => !open && setEditingKey(null)}
+      onSuccess={() => {
+        setEditingKey(null);
+        refetchKeys();
+      }}
+    />
+  </>
+);
+```
+
+## Editable Fields
+
+### Can Be Updated
+- **Name** - Change the descriptive name
+- **Expiration** - Extend or set expiration date
+- **Scopes** - Add or remove permissions
+- **Rate Limit** - Adjust request limits
+- **Refill Rate** - Modify refill settings
+
+### Cannot Be Changed
+- **Key Value** - The actual API key string (for security)
+- **Created Date** - Timestamp when key was created
+- **ID** - Unique identifier
+
+## Security Considerations
+
+1. **Key Value Immutable** - The actual key value cannot be changed for security
+2. **Audit Trail** - Consider logging updates for compliance
+3. **Permission Validation** - Validate scope changes server-side
+4. **Rate Limit Bounds** - Enforce min/max limits server-side
+
+## Validation
+
+The dialog validates:
+- Name is not empty
+- Expiration is in the future (if set)
+- At least one scope is selected
+- Rate limit values are positive numbers
+- Refill rate doesn't exceed limit
+
+## Workflow
+
+1. User clicks "Edit" on an API key
+2. Dialog opens pre-filled with current values
+3. User modifies desired fields
+4. User clicks "Save Changes"
+5. Validation runs
+6. If valid, API call updates the key
+7. Success callback fires
+8. Dialog closes
+9. List refreshes with updated key
+
+## Related Components
+
+- [ApiKeysCard](/docs/components/api-keys/api-keys-card) - Complete API key management
+- [CreateApiKeyDialog](/docs/components/api-keys/create-api-key-dialog) - Create new keys
+- [ApiKeyCell](/docs/components/api-keys/api-key-cell) - Display individual keys with edit button
+- [ApiKeyUsageCard](/docs/components/api-keys/api-key-usage-card) - View usage after updating limits

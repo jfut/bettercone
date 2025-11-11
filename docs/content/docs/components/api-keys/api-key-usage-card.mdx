@@ -1,0 +1,242 @@
+---
+title: ApiKeyUsageCard
+description: Visualize API key usage with interactive charts
+---
+
+# ApiKeyUsageCard
+
+The `ApiKeyUsageCard` component provides detailed usage visualization for a specific API key, including request counts, rate limit status, and historical usage charts.
+
+## Usage
+
+```tsx
+import { ApiKeyUsageCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function ApiKeyDetails({ keyId }: { keyId: string }) {
+  return (
+    <div className="space-y-6">
+      <ApiKeyUsageCard
+        authClient={authClient}
+        apiKeyId={keyId}
+      />
+    </div>
+  );
+}
+```
+
+## Features
+
+- ✅ Current usage vs. limit display
+- ✅ Rate limit status with refill timer
+- ✅ Interactive usage history chart
+- ✅ Time range selector (24h, 7d, 30d, 90d)
+- ✅ Request breakdown by endpoint
+- ✅ Status code distribution
+- ✅ Response time metrics
+- ✅ Warning indicators for limits
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `authClient` | `AnyAuthClient` | required | Better Auth client instance |
+| `apiKeyId` | `string` | required | The API key ID to show usage for |
+| `showChart` | `boolean` | `true` | Whether to show the usage chart |
+| `showTimeRange` | `boolean` | `true` | Whether to show time range selector |
+| `defaultTimeRange` | `'24h' \| '7d' \| '30d' \| '90d'` | `'7d'` | Default time range |
+| `className` | `string` | - | Additional CSS classes |
+
+## Examples
+
+### Basic Usage Display
+
+```tsx
+<ApiKeyUsageCard
+  authClient={authClient}
+  apiKeyId="key_abc123"
+/>
+```
+
+### Without Chart
+
+```tsx
+<ApiKeyUsageCard
+  authClient={authClient}
+  apiKeyId="key_abc123"
+  showChart={false}
+/>
+```
+
+### Custom Time Range
+
+```tsx
+<ApiKeyUsageCard
+  authClient={authClient}
+  apiKeyId="key_abc123"
+  defaultTimeRange="30d"
+/>
+```
+
+### In Dashboard Layout
+
+```tsx
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <ApiKeyCell apiKey={selectedKey} />
+  <ApiKeyUsageCard
+    authClient={authClient}
+    apiKeyId={selectedKey.id}
+  />
+</div>
+```
+
+## Visual Components
+
+### Usage Progress Bar
+Shows current usage percentage with color coding:
+- **Green** - Under 50% of limit
+- **Yellow** - 50-80% of limit
+- **Orange** - 80-95% of limit
+- **Red** - Over 95% of limit
+
+### Rate Limit Status
+Displays:
+- Current rate limit window
+- Requests remaining
+- Time until refill
+- Refill rate
+
+### Usage Chart
+Interactive line chart showing:
+- Requests over time
+- Hover tooltips with exact counts
+- Time range selector
+- Zoom and pan capabilities
+
+### Request Breakdown
+Table showing:
+- Top endpoints by requests
+- Status code distribution
+- Average response time
+- Error rate
+
+## Time Ranges
+
+Available time range options:
+- **24h** - Last 24 hours (hourly buckets)
+- **7d** - Last 7 days (daily buckets)
+- **30d** - Last 30 days (daily buckets)
+- **90d** - Last 90 days (weekly buckets)
+
+## Data Fetching
+
+The component fetches usage data from your Better Auth backend:
+
+```typescript
+// Expected API endpoint
+GET /api/auth/api-keys/:keyId/usage?timeRange=7d
+
+// Response format
+{
+  current: number;
+  limit: number;
+  rateLimit: {
+    remaining: number;
+    resetAt: string;
+    refillRate: number;
+  };
+  history: Array<{
+    timestamp: string;
+    count: number;
+  }>;
+  endpoints: Array<{
+    path: string;
+    count: number;
+  }>;
+  statusCodes: Record<string, number>;
+}
+```
+
+## Use Cases
+
+### Developer Portal
+Show users their API usage to help them stay within limits:
+
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>API Usage</CardTitle>
+    <CardDescription>
+      Monitor your API key usage and rate limits
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    <ApiKeyUsageCard
+      authClient={authClient}
+      apiKeyId={currentKey.id}
+    />
+  </CardContent>
+</Card>
+```
+
+### Admin Dashboard
+Monitor usage across all keys:
+
+```tsx
+{apiKeys.map((key) => (
+  <ApiKeyUsageCard
+    key={key.id}
+    authClient={authClient}
+    apiKeyId={key.id}
+    showTimeRange={false}
+    showChart={false}
+  />
+))}
+```
+
+### Usage Alerts
+Show warnings when approaching limits:
+
+```tsx
+<ApiKeyUsageCard
+  authClient={authClient}
+  apiKeyId={key.id}
+/>
+{usage.current / usage.limit > 0.8 && (
+  <Alert variant="warning">
+    <AlertDescription>
+      You're approaching your API limit. Consider upgrading your plan.
+    </AlertDescription>
+  </Alert>
+)}
+```
+
+## Customization
+
+### Chart Theming
+The chart uses your app's theme colors:
+
+```tsx
+// Customize via CSS variables
+:root {
+  --chart-1: hsl(var(--primary));
+  --chart-2: hsl(var(--secondary));
+}
+```
+
+### Custom Metrics
+Extend the component to show custom metrics:
+
+```tsx
+<ApiKeyUsageCard
+  authClient={authClient}
+  apiKeyId={key.id}
+/>
+<CustomMetrics keyId={key.id} />
+```
+
+## Related Components
+
+- [ApiKeyCell](/docs/components/api-keys/api-key-cell) - Display API key with usage summary
+- [ApiKeysCard](/docs/components/api-keys/api-keys-card) - Manage multiple API keys
+- [UpdateApiKeyDialog](/docs/components/api-keys/update-api-key-dialog) - Update rate limits

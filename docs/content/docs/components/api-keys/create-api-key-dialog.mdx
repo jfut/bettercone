@@ -1,0 +1,165 @@
+---
+title: CreateApiKeyDialog
+description: Dialog for creating new API keys with configuration
+---
+
+# CreateApiKeyDialog
+
+The `CreateApiKeyDialog` component provides a modal interface for creating new API keys with name, expiration, scopes, rate limits, and refill configuration.
+
+## Usage
+
+```tsx
+import { CreateApiKeyDialog } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function DeveloperPage() {
+  const [open, setOpen] = useState(false);
+  
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>
+        Create API Key
+      </Button>
+      
+      <CreateApiKeyDialog
+        authClient={authClient}
+        open={open}
+        onOpenChange={setOpen}
+        onSuccess={(key) => {
+          console.log('Created:', key);
+          setOpen(false);
+        }}
+      />
+    </>
+  );
+}
+```
+
+## Features
+
+- ✅ Name input with validation
+- ✅ Optional expiration date
+- ✅ Scope selection (permissions)
+- ✅ Rate limit configuration
+- ✅ Refill rate settings
+- ✅ One-time key display (copy to clipboard)
+- ✅ Security best practices UI
+- ✅ Form validation
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `authClient` | `AnyAuthClient` | required | Better Auth client instance |
+| `open` | `boolean` | `false` | Controls dialog visibility |
+| `onOpenChange` | `(open: boolean) => void` | - | Callback when dialog open state changes |
+| `onSuccess` | `(key: ApiKey) => void` | - | Callback after successful creation |
+| `onCancel` | `() => void` | - | Callback when dialog is cancelled |
+| `defaultScopes` | `string[]` | - | Pre-selected scopes |
+| `availableScopes` | `Scope[]` | - | Available scope options |
+
+## Scope Type
+
+```typescript
+interface Scope {
+  id: string;
+  name: string;
+  description?: string;
+}
+```
+
+## Examples
+
+### Basic Dialog
+
+```tsx
+<CreateApiKeyDialog
+  authClient={authClient}
+  open={dialogOpen}
+  onOpenChange={setDialogOpen}
+  onSuccess={(key) => {
+    toast.success(`API key "${key.name}" created`);
+    refetchKeys();
+  }}
+/>
+```
+
+### With Custom Scopes
+
+```tsx
+const scopes = [
+  { id: 'read', name: 'Read', description: 'Read-only access' },
+  { id: 'write', name: 'Write', description: 'Create and update' },
+  { id: 'delete', name: 'Delete', description: 'Delete resources' },
+];
+
+<CreateApiKeyDialog
+  authClient={authClient}
+  open={open}
+  onOpenChange={setOpen}
+  availableScopes={scopes}
+  defaultScopes={['read']}
+  onSuccess={(key) => {
+    // Copy key to clipboard automatically
+    navigator.clipboard.writeText(key.key);
+    toast.success('Key created and copied!');
+  }}
+/>
+```
+
+### With Rate Limits
+
+```tsx
+<CreateApiKeyDialog
+  authClient={authClient}
+  open={open}
+  onOpenChange={setOpen}
+  onSuccess={(key) => {
+    console.log('Created with rate limit:', key.rateLimit);
+    // key.rateLimit = { requests: 100, period: "1h", refillRate: 100 }
+  }}
+/>
+```
+
+## Form Fields
+
+### Required Fields
+- **Name** - Descriptive name for the API key (e.g., "Production API", "Mobile App")
+
+### Optional Fields
+- **Expiration** - Date when the key will automatically expire
+- **Scopes** - Permission levels (read, write, delete, etc.)
+- **Rate Limit** - Maximum requests per period
+- **Refill Rate** - How quickly the rate limit refills
+
+## Security Features
+
+The dialog includes several security best practices:
+
+1. **One-time Display** - The full key is shown only once after creation
+2. **Copy Button** - Easy clipboard copy with confirmation
+3. **Warning Messages** - Reminds users to save the key securely
+4. **Masked Display** - Shows masked version in list after creation
+5. **Scope Validation** - Prevents creating keys with no permissions
+
+## Workflow
+
+1. User clicks "Create API Key" button
+2. Dialog opens with form
+3. User fills in required fields (name)
+4. User optionally configures:
+   - Expiration date
+   - Scopes/permissions
+   - Rate limits
+   - Refill rate
+5. User submits form
+6. Success screen shows full key (one-time)
+7. User copies key and confirms
+8. Dialog closes, key appears in list (masked)
+
+## Related Components
+
+- [ApiKeysCard](/docs/components/api-keys/api-keys-card) - Complete API key management
+- [UpdateApiKeyDialog](/docs/components/api-keys/update-api-key-dialog) - Edit existing keys
+- [ApiKeyCell](/docs/components/api-keys/api-key-cell) - Display individual keys

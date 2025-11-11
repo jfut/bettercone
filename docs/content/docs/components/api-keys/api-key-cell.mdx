@@ -1,0 +1,135 @@
+---
+title: ApiKeyCell
+description: Individual API key list item with actions
+---
+
+# ApiKeyCell
+
+The `ApiKeyCell` component displays a single API key in a list format with metadata, usage information, and action buttons.
+
+## Usage
+
+```tsx
+import { ApiKeyCell } from '@bettercone/ui';
+
+<ApiKeyCell
+  apiKey={apiKey}
+  onRevoke={(keyId) => handleRevoke(keyId)}
+  onEdit={(key) => handleEdit(key)}
+/>
+```
+
+## Features
+
+- ✅ Displays key name and masked value
+- ✅ Shows creation and last used dates
+- ✅ Copy to clipboard functionality
+- ✅ Usage statistics display
+- ✅ Rate limit indicators
+- ✅ Edit and revoke actions
+- ✅ Status badges (active, expired, revoked)
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `apiKey` | `ApiKey` | required | The API key object to display |
+| `onRevoke` | `(keyId: string) => void` | - | Callback when revoke is clicked |
+| `onEdit` | `(key: ApiKey) => void` | - | Callback when edit is clicked |
+| `showUsage` | `boolean` | `true` | Whether to show usage statistics |
+| `className` | `string` | - | Additional CSS classes |
+
+## ApiKey Type
+
+```typescript
+interface ApiKey {
+  id: string;
+  name: string;
+  key: string;
+  createdAt: Date;
+  expiresAt?: Date;
+  lastUsedAt?: Date;
+  scopes?: string[];
+  usage?: {
+    current: number;
+    limit: number;
+  };
+  rateLimit?: {
+    requests: number;
+    period: string;
+    refillRate?: number;
+  };
+}
+```
+
+## Examples
+
+### Basic Display
+
+```tsx
+<ApiKeyCell
+  apiKey={{
+    id: "key_123",
+    name: "Production API",
+    key: "sk_live_***********",
+    createdAt: new Date(),
+    lastUsedAt: new Date(),
+  }}
+/>
+```
+
+### With Actions
+
+```tsx
+<ApiKeyCell
+  apiKey={apiKey}
+  onRevoke={(keyId) => {
+    if (confirm('Revoke this API key?')) {
+      revokeApiKey(keyId);
+    }
+  }}
+  onEdit={(key) => {
+    setEditingKey(key);
+    setDialogOpen(true);
+  }}
+/>
+```
+
+### With Usage Stats
+
+```tsx
+<ApiKeyCell
+  apiKey={{
+    id: "key_123",
+    name: "Production API",
+    key: "sk_live_***********",
+    createdAt: new Date(),
+    usage: {
+      current: 1500,
+      limit: 10000,
+    },
+    rateLimit: {
+      requests: 100,
+      period: "1h",
+      refillRate: 100,
+    },
+  }}
+  showUsage={true}
+/>
+```
+
+## Visual States
+
+The component shows different visual states:
+
+- **Active** - Green badge, all actions available
+- **Expired** - Yellow badge, limited actions
+- **Revoked** - Red badge, view-only mode
+- **Near Limit** - Warning indicator when usage > 80%
+- **Rate Limited** - Indicator when approaching rate limits
+
+## Related Components
+
+- [ApiKeysCard](/docs/components/api-keys/api-keys-card) - Complete API key management
+- [ApiKeyUsageCard](/docs/components/api-keys/api-key-usage-card) - Detailed usage visualization
+- [UpdateApiKeyDialog](/docs/components/api-keys/update-api-key-dialog) - Edit API key settings

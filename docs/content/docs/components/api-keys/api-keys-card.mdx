@@ -1,0 +1,80 @@
+---
+title: ApiKeysCard
+description: Complete API key management card with list, create, and revoke
+---
+
+# ApiKeysCard
+
+The `ApiKeysCard` component provides a complete interface for managing API keys, including listing existing keys, creating new ones, and revoking access.
+
+## Usage
+
+```tsx
+import { ApiKeysCard } from '@bettercone/ui';
+import { authClient } from '@/lib/auth-client';
+
+export default function DeveloperPage() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <ApiKeysCard authClient={authClient} />
+    </div>
+  );
+}
+```
+
+## Features
+
+- ✅ List all API keys
+- ✅ Create new API keys with name, expiration, and scopes
+- ✅ Copy keys to clipboard (shown once on creation)
+- ✅ Revoke keys with confirmation
+- ✅ Last used tracking
+- ✅ Masked key display for security
+- ✅ Rate limits and refill configuration
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `authClient` | `AnyAuthClient` | required | Better Auth client instance |
+| `onKeyCreated` | `(key: ApiKey) => void` | - | Callback after successful key creation |
+| `onKeyRevoked` | `(keyId: string) => void` | - | Callback after key revocation |
+| `className` | `string` | - | Additional CSS classes |
+
+## Sub-components
+
+The ApiKeysCard component uses these sub-components internally:
+
+- **[ApiKeyCell](/docs/components/api-keys/api-key-cell)** - Individual API key list item
+- **[CreateApiKeyDialog](/docs/components/api-keys/create-api-key-dialog)** - Dialog for creating new keys
+- **[UpdateApiKeyDialog](/docs/components/api-keys/update-api-key-dialog)** - Dialog for editing existing keys
+
+## Examples
+
+### Basic Usage
+
+```tsx
+<ApiKeysCard authClient={authClient} />
+```
+
+### With Callbacks
+
+```tsx
+<ApiKeysCard 
+  authClient={authClient}
+  onKeyCreated={(key) => {
+    console.log('New key created:', key.name);
+    toast.success('API key created successfully');
+  }}
+  onKeyRevoked={(keyId) => {
+    console.log('Key revoked:', keyId);
+    toast.success('API key revoked');
+  }}
+/>
+```
+
+## Related Components
+
+- [ApiKeyUsageCard](/docs/components/api-keys/api-key-usage-card) - View usage statistics for a specific key
+- [CreateApiKeyDialog](/docs/components/api-keys/create-api-key-dialog) - Standalone create dialog
+- [UpdateApiKeyDialog](/docs/components/api-keys/update-api-key-dialog) - Standalone update dialog

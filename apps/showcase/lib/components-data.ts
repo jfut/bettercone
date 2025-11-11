@@ -82,6 +82,8 @@ export const componentsByCategory = {
     { name: "ApiKeysCard", description: "API keys management card", slug: "api-keys-card" },
     { name: "ApiKeyCell", description: "Individual API key list item", slug: "api-key-cell" },
     { name: "CreateApiKeyDialog", description: "Create new API key dialog", slug: "create-api-key-dialog" },
+    { name: "UpdateApiKeyDialog", description: "Edit existing API key dialog", slug: "update-api-key-dialog" },
+    { name: "ApiKeyUsageCard", description: "Per-key usage visualization with charts", slug: "api-key-usage-card" },
   ],
   "Admin Tools": [
     { name: "UserManagementTable", description: "Manage users with ban, delete, and impersonate", slug: "user-management-table" },
