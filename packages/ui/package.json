@@ -1,6 +1,6 @@
 {
   "name": "@bettercone/ui",
-  "version": "0.3.12",
+  "version": "0.4.0",
   "description": "Production-ready Better Auth UI components.",
   "keywords": [
     "better-auth",
@@ -34,7 +34,8 @@
     "b2b",
     "pricing",
     "team-management",
-    "subscriptions"
+    "subscriptions",
+    "api"
   ],
   "author": "Vinicius Leal <vncsleal@gmail.com>",
   "license": "MIT",

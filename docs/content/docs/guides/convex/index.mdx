@@ -1,17 +1,16 @@
 ---
 title: Database
-description: Using Convex with @bettercone/ui - usage tracking, rate limiting, and subscription features
+description: Using Convex with @bettercone/ui - real-time data storage for authentication and subscription features
 ---
 
 import { Card, Cards } from 'fumadocs-ui/components/card';
 
-@bettercone/ui works seamlessly with [Convex](https://convex.dev) for real-time, type-safe data storage with built-in usage tracking, rate limiting, and subscription management.
+@bettercone/ui works seamlessly with [Convex](https://convex.dev) for real-time, type-safe data storage with built-in authentication and subscription management.
 
 ## What You'll Build
 
 When using @bettercone/ui with Convex, you can implement:
 
-- **Usage Tracking** - API calls and storage per user/organization
 - **Rate Limiting** - Sliding window limits based on subscription plan
 - **Feature Access** - Plan-based feature flags
 - **Subscription Plans** - Free, Pro, Team configs with Stripe integration
@@ -222,9 +221,8 @@ SITE_URL=http://localhost:3000
 
 ```
 packages/convex/convex/
-├── schema.ts              # Tables: usage, apiRateLimit, featureAccess
+├── schema.ts              # Tables: subscriptions, apiRateLimit, featureAccess
 ├── auth.ts                # Better Auth + Convex integration
-├── usage.ts               # Usage tracking queries/mutations
 ├── rateLimit.ts           # Rate limit enforcement
 ├── subscriptionPlans.ts   # Plan configs with Stripe prices
 ├── http.ts                # Webhook endpoints

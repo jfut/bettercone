@@ -95,14 +95,10 @@ export const componentsByCategory = {
     { name: "InvoiceHistoryCard", description: "Invoice history and downloads", slug: "invoice-history-card" },
     { name: "PricingCard", description: "Pricing plan card", slug: "pricing-card" },
   ],
-  "Team & Usage": [
+  "Team Management": [
     { name: "TeamDashboard", description: "Team management dashboard", slug: "team-dashboard" },
     { name: "TeamBillingCard", description: "Team billing information", slug: "team-billing-card" },
     { name: "SeatAllocationCard", description: "Seat usage and allocation", slug: "seat-allocation-card" },
-    { name: "UsageDashboard", description: "Usage metrics dashboard", slug: "usage-dashboard" },
-    { name: "ApiUsageCard", description: "API usage metrics", slug: "api-usage-card" },
-    { name: "FeatureAccessCard", description: "Feature access based on plan", slug: "feature-access-card" },
-    { name: "UsageHistoryChart", description: "Visualize usage trends over time with interactive charts", slug: "usage-history-chart" },
   ],
   "Enterprise SSO": [
     { name: "SSOConfigCard", description: "Configure SAML and OIDC SSO providers", slug: "sso-config-card" },

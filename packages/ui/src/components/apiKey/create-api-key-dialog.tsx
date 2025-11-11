@@ -9,7 +9,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { Organization } from "better-auth/plugins/organization"
 import { Loader2 } from "lucide-react"
-import { type ComponentProps, useContext } from "react"
+import { type ComponentProps, useContext, useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { useLang } from "../../hooks/use-lang"
@@ -99,15 +99,15 @@ export function CreateApiKeyDialog({
                       1,
                       `${localization.ORGANIZATION} ${localization.IS_REQUIRED}`
                   )
-            : z.string().optional()
+            : z.string().optional(),
     })
 
     const form = useForm({
         resolver: zodResolver(formSchema),
-        values: {
+        defaultValues: {
             name: "",
             expiresInDays: "none",
-            organizationId: organizationId ?? "personal"
+            organizationId: organizationId ?? "personal",
         }
     })
 
@@ -132,6 +132,8 @@ export function CreateApiKeyDialog({
                     : {})
             }
 
+            // Only use client-supported fields (name, expiresIn, prefix, metadata)
+            // Server-only fields (userId, remaining) cannot be set from client for security reasons
             const result = await authClient.apiKey.create({
                 name: values.name,
                 expiresIn,

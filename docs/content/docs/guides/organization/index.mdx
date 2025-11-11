@@ -179,24 +179,6 @@ const features = useQuery(api.usage.getFeatureAccess, {
 
 See [Stripe Guide](/docs/guides/stripe) for billing setup.
 
-## Usage Tracking
-
-Track usage per organization:
-
-```typescript
-const usage = useQuery(api.usage.getCurrentUsage, {
-  userId: user.id,
-  organizationId: org.id,
-});
-
-// Returns:
-// {
-//   apiCalls: 1543,
-//   apiLimit: 10000,  // Based on subscription plan
-//   period: "2024-10"
-// }
-```
-
 ## Invitation Flow
 
 1. **Admin invites member**:
@@ -247,4 +229,4 @@ SITE_URL=https://yourdomain.com
 
 - [Better Auth Organization Plugin](https://www.better-auth.com/docs/plugins/organization)
 - [Stripe Integration](/docs/guides/stripe)
-- [Convex Usage Tracking](/docs/guides/convex)
+- [Convex Database](/docs/guides/convex)

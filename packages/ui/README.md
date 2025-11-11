@@ -1,10 +1,47 @@
 # @bettercone/ui
 
-**Comprehensive Better Auth UI component library** with production-ready components for authentication, billing, teams, and usage analytics.
+**Comprehensive Better Auth UI component library** with production-ready components for authentication, billing, teams, and api key.
 
 [![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## What's New in v0.4.0 - **API Key Components Overhaul!**
+
+### 💥 Breaking Changes
+
+**Removed** components that were not based on Better Auth native features:
+- `ApiUsageCard`, `UsageDashboard`, `UsageHistoryChart`, `FeatureAccessCard`
+
+**Migration**: Use Better Auth's native per-key usage tracking:
+```tsx
+// Before ❌
+import { ApiUsageCard } from '@bettercone/ui'
+
+// After ✅  
+import { ApiKeyUsageCard } from '@bettercone/ui'
+<ApiKeyUsageCard apiKey={selectedKey} />
+```
+
+### ✨ New Components
+
+- **`ApiKeyUsageCard`** - Per-key usage visualization with progress bars, rate limits, and refill countdowns
+- **`UpdateApiKeyDialog`** - Edit API key settings with tabbed interface
+
+### 🔄 Enhanced Components
+
+- **`ApiKeyCell`** - Now shows remaining requests, rate limits, refill countdown, permissions
+- **`CreateApiKeyDialog`** - Added usage limits, auto-refill, and rate limiting configuration
+
+### 📊 All Better Auth API Key Features Now Have UI
+
+- Usage caps & remaining requests
+- Auto-refill schedules  
+- Rate limiting per time window
+- Permissions management
+- Enable/disable toggle
+- Expiration dates
+- Metadata storage
 
 ## What's New in v0.3.12
 

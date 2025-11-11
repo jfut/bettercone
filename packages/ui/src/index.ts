@@ -98,36 +98,6 @@ export type {
   BillingInterval
 } from "./components/pricing/pricing-card";
 
-// Usage Components
-export {
-  ApiUsageCard,
-  ApiUsageCardSkeleton
-} from "./components/usage/api-usage-card";
-export type { 
-  ApiUsageCardProps,
-  ApiUsageCardClassNames,
-  ApiUsageCardLocalization
-} from "./components/usage/api-usage-card";
-
-export {
-  FeatureAccessCard,
-  FeatureAccessCardSkeleton
-} from "./components/usage/feature-access-card";
-export type { 
-  FeatureAccessCardProps,
-  FeatureAccess,
-  FeatureConfig
-} from "./components/usage/feature-access-card";
-
-export { UsageHistoryChart } from "./components/usage/usage-history-chart";
-
-
-export {
-  UsageDashboard,
-  UsageDashboardSkeleton
-} from "./components/usage/usage-dashboard";
-export type { UsageDashboardProps } from "./components/usage/usage-dashboard";
-
 // Team Components
 export {
   SeatAllocationCard,
@@ -237,14 +207,19 @@ export { LinkAccountCard } from "./components/account/link-account-card";
 export { UnlinkAccountCard } from "./components/account/unlink-account-card";
 
 // ============================================================================
-// Developer Components
+// API Key Components
 // ============================================================================
-export { ApiKeysCard } from "./components/developer/api-keys-card";
-export { ApiKeyCell } from "./components/developer/api-key-cell";
-export { CreateApiKeyDialog } from "./components/developer/create-api-key-dialog";
+export { ApiKeysCard } from "./components/apiKey/api-keys-card";
+export { ApiKeyCell } from "./components/apiKey/api-key-cell";
+export { CreateApiKeyDialog } from "./components/apiKey/create-api-key-dialog";
+export { UpdateApiKeyDialog } from "./components/apiKey/update-api-key-dialog";
+export { 
+  ApiKeyUsageCard
+} from "./components/apiKey/api-key-usage-card";
+export type { ApiKey } from "./types/api-key";
 
 // ============================================================================
-// Admin Components
+// Developer Components
 // ============================================================================
 export { UserManagementTable } from "./components/admin/user-management-table";
 export { BanUserDialog } from "./components/admin/ban-user-dialog";

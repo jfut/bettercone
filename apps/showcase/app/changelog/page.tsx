@@ -8,6 +8,64 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.4.0",
+    date: "2025-11-10",
+    title: "API Key Components Overhaul",
+    type: "major",
+    changes: [
+      {
+        category: "Breaking Changes",
+        items: [
+          "Removed ApiUsageCard, UsageDashboard, UsageHistoryChart, FeatureAccessCard (not Better Auth native)",
+          "Removed @bettercone/usage-tracking plugin package (custom business logic)",
+          "Migration: Use ApiKeyUsageCard for per-key usage tracking instead",
+        ],
+      },
+      {
+        category: "New Components",
+        items: [
+          "ApiKeyUsageCard - Per-key usage visualization with progress bars, rate limits, refill countdowns",
+          "UpdateApiKeyDialog - Edit API key settings with three-tab interface (Basic | Usage & Refills | Rate Limits)",
+        ],
+      },
+      {
+        category: "Enhanced Components",
+        items: [
+          "ApiKeyCell - Added remaining requests, rate limits, refill countdown, permissions badges",
+          "CreateApiKeyDialog - Added usage limits, auto-refill settings, rate limiting configuration",
+        ],
+      },
+      {
+        category: "Component Organization",
+        items: [
+          "Moved API Key components from components/developer/ to components/apiKey/",
+          "Import paths remain unchanged - no breaking changes to public API",
+        ],
+      },
+      {
+        category: "Type Enhancements",
+        items: [
+          "Updated ApiKey interface with all Better Auth native fields",
+          "Added: remaining, refillAmount, refillInterval, lastRefillAt",
+          "Added: rateLimitEnabled, rateLimitTimeWindow, rateLimitMax, requestCount, lastRequest",
+          "Added: expiresAt, enabled, permissions, metadata",
+        ],
+      },
+      {
+        category: "Better Auth Features Now Exposed",
+        items: [
+          "Usage caps & remaining requests with progress bars",
+          "Auto-refill schedules with countdown timers",
+          "Rate limiting per time window with tracking",
+          "Permissions management with badge display",
+          "Enable/disable toggle in UpdateApiKeyDialog",
+          "Expiration dates with visual indicators",
+          "Metadata storage support",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.3.12",
     date: "2025-11-10",
     title: "Build Fix - Use Client Directive",

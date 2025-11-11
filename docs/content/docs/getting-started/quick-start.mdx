@@ -183,7 +183,7 @@ You should see your billing dashboard! 🎉
 
 Now that you have a basic billing page, explore more components:
 
-<Tabs items={['Pricing', 'Usage', 'Team']}>
+<Tabs items={['Pricing', 'Team']}>
   <Tab value="Pricing">
     Add a pricing page to let users upgrade or change plans:
 
@@ -222,40 +222,6 @@ Now that you have a basic billing page, explore more components:
     ```
 
     [View Pricing Components →](/docs/components/pricing)
-  </Tab>
-  
-  <Tab value="Usage">
-    Track API usage, storage, and feature access:
-
-    ```tsx title="app/usage/page.tsx"
-    "use client";
-
-    import { UsageDashboard } from "@bettercone/ui";
-    import { authClient } from "@/lib/auth-client";
-    import { useRouter } from "next/navigation";
-
-    export default function UsagePage() {
-      const router = useRouter();
-
-      return (
-        <div className="container mx-auto py-8">
-          <h1 className="text-3xl font-bold mb-8">Usage & Limits</h1>
-          
-          <UsageDashboard
-            authClient={authClient}
-            apiUsageCardProps={{
-              onUpgrade: () => router.push("/pricing")
-            }}
-            featureAccessCardProps={{
-              onUpgrade: () => router.push("/pricing")
-            }}
-          />
-        </div>
-      );
-    }
-    ```
-
-    [View Usage Components →](/docs/components/usage)
   </Tab>
   
   <Tab value="Team">

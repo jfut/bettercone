@@ -5,6 +5,109 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-11-10
+
+### 💥 Breaking Changes
+
+#### Removed Components
+
+**REMOVED** the following components that were NOT based on Better Auth native features:
+- `ApiUsageCard` - Organization-level usage tracking
+- `UsageDashboard` - Organization-level dashboard  
+- `UsageHistoryChart` - Historical usage tracking
+- `FeatureAccessCard` - Feature management
+
+**Reason**: These components were custom business logic, not Better Auth native features. Bettercone only provides UI for Better Auth's built-in functionality.
+
+**Migration**: Use Better Auth's native per-key usage tracking instead:
+```tsx
+// BEFORE (v0.3.x) ❌
+import { ApiUsageCard } from '@bettercone/ui'
+
+// AFTER (v0.4.0) ✅
+import { ApiKeyUsageCard } from '@bettercone/ui'
+<ApiKeyUsageCard apiKey={selectedKey} />
+```
+
+### ✨ Added
+
+#### New Components
+
+- **`ApiKeyUsageCard`** - Detailed per-key usage visualization
+  - Progress bars for requests remaining
+  - Rate limit tracking with time windows
+  - Refill countdown with smart formatting
+  - Last request timestamp
+  - Warning thresholds and status badges
+  - Skeleton loading state included
+
+- **`UpdateApiKeyDialog`** - Edit API key settings
+  - Three-tab interface: Basic | Usage & Refills | Rate Limits
+  - Edit name, expiration, enable/disable status
+  - Configure usage limits and refill schedules
+  - Adjust rate limiting settings
+
+### 🔄 Changed
+
+#### Enhanced Components
+
+- **`ApiKeyCell`** - Major visual enhancement
+  - Added: Remaining requests with progress bar
+  - Added: Rate limit status display
+  - Added: Refill countdown ("Refills in 23d")
+  - Added: Permissions badge
+  - Added: Edit and Delete buttons
+  - New props: `showUsage`, `showRateLimit`, `showRefill`, `showPermissions`
+
+- **`CreateApiKeyDialog`** - Enhanced configuration options
+  - Added: Usage limits (initial requests)
+  - Added: Auto-refill settings (amount + interval)
+  - Added: Rate limiting (max requests per window)
+  - Added: Organization selection
+
+#### Component Organization
+
+**MOVED** API Key components to dedicated folder:
+```
+OLD: components/developer/api-key-*.tsx
+NEW: components/apiKey/api-key-*.tsx
+```
+
+**Import paths unchanged** - no breaking changes to imports:
+```tsx
+import { ApiKeysCard, ApiKeyCell, CreateApiKeyDialog } from '@bettercone/ui'
+```
+
+#### Enhanced Types
+
+**Updated** `ApiKey` interface with all Better Auth native fields:
+- Added: `remaining`, `refillAmount`, `refillInterval`, `lastRefillAt`
+- Added: `rateLimitEnabled`, `rateLimitTimeWindow`, `rateLimitMax`, `requestCount`, `lastRequest`
+- Added: `expiresAt`, `enabled`, `permissions`, `metadata`
+
+### 📊 Better Auth Features Now Exposed
+
+All Better Auth API Key plugin features now have UI:
+
+| Feature | UI Component |
+|---------|--------------|
+| Usage Caps | `ApiKeyUsageCard` progress bars |
+| Auto-Refill | `ApiKeyUsageCard` countdown |
+| Rate Limiting | `ApiKeyUsageCard` tracker |
+| Permissions | `ApiKeyCell` badge |
+| Expiration | `ApiKeyCell` date |
+| Enable/Disable | `UpdateApiKeyDialog` toggle |
+| Metadata | `CreateApiKeyDialog` field |
+
+### 📦 New Exports
+
+```tsx
+// New components
+export { ApiKeyUsageCard, ApiKeyUsageCardSkeleton } from '@bettercone/ui'
+export { UpdateApiKeyDialog } from '@bettercone/ui'
+
+```
+
 ## [0.3.12] - 2025-11-10
 
 ### Fixed

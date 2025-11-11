@@ -24,17 +24,34 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
   </a>
 </div>
 
-## 🎉 What's New in v0.3.8 - **Dashboard & View Components**
+## 🎉 What's New in v0.4.0 - **API Key Management Enhancements**
 
-**3 New Dashboard Components** - Complete dashboard views and interactive charts:
+**Breaking Changes** - Removed components not native to Better Auth:
+
+- Removed `ApiUsageCard`, `UsageDashboard`, `UsageHistoryChart`, `FeatureAccessCard`
+- Use `ApiKeyUsageCard` for API key-specific usage tracking instead
+
+**New API Key Components**:
+
+- **ApiKeyUsageCard** - Per-key usage visualization with interactive charts
+- **UpdateApiKeyDialog** - Edit existing API keys with validation
+
+**Enhanced Components**:
+
+- **ApiKeyCell** - Added usage display and status indicators
+- **CreateApiKeyDialog** - Added rate limits and refill configuration
+
+**Component Reorganization**:
+
+- Moved from `components/developer/` to `components/apiKey/`
+- Better alignment with Better Auth's architecture
+
+### v0.3.8 - **Dashboard & View Components**
+
+**3 New Dashboard Components** - Complete dashboard views:
 
 - **OrganizationView** - Full organization management interface with tabbed navigation
-- **UsageHistoryChart** - Interactive usage visualization with Shadcn Charts + Recharts
 - **OrganizationSettingsCards** - Composite organization settings component
-
-**New Ecosystem: Better Auth Plugins** - Extended functionality beyond UI components:
-
-- [**Usage Tracking Plugin**](/docs/plugins/usage-tracking) - Track API usage, enforce limits, and manage feature access (separate package: `@bettercone/better-auth-plugin-usage-tracking`)
 
 ### v0.3.7 - **100% Better Auth Coverage!**
 
@@ -99,7 +116,7 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 <Cards>
   <Card
     title="🔌 Better Auth Plugins"
-    description="Usage tracking, rate limiting, and more - extend Better Auth functionality"
+    description="Extend Better Auth with additional functionality and custom plugins"
     href="/docs/plugins"
   />
   <Card
@@ -118,12 +135,7 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
     href="/docs/components/pricing"
   />
   <Card
-    title="📊 Usage Tracking"
-    description="API usage, storage monitoring, feature access cards"
-    href="/docs/components/usage"
-  />
-  <Card
-    title="👥 Team Components"
+    title=" Team Components"
     description="Seat allocation, team billing, member management"
     href="/docs/components/team"
   />
@@ -247,17 +259,12 @@ export default function BillingPage() {
 - **PricingCard** - Beautiful pricing cards with features and CTAs
 - **PricingDashboard** - Complete pricing page
 
-### 📊 Usage Components (3)
-- **ApiUsageCard** - API call tracking with warnings
-- **FeatureAccessCard** - Feature flag display
-- **UsageDashboard** - Complete usage overview (composition)
-
-### 👥 Team Components (3)
+###  Team Components (3)
 - **SeatAllocationCard** - Team seat management
 - **TeamBillingCard** - Organization billing summary
 - **TeamDashboard** - Complete team management (composition)
 
-**Total: 89 components covering 100% of Better Auth functionality!**
+**Total: 85 components covering 100% of Better Auth core functionality!**
 
 ## Backend Support
 

@@ -10,7 +10,7 @@ import { allComponentsMap } from "@/lib/components-data";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import dynamic from "next/dynamic";
 import { Component as ReactComponent, ErrorInfo, ReactNode } from "react";
-import { MockDataProvider, mockPricingPlans, mockUsage, mockSeatAllocation, mockOrganization, mockSubscription, mockFeatures, mockAdminUsers, mockSSOProviders, mockOAuth2Clients, mockUsageHistory } from "@/lib/mock-data";
+import { MockDataProvider, mockPricingPlans, mockSeatAllocation, mockOrganization, mockSubscription, mockAdminUsers, mockSSOProviders, mockOAuth2Clients } from "@/lib/mock-data";
 import { MockAuthUIProvider } from "@/components/mock-auth-provider";
 import { mockAuthClient } from "@/lib/mock-auth-provider";
 
@@ -70,10 +70,6 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
   
   // List of components that accept authClient prop
   const componentsWithAuthClient = [
-    'ApiUsageCard',
-    'FeatureAccessCard', 
-    'UsageDashboard',
-    'UsageHistoryChart',
     'SubscriptionCard',
     'PaymentMethodCard',
     'TeamBillingCard',
@@ -101,22 +97,6 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
     };
   }
 
-  // UsageDashboard needs usage data
-  if (componentName === 'UsageDashboard') {
-    componentProps.apiUsage = {
-      current: mockUsage.api.current,
-      limit: mockUsage.api.limit,
-    };
-    componentProps.featureAccess = mockFeatures;
-  }
-
-  // ApiUsageCard needs usage data
-  if (componentName === 'ApiUsageCard') {
-    componentProps.current = mockUsage.api.current;
-    componentProps.limit = mockUsage.api.limit;
-    componentProps.onUpgrade = () => console.log('Upgrade clicked');
-  }
-
   // SeatAllocationCard needs seat data
   if (componentName === 'SeatAllocationCard') {
     componentProps.data = mockSeatAllocation;
@@ -137,12 +117,6 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
   if (componentName === 'TeamBillingCard') {
     componentProps.subscription = mockSubscription;
     componentProps.organization = mockOrganization;
-  }
-
-  // FeatureAccessCard needs features
-  if (componentName === 'FeatureAccessCard') {
-    componentProps.features = mockFeatures;
-    componentProps.planName = "Pro Plan";
   }
 
   // AnonymousSignInButton needs minimal props
@@ -315,29 +289,10 @@ const ComponentPreview = ({ componentName }: { componentName: string }) => {
     componentProps.slug = mockOrganization.slug;
   }
 
-  // UsageHistoryChart needs usage history data
-  if (componentName === 'UsageHistoryChart') {
-    componentProps.data = mockUsageHistory;
-    componentProps.showTimeRangeControls = true;
-    componentProps.showChartTypeControls = true;
-  }
-
-  // Check if this is a usage component that requires the plugin
-  const isUsageComponent = ['UsageDashboard', 'ApiUsageCard', 'FeatureAccessCard', 'UsageHistoryChart'].includes(componentName);
-
   return (
     <ComponentErrorBoundary componentName={componentName}>
       <MockAuthUIProvider>
         <MockDataProvider>
-          {isUsageComponent && (
-            <Alert className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Plugin Required:</strong> This component requires the{' '}
-                <code className="text-sm">@bettercone/better-auth-plugin-usage-tracking</code> plugin to be installed and configured in your Better Auth setup.
-              </AlertDescription>
-            </Alert>
-          )}
           <div className="p-6 border rounded-lg bg-muted/30">
             <Component {...componentProps} />
           </div>

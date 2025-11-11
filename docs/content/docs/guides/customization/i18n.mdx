@@ -32,24 +32,6 @@ import { authClient } from '@/lib/auth-client';
 />
 ```
 
-### Usage Components
-
-```tsx
-import { ApiUsageCard } from '@bettercone/ui';
-
-<ApiUsageCard
-  current={8500}
-  limit={10000}
-  localization={{
-    apiUsage: "Uso de API",
-    used: "Usado",
-    of: "de",
-    upgradePrompt: "Atualize seu plano para mais chamadas"
-  }}
-  onUpgrade={() => router.push('/pricing')}
-/>
-```
-
 ### Team Components
 
 ```tsx

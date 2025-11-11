@@ -18,6 +18,8 @@ import { CreateApiKeyDialog } from "./create-api-key-dialog"
 
 export interface ApiKeysCardProps extends SettingsCardProps {
     organizationId?: string
+    onSelectApiKey?: (apiKey: any) => void
+    selectedApiKeyId?: string
 }
 
 export function ApiKeysCard({
@@ -25,6 +27,8 @@ export function ApiKeysCard({
     classNames,
     localization,
     organizationId,
+    onSelectApiKey,
+    selectedApiKeyId,
     ...props
 }: ApiKeysCardProps) {
     const {
@@ -76,6 +80,8 @@ export function ApiKeysCard({
                                 apiKey={apiKey}
                                 localization={localization}
                                 refetch={refetch}
+                                onClick={onSelectApiKey ? () => onSelectApiKey(apiKey) : undefined}
+                                isSelected={selectedApiKeyId === apiKey.id}
                             />
                         ))}
                     </CardContent>
