@@ -24,7 +24,41 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
   </a>
 </div>
 
-## 🎉 What's New in v0.4.0 - **API Key Management Enhancements**
+## 🚀 What's New in v0.5.2 - **React 19 Support & Documentation Cleanup**
+
+**Enhanced Compatibility** - React 19 support and cleaner documentation:
+
+- ✅ **React 19 compatibility** - Extended lucide-react peer dependency range
+- ✅ **Modern stack support** - Works with latest library versions
+- ✅ **Documentation cleanup** - Removed changelog duplication from README
+- ✅ **Focused README** - Points to CHANGELOG.md for detailed release notes
+
+### Peer Dependencies - React 19 Support
+
+**Extended lucide-react support:**
+```json
+"lucide-react": "^0.300.0 || ^0.400.0 || ^0.500.0"
+```
+
+- ✅ **React 19 projects** - Full compatibility with React 19
+- ✅ **Latest lucide versions** - Supports v0.546.0+
+- ✅ **Modern stacks** - Works with cutting-edge React ecosystems
+
+## 🚀 What's New in v0.5.1 - **Enhanced Compatibility!**
+
+**Broader Library Support** - Relaxed peer dependencies for modern stacks:
+
+- ✅ **lucide-react**: `^0.300.0` to `^0.546.0+` (was `^0.344.0`)
+- ✅ **tailwind-merge**: `^2.0.0 || ^3.0.0` (was `^2.0.0`)
+- ✅ **tailwindcss**: `^3.4.0 || ^4.0.0` (was `^3.4.0`)
+
+**Benefits:**
+- ✅ **Eliminates peer dependency conflicts** during `npm install`
+- ✅ **Supports latest library versions** (Lucide v0.546, Tailwind v4)
+- ✅ **Enables smooth CLI installation**: `npx @bettercone/ui init` works everywhere
+- ✅ **Compatible with React 19, Tailwind v4, and modern stacks**
+
+## 🚀 What's New in v0.5.0 - **Clean Architecture: No Bundle Bloat!**
 
 **Breaking Changes** - Removed components not native to Better Auth:
 
@@ -149,6 +183,15 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 ## Quick Start
 
 Get started with @bettercone/ui in minutes:
+
+```bash
+# One-command setup (installs everything)
+npx @bettercone/ui init
+```
+
+This installs @bettercone/ui, Better Auth, shadcn/ui, and all required components automatically!
+
+### Manual Setup (Alternative)
 
 <Tabs items={['pnpm', 'npm', 'yarn']}>
   <Tab value="pnpm">

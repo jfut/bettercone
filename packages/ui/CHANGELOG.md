@@ -5,7 +5,45 @@ All notable changes to @bettercone/ui will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0] - 2025-11-10
+## [0.5.2] - 2025-11-21
+
+### Fixed
+
+#### Peer Dependencies - React 19 Support
+
+**Extended lucide-react peer dependency range** for React 19 compatibility:
+
+- **lucide-react**: `^0.300.0` → `^0.300.0 || ^0.400.0 || ^0.500.0` (supports React 19)
+
+**Benefits**:
+- ✅ Compatible with React 19 projects
+- ✅ Supports latest lucide-react versions (v0.546.0+)
+- ✅ Eliminates peer dependency conflicts with modern React stacks
+- ✅ Enables smooth CLI installation: `npx @bettercone/ui init`
+
+**No breaking changes** - all existing functionality preserved.
+
+## [0.5.1] - 2025-11-21
+
+### Fixed
+
+#### Peer Dependencies - Enhanced Compatibility
+
+**Relaxed peer dependency version ranges** for better compatibility with modern stacks:
+
+- **lucide-react**: `^0.344.0` → `^0.300.0` (supports v0.546.0+)
+- **tailwind-merge**: `^2.0.0` → `^2.0.0 || ^3.0.0` (supports v3.x)
+- **tailwindcss**: `^3.4.0` → `^3.4.0 || ^4.0.0` (supports v4.x)
+
+**Benefits**:
+- ✅ Eliminates peer dependency conflicts during `npm install`
+- ✅ Supports latest versions of popular libraries
+- ✅ Enables smooth CLI installation: `npx @bettercone/ui init`
+- ✅ Compatible with modern React 19, Tailwind v4, and Lucide v0.546+
+
+**No breaking changes** - all existing functionality preserved.
+
+## [0.5.0] - 2025-11-21
 
 ### 💥 Breaking Changes
 

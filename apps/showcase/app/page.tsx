@@ -20,7 +20,7 @@ export default function Home() {
   }, []);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('npm install @bettercone/ui');
+    navigator.clipboard.writeText('npx @bettercone/ui init');
     setCopied(true);
     toast.success('Copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
@@ -39,7 +39,7 @@ export default function Home() {
         {/* Badge */}
         <div className="flex items-center justify-center gap-3">
           <Badge variant="outline" className="text-xs">
-            v0.4.0
+            v0.5.2
           </Badge>
           {stars !== null && (
             <Button variant="outline" size="sm" asChild>
@@ -71,7 +71,7 @@ export default function Home() {
             onClick={handleCopy}
             className="group flex items-center gap-3 px-6 py-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors"
           >
-            <code className="font-mono text-sm">npm install @bettercone/ui</code>
+            <code className="font-mono text-sm">npx @bettercone/ui init</code>
             {copied ? (
               <Check className="h-4 w-4 text-primary" />
             ) : (

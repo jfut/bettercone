@@ -2,6 +2,21 @@
 
 ## Installation
 
+### Quick Setup (Recommended)
+
+```bash
+npx @bettercone/ui init
+```
+
+This command will:
+- Install `@bettercone/ui` and `better-auth`
+- Set up your project with the necessary dependencies
+- Configure your authentication and UI components
+
+### Manual Installation
+
+If you prefer to install manually:
+
 ```bash
 pnpm add @bettercone/ui better-auth
 # or

@@ -56,9 +56,49 @@ function checkIfShadcnInstalled() {
   }
 }
 
-function installDependencies(packageManager, deps) {
+function installDependencies(packageManager, deps, options = {}) {
+  const { skipIfExists = false } = options;
   const installCmd = packageManager === 'yarn' ? 'add' : 'install';
-  const cmd = `${packageManager} ${installCmd} ${deps.join(' ')}`;
+  
+  // Check if packages are already installed
+  if (skipIfExists) {
+    try {
+      const packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
+      const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+      const alreadyInstalled = deps.filter(dep => {
+        const depName = dep.split('@')[0]; // Remove version specifier
+        return allDeps[depName];
+      });
+      
+      if (alreadyInstalled.length === deps.length) {
+        console.log(`✅ All packages already installed: ${deps.join(', ')}`);
+        return;
+      }
+      
+      if (alreadyInstalled.length > 0) {
+        console.log(`ℹ️  Some packages already installed: ${alreadyInstalled.join(', ')}`);
+        deps = deps.filter(dep => {
+          const depName = dep.split('@')[0];
+          return !allDeps[depName];
+        });
+      }
+    } catch (error) {
+      // Continue with installation if we can't check
+    }
+  }
+  
+  if (deps.length === 0) return;
+  
+  // Add flags to handle peer dependency conflicts
+  let flags = '';
+  if (packageManager === 'npm') {
+    flags = '--legacy-peer-deps';
+  } else if (packageManager === 'yarn') {
+    flags = '--ignore-peer-dependencies';
+  }
+  // pnpm handles peer dependencies gracefully with warnings
+  
+  const cmd = `${packageManager} ${installCmd} ${flags} ${deps.join(' ')}`;
   console.log(`Installing dependencies: ${cmd}`);
   execSync(cmd, { stdio: 'inherit' });
 }
@@ -80,7 +120,7 @@ function main() {
     ];
 
     console.log('📥 Installing core dependencies...');
-    installDependencies(packageManager, coreDeps);
+    installDependencies(packageManager, coreDeps, { skipIfExists: true });
 
     // Check if shadcn/ui is already set up
     const hasShadcn = checkIfShadcnInstalled();

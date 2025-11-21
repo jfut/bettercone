@@ -8,6 +8,131 @@ import { ArrowLeft, Package } from "lucide-react";
 
 const changelog = [
   {
+    version: "0.5.2",
+    date: "2025-11-21",
+    title: "React 19 Support & Documentation Cleanup",
+    type: "feature",
+    changes: [
+      {
+        category: "🛠️ Peer Dependencies - React 19 Compatibility",
+        items: [
+          "Extended lucide-react peer dependency range for React 19 support",
+          "Updated from ^0.300.0 to ^0.300.0 || ^0.400.0 || ^0.500.0",
+          "Supports latest lucide-react versions (v0.546.0+)",
+          "Eliminates peer dependency conflicts with modern React stacks",
+          "Enables smooth CLI installation: npx @bettercone/ui init works everywhere",
+        ],
+      },
+      {
+        category: "📚 Documentation Cleanup",
+        items: [
+          "Removed changelog duplication from README.md",
+          "README now points to CHANGELOG.md for detailed release notes",
+          "Cleaner, more focused README with installation and usage examples",
+          "Updated QUICK_START.md with CLI installation method",
+          "Updated showcase version badges to v0.5.2",
+        ],
+      },
+      {
+        category: "🔧 Enhanced Compatibility",
+        items: [
+          "Broader peer dependency ranges for modern stack compatibility",
+          "No breaking changes - all existing functionality preserved",
+          "Improved developer experience with cleaner documentation",
+        ],
+      },
+    ],
+  },
+  {
+    version: "0.5.1",
+    date: "2025-11-21",
+    title: "Enhanced Compatibility & Modern Stack Support",
+    type: "feature",
+    changes: [
+      {
+        category: "🛠️ Peer Dependencies - Better Compatibility",
+        items: [
+          "Relaxed lucide-react peer dependency: ^0.300.0 to ^0.344.0 → ^0.300.0",
+          "Supports latest lucide-react versions (v0.546.0+)",
+          "Relaxed tailwind-merge peer dependency: ^2.0.0 → ^2.0.0 || ^3.0.0",
+          "Supports Tailwind v3.x series",
+          "Relaxed tailwindcss peer dependency: ^3.4.0 → ^3.4.0 || ^4.0.0",
+          "Supports upcoming Tailwind v4.x",
+        ],
+      },
+      {
+        category: "✅ Compatibility Improvements",
+        items: [
+          "Eliminates peer dependency conflicts during npm install",
+          "Supports latest library versions (Lucide v0.546, Tailwind v4)",
+          "Enables smooth CLI installation: npx @bettercone/ui init works everywhere",
+          "Compatible with React 19, Tailwind v4, and modern stacks",
+          "No breaking changes - all existing functionality preserved",
+        ],
+      },
+    ],
+  },
+  {
+    version: "0.5.0",
+    date: "2025-11-21",
+    title: "Clean Architecture: No Bundle Bloat",
+    type: "major",
+    changes: [
+      {
+        category: "🚀 Major Architectural Improvement",
+        items: [
+          "Eliminated 712KB+ bundle bloat by removing shadcn/ui component bundling",
+          "shadcn/ui components are no longer bundled in @bettercone/ui package",
+          "Automatic CLI installation - npx @bettercone/ui init installs everything",
+          "50%+ bundle size reduction - From ~1.4MB to ~700KB",
+          "Clean separation - Bettercone focuses on specialized auth components only",
+        ],
+      },
+      {
+        category: "🛠️ Enhanced CLI Tool",
+        items: [
+          "Smart one-command setup: npx @bettercone/ui init",
+          "Detects existing shadcn/ui installations",
+          "Installs missing dependencies automatically",
+          "Installs essential shadcn/ui components",
+          "Comprehensive component verification (dependencies + files)",
+        ],
+      },
+      {
+        category: "📦 Bundle Size Optimization",
+        items: [
+          "Before: ~1.4MB (including shadcn/ui components)",
+          "After: ~700KB (auth components only)",
+          "Savings: 50%+ bundle size reduction",
+        ],
+      },
+      {
+        category: "🔄 Component Architecture Refinement",
+        items: [
+          "Bettercone focuses on specialized features:",
+          "🔐 Authentication & Security - Core auth components",
+          "🏢 Organization Management - Team and org features",
+          "💳 Billing & Subscriptions - Payment integration",
+          "🔑 API Key Management - Developer tools",
+          "shadcn/ui handles UI primitives:",
+          "🎨 UI Components - Button, Card, Input, etc.",
+          "🎯 Design System - Consistent styling",
+          "🔧 Customization - Full control over components",
+        ],
+      },
+      {
+        category: "💥 Breaking Changes",
+        items: [
+          "Installation now requires CLI: npx @bettercone/ui init",
+          "Old way still works but manual: npm install + npx shadcn@latest init + add components",
+          "shadcn/ui components no longer exported from @bettercone/ui",
+          "Correct: import { Button } from '@/components/ui/button'",
+          "Incorrect: import { Button } from '@bettercone/ui'",
+        ],
+      },
+    ],
+  },
+  {
     version: "0.4.0",
     date: "2025-11-10",
     title: "API Key Components Overhaul",

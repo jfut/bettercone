@@ -25,7 +25,28 @@ Before you begin, make sure you have the following:
 
 ## Installation
 
-Install @bettercone/ui and its peer dependencies:
+**Recommended: One-command setup (installs everything automatically)**
+
+```bash
+npx @bettercone/ui init
+```
+
+This CLI command will:
+- ✅ Install `@bettercone/ui` and `better-auth`
+- ✅ Initialize shadcn/ui (if not already set up)
+- ✅ Install all required shadcn/ui dependencies
+- ✅ Install essential shadcn/ui components (Button, Card, Input, etc.)
+- ✅ Set up your project automatically
+
+**No manual shadcn/ui setup required!** The CLI handles everything.
+
+<Callout type="info">
+  **Architectural Note:** shadcn/ui components (Button, Card, Input, etc.) are **not bundled** in `@bettercone/ui`. The CLI installs them separately in your `components/ui/` folder for optimal bundle size and customization.
+</Callout>
+
+### Manual Installation (Alternative)
+
+If you prefer manual setup or have existing shadcn/ui configuration:
 
 <Tabs items={['pnpm', 'npm', 'yarn']}>
   <Tab value="pnpm">
@@ -44,6 +65,13 @@ Install @bettercone/ui and its peer dependencies:
     ```
   </Tab>
 </Tabs>
+
+Then initialize shadcn/ui manually:
+
+```bash
+npx shadcn@latest init
+npx shadcn@latest add button card input label skeleton alert avatar badge checkbox dialog dropdown-menu form progress radio-group select separator switch table tabs textarea alert-dialog drawer chart stepper input-otp
+```
 
 ## Tailwind CSS Setup
 
