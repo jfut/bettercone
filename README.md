@@ -4,181 +4,100 @@ The complete React component library for Better Auth applications.
 
 [![npm version](https://img.shields.io/npm/v/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Production-ready components for modern authentication workflows:**
-
-```bash
-npm install @bettercone/ui better-auth
-```
-
-**Features:**
-- ⚛️ Framework-agnostic (Next.js, Vite, Remix, any React framework)  
-- 🔌 Backend-agnostic (Convex, Prisma, Supabase, Drizzle)
-- 🎨 Production-ready components for auth, billing, and teams
-- 🔒 Fully typed with TypeScript
-- 🎨 Customizable with Tailwind CSS and CSS variables
-- 📱 Mobile-first responsive design
-
-**Links:**
-- 🌐 [Component Showcase](https://bettercone.com)
-- 📚 [Full Documentation](https://docs.bettercone.com)
-- 📦 [npm Package](https://www.npmjs.com/package/@bettercone/ui)
+Production-ready components for modern authentication workflows. Built for Better Auth with support for React 18 and 19.
 
 ## Quick Start
 
-1. **Install the package:**
-   ```bash
-   npm install @bettercone/ui better-auth
-   ```
+Install and set up in one command:
 
-2. **Set up Better Auth** (if you haven't already):
-   ```bash
-   npm install better-auth
-   ```
-
-3. **Import and use components:**
-   ```tsx
-   import { SignInForm } from "@bettercone/ui"
-   
-   export default function AuthPage() {
-     return (
-       <div className="max-w-md mx-auto">
-         <SignInForm />
-       </div>
-     )
-   }
-   ```
-
-## Component Library
-
-All components are designed to work seamlessly with Better Auth:
-
-**Authentication Components:**
-- `<SignInForm />` - Complete sign-in form with email/password and OAuth
-- `<SignUpForm />` - Registration form with validation
-- `<TwoFactorCard />` - Two-factor authentication setup
-- `<PasskeyManager />` - Modern passkey authentication
-- `<ForgotPasswordForm />` - Password reset workflow
-- `<UserButton />` - Dropdown menu with user actions
-- `<SiweSignInButton />` - Sign in with Ethereum (SIWE)
-- `<WalletConnectionCard />` - Web3 wallet management
-
-**Billing & Subscription Components:**
-- `<PricingCard />` - Professional pricing display with auto-checkout
-- `<SubscriptionCard />` - Subscription management interface
-- `<PaymentMethodCard />` - Payment method management
-- `<InvoiceHistoryCard />` - Customer invoice history
-- `<BillingDashboard />` - Complete billing dashboard
-
-**Team Management Components:**
-- `<TeamDashboard />` - Complete team management dashboard
-- `<TeamBillingCard />` - Organization subscription management
-- `<SeatAllocationCard />` - Team seat limits and usage
-- `<OrganizationSwitcher />` - Switch between organizations
-- `<MemberList />` - Team member management
-
-## Repository Structure
-
-This monorepo contains:
-
+```bash
+npx @bettercone/ui init
 ```
-bettercone/
-├── apps/
-│   └── showcase/         # Component showcase (bettercone.com)
-├── packages/
-│   └── ui/               # @bettercone/ui source code
-└── docs/                 # Documentation source
+
+This command installs @bettercone/ui, Better Auth, shadcn/ui, and configures your project automatically.
+
+## Features
+
+- Framework-agnostic design (Next.js, Vite, Remix, any React framework)
+- Backend-agnostic architecture (Convex, Prisma, Supabase, Drizzle)
+- Complete authentication workflows with Better Auth
+- Billing and subscription management with Stripe
+- Team and organization management
+- Enterprise SSO and security features
+- Mobile-first responsive design
+- Full TypeScript support
+- Customizable with Tailwind CSS
+- Comprehensive documentation and examples
+
+## Installation
+
+### Automated Setup (Recommended)
+
+```bash
+npx @bettercone/ui init
 ```
+
+### Manual Installation
+
+```bash
+npm install @bettercone/ui better-auth
+# or
+pnpm add @bettercone/ui better-auth
+# or
+yarn add @bettercone/ui better-auth
+```
+
+## Usage
+
+Import and use components in your React application:
+
+```tsx
+import { SignInForm } from "@bettercone/ui"
+
+export default function AuthPage() {
+  return (
+    <div className="max-w-md mx-auto">
+      <SignInForm />
+    </div>
+  )
+}
+```
+
+## Documentation
+
+- [Full Documentation](https://docs.bettercone.com)
+- [Component Showcase](https://bettercone.com)
+- [npm Package](https://www.npmjs.com/package/@bettercone/ui)
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with React 18/19
+- **Auth**: Better Auth
+- **Payments**: Stripe
+- **UI**: Shadcn/UI with Radix UI primitives
+- **Styling**: Tailwind CSS
+- **Build**: Turborepo monorepo
+- **Documentation**: Fumadocs
 
 ## Development
 
-To contribute or customize the library:
-
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/vncsleal/bettercone.git
 cd bettercone
 
 # Install dependencies
 pnpm install
 
-# Start development
+# Start development servers
 pnpm dev
 ```
 
-This will start:
-- Component showcase at `http://localhost:3000`
-- Documentation at `http://localhost:3001`
-
-## Framework Integration
-
-### Next.js
-
-```tsx
-// app/auth/page.tsx
-import { SignInForm } from "@bettercone/ui"
-
-export default function AuthPage() {
-  return <SignInForm />
-}
-```
-
-### Vite/React
-
-```tsx
-// src/components/Auth.tsx
-import { SignUpForm } from "@bettercone/ui"
-
-export function Auth() {
-  return <SignUpForm />
-}
-```
-
-### Remix
-
-```tsx
-// app/routes/auth.tsx
-import { SignInForm } from "@bettercone/ui"
-
-export default function AuthRoute() {
-  return <SignInForm />
-}
-```
-
-## Customization
-
-All components support full customization via CSS variables and Tailwind CSS:
-
-```css
-/* globals.css */
-:root {
-  --primary: 210 40% 50%;
-  --primary-foreground: 210 40% 98%;
-  /* ... */
-}
-```
-
-## Documentation
-
-Complete documentation and examples:
-
-- 📚 [Full Documentation](https://docs.bettercone.com)
-- 🌐 [Component Showcase](https://bettercone.com)
-- 📦 [npm Package](https://www.npmjs.com/package/@bettercone/ui)
-
-## Tech Stack
-
-- **Framework**: [Next.js 15](https://nextjs.org/)
-- **Auth**: [Better Auth](https://better-auth.com/)
-- **Payments**: [Stripe](https://stripe.com/)
-- **UI**: [Shadcn/UI](https://ui.shadcn.com/) + [Radix UI](https://radix-ui.com/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Monorepo**: [Turborepo](https://turbo.build/)
-- **Documentation**: [Fumadocs](https://fumadocs.dev)
-
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
+Contributions are welcome. Please read our contributing guidelines and code of conduct.
 
 ## License
 
@@ -186,10 +105,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ## Support
 
-- 📚 [Documentation](https://docs.bettercone.com)
-- 🐛 [Report Issues](https://github.com/vncsleal/bettercone/issues)
-- 💬 [Discussions](https://github.com/vncsleal/bettercone/discussions)
-
----
-
-Built with 🍦 by [iamvini.co](https://iamvini.co)
+- [Documentation](https://docs.bettercone.com)
+- [GitHub Issues](https://github.com/vncsleal/bettercone/issues)
+- [GitHub Discussions](https://github.com/vncsleal/bettercone/discussions)
