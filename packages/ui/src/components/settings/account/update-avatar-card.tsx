@@ -21,7 +21,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "../../ui/dropdown-menu"
-import { UserAvatar } from "../../user/user-avatar"
+import { UserAvatar } from "../../user"
 import type { SettingsCardClassNames } from "../shared/settings-card"
 import { SettingsCardFooter } from "../shared/settings-card-footer"
 import { SettingsCardHeader } from "../shared/settings-card-header"

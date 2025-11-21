@@ -10,13 +10,10 @@ import { useContext } from "react"
 import { AuthUIContext } from "../../lib/auth-ui-provider"
 import { cn } from "../../lib/utils"
 import type { AuthLocalization } from "../../localization/auth-localization"
-import { DeleteAccountCard } from "../account/delete-account-card"
-import { PasskeysCard } from "../security/passkeys-card"
+import { DeleteAccountCard } from "../account"
+import { PasskeysCard, ChangePasswordCard, SessionsCard, TwoFactorCard } from "../security"
+import { SettingsCardClassNames } from "./shared/settings-card"
 import { ProvidersCard } from "./providers/providers-card"
-import { ChangePasswordCard } from "../security/change-password-card"
-import { SessionsCard } from "../security/sessions-card"
-import type { SettingsCardClassNames } from "./shared/settings-card"
-import { TwoFactorCard } from "../security/two-factor-card"
 
 export function SecuritySettingsCards({
     className,

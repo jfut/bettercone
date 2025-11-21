@@ -3,12 +3,6 @@
  * Type for any Better Auth client
  */
 
-import type { 
-    Subscription, 
-    CheckoutSessionParams, 
-    BillingPortalParams 
-} from "./subscription"
-
 export interface AnyAuthClient {
     $Infer: {
         Session: {
@@ -46,72 +40,7 @@ export interface AnyAuthClient {
         nonce: (params: { walletAddress: string; chainId?: number }) => Promise<{ data?: { nonce: string }; error?: any }>;
         verify: (params: { message: string; signature: string; walletAddress: string; chainId?: number; email?: string; fetchOptions?: any }, callbacks?: { onSuccess?: () => void; onError?: (ctx: any) => void }) => Promise<any>;
     };
-    
-    /**
-     * Subscription management (optional)
-     * Available when using @better-auth/stripe plugin or custom implementation
-     * @see https://www.better-auth.com/docs/plugins/stripe
-     */
-    subscription?: {
-        /**
-         * Upgrade to a subscription plan
-         * Creates a Stripe checkout session and optionally redirects
-         */
-        upgrade: (params: CheckoutSessionParams) => Promise<{ 
-            data?: { 
-                url?: string
-                sessionId?: string
-            }
-            error?: Error 
-        }>
-        
-        /**
-         * List active subscriptions
-         * @param params - Optional parameters
-         * @param params.referenceId - Filter by reference ID (user/org ID)
-         */
-        list: (params?: {
-            referenceId?: string
-        }) => Promise<{ 
-            data?: Subscription[]
-            error?: Error 
-        }>
-        
-        /**
-         * Cancel a subscription
-         * Opens Stripe billing portal where user can cancel
-         */
-        cancel: (params: {
-            referenceId?: string
-            subscriptionId?: string
-            returnUrl: string
-        }) => Promise<{ 
-            data?: { url: string }
-            error?: Error 
-        }>
-        
-        /**
-         * Restore a canceled subscription
-         * Reactivates a subscription marked to cancel at period end
-         */
-        restore: (params: {
-            referenceId?: string
-            subscriptionId?: string
-        }) => Promise<{ 
-            data?: Subscription
-            error?: Error 
-        }>
-        
-        /**
-         * Create billing portal session
-         * Returns URL to Stripe billing portal
-         */
-        billingPortal: (params: BillingPortalParams) => Promise<{ 
-            data?: { url: string }
-            error?: Error 
-        }>
-    }
-    
+
     /**
      * Admin management (optional)
      * Available when using @better-auth/admin plugin

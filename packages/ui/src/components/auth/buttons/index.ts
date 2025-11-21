@@ -1,0 +1,5 @@
+export { AnonymousSignInButton } from "./anonymous-sign-in-button"
+export { EmailOTPButton } from "./email-otp-button"
+export { MagicLinkButton } from "./magic-link-button"
+export { PasskeyButton } from "./passkey-button"
+export { ProviderButton } from "./provider-button"

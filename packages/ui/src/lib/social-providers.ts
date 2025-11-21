@@ -22,7 +22,7 @@ import {
     VKIcon,
     XIcon,
     ZoomIcon
-} from "../components/utility/provider-icons"
+} from "../components/utility/components/provider-icons"
 
 export const socialProviders = [
     {

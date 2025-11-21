@@ -1,0 +1,1 @@
+export { UserAvatar, type UserAvatarClassNames } from "./user-avatar"

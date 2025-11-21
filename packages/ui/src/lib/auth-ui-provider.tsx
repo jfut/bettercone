@@ -72,17 +72,17 @@ export type AuthUIContextType = {
      * API Key plugin configuration
      */
     apiKey?:
-        | {
-              /**
-               * Prefix for API Keys
-               */
-              prefix?: string
-              /**
-               * Metadata for API Keys
-               */
-              metadata?: Record<string, unknown>
-          }
-        | boolean
+    | {
+        /**
+         * Prefix for API Keys
+         */
+        prefix?: string
+        /**
+         * Metadata for API Keys
+         */
+        metadata?: Record<string, unknown>
+    }
+    | boolean
     /**
      * Avatar configuration
      * @default undefined
@@ -209,6 +209,43 @@ export type AuthUIContextType = {
      * @default undefined
      */
     twoFactor?: ("otp" | "totp")[]
+    /**
+     * Enable or disable Phone Number support
+     * @default false
+     */
+    phoneNumber?: boolean
+    /**
+     * OIDC Provider configuration
+     */
+    oidc?: boolean
+    /**
+     * Stripe configuration
+     */
+    stripe?: boolean
+    /**
+     * Polar configuration
+     */
+    polar?: boolean
+    /**
+     * Admin configuration
+     */
+    admin?: boolean
+    /**
+     * Autumn configuration
+     */
+    autumn?: boolean
+    /**
+     * Dodo Payments configuration
+     */
+    dodopayments?: boolean
+    /**
+     * Creem configuration
+     */
+    creem?: boolean
+    /**
+     * Dub Analytics configuration
+     */
+    dub?: boolean
     viewPaths: AuthViewPaths
     /**
      * Navigate to a new URL
@@ -293,6 +330,43 @@ export type AuthUIProviderProps = {
      * @default { fields: ["name"] }
      */
     signUp?: SignUpOptions | boolean
+    /**
+     * Enable or disable Phone Number support
+     * @default false
+     */
+    phoneNumber?: boolean
+    /**
+     * OIDC Provider configuration
+     */
+    oidc?: boolean
+    /**
+     * Stripe configuration
+     */
+    stripe?: boolean
+    /**
+     * Polar configuration
+     */
+    polar?: boolean
+    /**
+     * Admin configuration
+     */
+    admin?: boolean
+    /**
+     * Autumn configuration
+     */
+    autumn?: boolean
+    /**
+     * Dodo Payments configuration
+     */
+    dodopayments?: boolean
+    /**
+     * Creem configuration
+     */
+    creem?: boolean
+    /**
+     * Dub Analytics configuration
+     */
+    dub?: boolean
 } & Partial<
     Omit<
         AuthUIContextType,
@@ -308,6 +382,15 @@ export type AuthUIProviderProps = {
         | "credentials"
         | "signUp"
         | "organization"
+        | "phoneNumber"
+        | "oidc"
+        | "stripe"
+        | "polar"
+        | "admin"
+        | "autumn"
+        | "dodopayments"
+        | "creem"
+        | "dub"
     >
 >
 
@@ -341,6 +424,7 @@ export const AuthUIProvider = ({
     navigate,
     replace,
     Link = DefaultLink,
+    stripe: stripeProp,
     ...props
 }: AuthUIProviderProps) => {
     const authClient = authClientProp as AuthClient
@@ -356,10 +440,10 @@ export const AuthUIProvider = ({
         }
 
         return {
-            upload: avatarProp.upload,
+            upload: typeof avatarProp.upload === 'function' ? avatarProp.upload : undefined,
             delete: avatarProp.delete,
             extension: avatarProp.extension || "png",
-            size: avatarProp.size || (avatarProp.upload ? 256 : 128)
+            size: avatarProp.size || (typeof avatarProp.upload === 'function' ? 256 : 128)
         }
     }, [avatarProp])
 
@@ -484,6 +568,7 @@ export const AuthUIProvider = ({
         }
     }, [organizationProp])
 
+
     const defaultMutators = useMemo(() => {
         return {
             deleteApiKey: (params: any) =>
@@ -523,6 +608,65 @@ export const AuthUIProvider = ({
                 }),
             unlinkAccount: (params: any) =>
                 authClient.unlinkAccount({
+                    ...params,
+                    fetchOptions: { throw: true }
+                }),
+            // Stripe subscription mutators
+            upgradeSubscription: async (params: any) => {
+                console.log('[DEBUG] upgradeSubscription called with params:', params)
+                console.log('[DEBUG] authClient.subscription:', (authClient as any).subscription)
+
+                if (!(authClient as any).subscription) {
+                    console.error('[ERROR] authClient.subscription is undefined - Stripe plugin not loaded')
+                    throw new Error('Stripe plugin not loaded on auth client')
+                }
+
+                if (!(authClient as any).subscription.upgrade) {
+                    console.error('[ERROR] authClient.subscription.upgrade is undefined')
+                    console.log('[DEBUG] Available methods:', Object.keys((authClient as any).subscription))
+                    throw new Error('subscription.upgrade method not available')
+                }
+
+                const result = await (authClient as any).subscription.upgrade({
+                    ...params,
+                    fetchOptions: { throw: true }
+                })
+
+                console.log('[DEBUG] upgrade result:', result)
+
+                // Redirect to Stripe Checkout
+                if (result?.url) {
+                    console.log('[DEBUG] Redirecting to:', result.url)
+                    window.location.href = result.url
+                } else {
+                    console.error('[ERROR] No URL in result:', result)
+                }
+
+                return result
+            },
+            cancelSubscription: (params: any) =>
+                (authClient as any).subscription?.cancel?.({
+                    ...params,
+                    fetchOptions: { throw: true }
+                }),
+            restoreSubscription: (params: any) =>
+                (authClient as any).subscription?.restore?.({
+                    ...params,
+                    fetchOptions: { throw: true }
+                }),
+            createStripeBillingPortal: (params: any) =>
+                (authClient as any).subscription?.billingPortal?.({
+                    ...params,
+                    fetchOptions: { throw: true }
+                }),
+            // Polar subscription mutators
+            createPolarCheckout: (params: any) =>
+                (authClient as any).polar?.checkout?.({
+                    ...params,
+                    fetchOptions: { throw: true }
+                }),
+            createPolarPortal: (params: any) =>
+                (authClient as any).polar?.createCustomerPortal?.({
                     ...params,
                     fetchOptions: { throw: true }
                 })
@@ -598,6 +742,11 @@ export const AuthUIProvider = ({
                             `/organization/list-members?organizationId=${params?.query?.organizationId || ""}`
                         ),
                     cacheKey: `listMembers:${JSON.stringify(params)}`
+                }),
+            useListActiveSubscriptions: (params: any) =>
+                useAuthData({
+                    queryFn: () => (authClient as any).subscription?.list?.(params),
+                    cacheKey: `listActiveSubscriptions:${JSON.stringify(params)}`
                 })
         } as any
     }, [authClient])
@@ -667,7 +816,15 @@ export const AuthUIProvider = ({
                 siwe: props.siwe,
                 persistClient: props.persistClient,
                 twoFactor: props.twoFactor,
-                onSessionChange: props.onSessionChange
+                onSessionChange: props.onSessionChange,
+                phoneNumber: props.phoneNumber,
+                oidc: props.oidc,
+                polar: props.polar,
+                admin: props.admin,
+                autumn: props.autumn,
+                dodopayments: props.dodopayments,
+                creem: props.creem,
+                dub: props.dub
             }}
         >
             {sessionData && organization && <OrganizationRefetcher />}

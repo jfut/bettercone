@@ -13,16 +13,16 @@ import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
-import { useCaptchaStub } from "../../../hooks/use-captcha-stub"
-import { useIsHydrated } from "../../../hooks/use-hydrated"
-import { useOnSuccessTransition } from "../../../hooks/use-success-transition"
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
+import { useCaptchaStub } from "@/hooks/use-captcha-stub"
+import { useIsHydrated } from "@/hooks/use-hydrated"
+import { useOnSuccessTransition } from "@/hooks/use-success-transition"
+import { AuthUIContext } from "@/lib/auth-ui-provider"
 import {
     cn,
     getLocalizedError
-} from "../../../lib/utils"
-import type { AuthLocalization } from "../../../localization/auth-localization"
-import { Button } from "../../ui/button"
+} from "@/lib/utils"
+import type { AuthLocalization } from "@/localization/auth-localization"
+import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
@@ -31,9 +31,9 @@ import {
     FormItem,
     FormLabel,
     FormMessage
-} from "../../ui/form"
-import { Input } from "../../ui/input"
-import type { AuthFormClassNames } from "../auth-form"
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import type { AuthFormClassNames } from "./auth-form"
 
 export interface PhoneSignUpFormProps {
     className?: string

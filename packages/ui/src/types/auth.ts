@@ -31,20 +31,6 @@ export interface BetterAuthOrganization {
   [key: string]: any;
 }
 
-export interface BetterAuthSubscription {
-  id: string;
-  referenceId: string; // user ID or organization ID
-  status: "active" | "trialing" | "past_due" | "canceled" | "unpaid";
-  planId?: string;
-  currentPeriodStart?: Date;
-  currentPeriodEnd?: Date;
-  cancelAt?: Date;
-  canceledAt?: Date;
-  trialEnd?: Date;
-  metadata?: Record<string, any>;
-  [key: string]: any;
-}
-
 export interface BetterAuthClient {
   // Session management
   useSession: () => {
@@ -58,18 +44,6 @@ export interface BetterAuthClient {
     data: BetterAuthOrganization[] | null;
     isPending: boolean;
     error?: Error;
-  };
-
-  // Subscription management (Better Auth Stripe plugin)
-  subscription?: {
-    list: () => Promise<{
-      data?: BetterAuthSubscription[];
-      error?: Error;
-    }>;
-    createPortalSession?: (referenceId: string) => Promise<{
-      url?: string;
-      error?: Error;
-    }>;
   };
 
   // Additional plugin methods can be added here

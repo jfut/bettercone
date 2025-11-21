@@ -10,7 +10,6 @@ import { MULTI_SESSION_ERROR_CODES } from "./multi-session-error-codes"
 import { ORGANIZATION_ERROR_CODES } from "./organization-error-codes"
 import { PASSKEY_ERROR_CODES } from "./passkey-error-codes"
 import { PHONE_NUMBER_ERROR_CODES } from "./phone-number-error-codes"
-import { STRIPE_ERROR_CODES } from "./stripe-localization"
 import { TWO_FACTOR_ERROR_CODES } from "./two-factor-error-codes"
 import { USERNAME_ERROR_CODES } from "./username-error-codes"
 
@@ -1054,7 +1053,6 @@ export const authLocalization = {
     ...ORGANIZATION_ERROR_CODES,
     ...PASSKEY_ERROR_CODES,
     ...PHONE_NUMBER_ERROR_CODES,
-    ...STRIPE_ERROR_CODES,
     ...TWO_FACTOR_ERROR_CODES,
     ...USERNAME_ERROR_CODES
 }

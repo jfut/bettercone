@@ -58,4 +58,5 @@ export type AuthHooks = {
         total: number
     }>
     useIsRestoring?: () => boolean
+    useListActiveSubscriptions: (params?: any) => AuthHook<any[]>
 }

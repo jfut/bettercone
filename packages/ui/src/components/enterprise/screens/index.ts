@@ -1,0 +1,1 @@
+export { OIDCConsentScreen } from "./oidc-consent-screen"

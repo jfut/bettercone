@@ -12,7 +12,7 @@ import { cn } from "../../lib/utils"
 import type { AuthLocalization } from "../../localization/auth-localization"
 import type { Profile } from "../../types/profile"
 import { Skeleton } from "./skeleton"
-import { UserAvatar, type UserAvatarClassNames } from "../user/user-avatar"
+import { UserAvatar, type UserAvatarClassNames } from "../user"
 
 export interface UserViewClassNames {
     base?: string

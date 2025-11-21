@@ -6,6 +6,72 @@
 [![npm downloads](https://img.shields.io/npm/dm/@bettercone/ui.svg)](https://www.npmjs.com/package/@bettercone/ui)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## What's New in v0.5.0 - **Clean Architecture: No Bundle Bloat!**
+
+### 🚀 **Major Architectural Improvement**
+
+**Eliminated 712KB+ bundle bloat** by removing shadcn/ui component bundling:
+
+- ✅ **shadcn/ui components are no longer bundled** in `@bettercone/ui`
+- ✅ **Automatic CLI installation** - `npx @bettercone/ui init` installs everything
+- ✅ **Clean separation** - Bettercone only bundles specialized auth components
+- ✅ **Full shadcn/ui compatibility** - Use shadcn/ui components from your local `components/ui/`
+
+### 🛠️ **Enhanced CLI Tool**
+
+**One-command setup with smart detection:**
+```bash
+npx @bettercone/ui init
+```
+
+- ✅ Detects existing shadcn/ui installations
+- ✅ Installs missing dependencies automatically  
+- ✅ Installs essential shadcn/ui components
+- ✅ No manual shadcn/ui setup required
+
+### 📦 **Bundle Size Reduction**
+
+- **Before**: ~1.4MB (including shadcn/ui components)
+- **After**: ~700KB (auth components only)
+- **Savings**: 50%+ bundle size reduction
+
+### 🔄 **Component Architecture**
+
+**Bettercone now focuses on what it does best:**
+- 🔐 **Authentication & Security** - Specialized auth components
+- 🏢 **Organization Management** - Team and org features  
+- 💳 **Billing & Subscriptions** - Payment integration
+- 🔑 **API Key Management** - Developer tools
+
+**shadcn/ui handles the rest:**
+- 🎨 **UI Primitives** - Button, Card, Input, etc.
+- 🎯 **Design System** - Consistent styling
+- 🔧 **Customization** - Full control over UI components
+
+### 💥 Breaking Changes
+
+**Installation now requires CLI:**
+```bash
+# New way (recommended)
+npx @bettercone/ui init
+
+# Old way (still works but manual)
+npm install @bettercone/ui better-auth
+npx shadcn@latest init
+npx shadcn@latest add button card input...
+```
+
+**shadcn/ui components no longer exported:**
+```tsx
+// ❌ No longer works
+import { Button, Card } from '@bettercone/ui'
+
+// ✅ Correct way
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { AuthView } from '@bettercone/ui'
+```
+
 ## What's New in v0.4.0 - **API Key Components Overhaul!**
 
 ### 💥 Breaking Changes
@@ -253,6 +319,25 @@ import { ApiKeyUsageCard } from '@bettercone/ui'
 
 ## Installation
 
+**Recommended: One-command setup (installs everything automatically)**
+
+```bash
+npx @bettercone/ui init
+```
+
+This CLI command will:
+- ✅ Install `@bettercone/ui` and `better-auth`
+- ✅ Initialize shadcn/ui (if not already set up)
+- ✅ Install all required shadcn/ui dependencies
+- ✅ Install essential shadcn/ui components (Button, Card, Input, etc.)
+- ✅ Set up your project automatically
+
+**No manual shadcn/ui setup required!** The CLI handles everything.
+
+### Manual Installation (Alternative)
+
+If you prefer manual setup or have existing shadcn/ui configuration:
+
 ```bash
 npm install @bettercone/ui better-auth
 # or
@@ -261,11 +346,18 @@ pnpm add @bettercone/ui better-auth
 yarn add @bettercone/ui better-auth
 ```
 
+Then initialize shadcn/ui manually:
+
+```bash
+npx shadcn@latest init
+npx shadcn@latest add button card input label skeleton alert avatar badge checkbox dialog dropdown-menu form progress radio-group select separator switch table tabs textarea alert-dialog drawer chart stepper input-otp
+```
+
 ## Setup
 
 ### 1. Install the package
 
-Follow the installation steps above.
+The `npx @bettercone/ui init` command from above handles this step automatically.
 
 ### 2. Import the CSS
 
@@ -278,6 +370,8 @@ Add the following import to your global CSS file (e.g., `app/globals.css` or `sr
 ### 3. Configure Better Auth
 
 Set up Better Auth in your project. See the [Better Auth documentation](https://better-auth.com) for details.
+
+**Note:** shadcn/ui components (Button, Card, Input, etc.) are now available in your `components/ui/` folder and can be imported directly from there. They are not bundled in `@bettercone/ui` to avoid duplication.
 
 ## Quick Start
 

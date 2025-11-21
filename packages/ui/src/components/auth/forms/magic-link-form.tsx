@@ -14,13 +14,13 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 // import { useCaptcha } from "../../../hooks/use-captcha" // Optional - captcha disabled
-import { useCaptchaStub } from "../../../hooks/use-captcha-stub"
-import { useIsHydrated } from "../../../hooks/use-hydrated"
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import { cn, getLocalizedError, getSearchParam } from "../../../lib/utils"
-import type { AuthLocalization } from "../../../localization/auth-localization"
+import { useCaptchaStub } from "@/hooks/use-captcha-stub"
+import { useIsHydrated } from "@/hooks/use-hydrated"
+import { AuthUIContext } from "@/lib/auth-ui-provider"
+import { cn, getLocalizedError, getSearchParam } from "@/lib/utils"
+import type { AuthLocalization } from "@/localization/auth-localization"
 // import { Captcha } from "../../captcha/captcha" // Optional - captcha disabled
-import { Button } from "../../ui/button"
+import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
@@ -28,9 +28,9 @@ import {
     FormItem,
     FormLabel,
     FormMessage
-} from "../../ui/form"
-import { Input } from "../../ui/input"
-import type { AuthFormClassNames } from "../auth-form"
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import type { AuthFormClassNames } from "./auth-form"
 
 export interface MagicLinkFormProps {
     className?: string
@@ -128,7 +128,7 @@ export function MagicLinkForm({
 
             toast({
                 variant: "success",
-                message: localization.MAGIC_LINK_EMAIL
+                message: localization.MAGIC_LINK_EMAIL || "If the email exists, a magic link has been sent."
             })
 
             form.reset()

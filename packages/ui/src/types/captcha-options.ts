@@ -5,7 +5,7 @@
 
 export interface CaptchaOptions {
     enabled?: boolean;
-    provider?: "google-recaptcha-v2" | "google-recaptcha-v3" | "hcaptcha" | "turnstile";
+    provider?: "google-recaptcha-v2-checkbox" | "google-recaptcha-v2-invisible" | "google-recaptcha-v3" | "hcaptcha" | "cloudflare-turnstile";
     siteKey?: string;
     endpoints?: string[];
     enterprise?: boolean;

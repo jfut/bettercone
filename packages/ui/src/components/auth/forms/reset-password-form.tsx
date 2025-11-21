@@ -12,12 +12,12 @@ import { useContext, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import { cn, getLocalizedError, getPasswordSchema } from "../../../lib/utils"
-import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { PasswordValidation } from "../../../types/password-validation"
-import { PasswordInput } from "../../utility/password-input"
-import { Button } from "../../ui/button"
+import { AuthUIContext } from "@/lib/auth-ui-provider"
+import { cn, getLocalizedError, getPasswordSchema } from "@/lib/utils"
+import type { AuthLocalization } from "@/localization/auth-localization"
+import type { PasswordValidation } from "@/types/password-validation"
+import { PasswordInput } from "@/components/utility"
+import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
@@ -25,8 +25,8 @@ import {
     FormItem,
     FormLabel,
     FormMessage
-} from "../../ui/form"
-import type { AuthFormClassNames } from "../auth-form"
+} from "@/components/ui/form"
+import type { AuthFormClassNames } from "./auth-form"
 
 export interface ResetPasswordFormProps {
     className?: string
@@ -107,7 +107,7 @@ export function ResetPasswordForm({
             navigate(
                 `${basePath}/${viewPaths.SIGN_IN}${window.location.search}`
             )
-            toast({ variant: "error", message: localization.INVALID_TOKEN })
+            toast({ variant: "error", message: localization.INVALID_TOKEN || "Invalid token" })
         }
     }, [basePath, navigate, toast, viewPaths, localization])
 
@@ -124,7 +124,7 @@ export function ResetPasswordForm({
 
             toast({
                 variant: "success",
-                message: localization.RESET_PASSWORD_SUCCESS
+                message: localization.RESET_PASSWORD_SUCCESS || "Password has been reset successfully."
             })
 
             navigate(

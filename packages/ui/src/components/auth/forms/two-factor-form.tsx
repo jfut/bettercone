@@ -14,14 +14,14 @@ import { useForm } from "react-hook-form"
 import QRCode from "react-qr-code"
 import * as z from "zod"
 
-import { useIsHydrated } from "../../../hooks/use-hydrated"
-import { useOnSuccessTransition } from "../../../hooks/use-success-transition"
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import { cn, getLocalizedError, getSearchParam } from "../../../lib/utils"
-import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { User } from "../../../types/auth-client"
-import { Button } from "../../ui/button"
-import { Checkbox } from "../../ui/checkbox"
+import { useIsHydrated } from "@/hooks/use-hydrated"
+import { useOnSuccessTransition } from "@/hooks/use-success-transition"
+import { AuthUIContext } from "@/lib/auth-ui-provider"
+import { cn, getLocalizedError, getSearchParam } from "@/lib/utils"
+import type { AuthLocalization } from "@/localization/auth-localization"
+import type { User } from "@/types/auth-client"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
     Form,
     FormControl,
@@ -29,10 +29,10 @@ import {
     FormItem,
     FormLabel,
     FormMessage
-} from "../../ui/form"
-import { InputOTP, InputOTPGroup } from "../../ui/input-otp"
-import { Label } from "../../ui/label"
-import type { AuthFormClassNames } from "../auth-form"
+} from "@/components/ui/form"
+import { InputOTP, InputOTPGroup } from "@/components/ui/input-otp"
+import { Label } from "@/components/ui/label"
+import type { AuthFormClassNames } from "./auth-form"
 
 export interface TwoFactorFormProps {
     className?: string
@@ -179,7 +179,7 @@ export function TwoFactorForm({
             if (sessionData && !isTwoFactorEnabled) {
                 toast({
                     variant: "success",
-                    message: localization?.TWO_FACTOR_ENABLED
+                    message: localization?.TWO_FACTOR_ENABLED || "Two-factor authentication has been enabled successfully."
                 })
             }
         } catch (error) {
@@ -260,9 +260,7 @@ export function TwoFactorForm({
                                             className={classNames?.otpInput}
                                             disabled={isSubmitting}
                                         >
-                                            <InputOTPGroup
-                                                otpSeparators={otpSeparators}
-                                            />
+                                        <InputOTPGroup />
                                         </InputOTP>
                                     </FormControl>
 

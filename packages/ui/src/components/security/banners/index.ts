@@ -1,0 +1,1 @@
+export { EmailVerificationBanner, type EmailVerificationBannerProps } from "./email-verification-banner"

@@ -14,29 +14,29 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 // import { useCaptcha } from "../../../hooks/use-captcha" // Optional - captcha disabled
-import { useCaptchaStub } from "../../../hooks/use-captcha-stub"
-import { useIsHydrated } from "../../../hooks/use-hydrated"
-import { useOnSuccessTransition } from "../../../hooks/use-success-transition"
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils"
+import { useCaptchaStub } from "@/hooks/use-captcha-stub"
+import { useIsHydrated } from "@/hooks/use-hydrated"
+import { useOnSuccessTransition } from "@/hooks/use-success-transition"
+import { AuthUIContext } from "@/lib/auth-ui-provider"
+import { fileToBase64, resizeAndCropImage } from "@/lib/image-utils"
 import {
     cn,
     getLocalizedError,
     getPasswordSchema,
     getSearchParam
-} from "../../../lib/utils"
-import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { PasswordValidation } from "../../../types/password-validation"
+} from "@/lib/utils"
+import type { AuthLocalization } from "@/localization/auth-localization"
+import type { PasswordValidation } from "@/types/password-validation"
 // import { Captcha } from "../../captcha/captcha" // Optional - captcha disabled
-import { PasswordInput } from "../../utility/password-input"
-import { Button } from "../../ui/button"
-import { Checkbox } from "../../ui/checkbox"
+import { PasswordInput } from "@/components/utility"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger
-} from "../../ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 import {
     Form,
     FormControl,
@@ -44,11 +44,11 @@ import {
     FormItem,
     FormLabel,
     FormMessage
-} from "../../ui/form"
-import { Input } from "../../ui/input"
-import { Textarea } from "../../ui/textarea"
-import { UserAvatar } from "../../user/user-avatar"
-import type { AuthFormClassNames } from "../auth-form"
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { UserAvatar } from "@/components/user/components/user-avatar"
+import type { AuthFormClassNames } from "./auth-form"
 
 export interface SignUpFormProps {
     className?: string
@@ -277,8 +277,8 @@ export function SignUpForm({
             const resizedFile = await resizeAndCropImage(
                 file,
                 crypto.randomUUID(),
-                avatar.size,
-                avatar.extension
+                avatar.size || 128,
+                avatar.extension || "png"
             )
 
             let image: string | undefined | null
