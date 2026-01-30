@@ -99,12 +99,6 @@ pnpm dev
 
 Contributions are welcome. Please read our contributing guidelines and code of conduct.
 
-## License
+## Acknowledgments
 
-MIT License - see [LICENSE](./LICENSE) for details.
-
-## Support
-
-- [Documentation](https://docs.bettercone.com)
-- [GitHub Issues](https://github.com/vncsleal/bettercone/issues)
-- [GitHub Discussions](https://github.com/vncsleal/bettercone/discussions)
+This project reuses and adapts components from [better-auth-ui](https://github.com/better-auth-ui/better-auth-ui). Special thanks to the author for the inspiration and foundation.
