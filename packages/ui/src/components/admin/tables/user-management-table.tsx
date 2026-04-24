@@ -612,9 +612,9 @@ export function UserManagementTable({
             <AlertDialogDescription>
               {localization.banUserDescription}
               {selectedUser && (
-                <div className="mt-2 p-2 bg-muted rounded-md">
-                  <p className="font-medium">{selectedUser.email}</p>
-                </div>
+                <span className="mt-2 block p-2 bg-muted rounded-md">
+                  <span className="font-medium">{selectedUser.email}</span>
+                </span>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -641,9 +641,9 @@ export function UserManagementTable({
             <AlertDialogDescription>
               {localization.unbanUserDescription}
               {selectedUser && (
-                <div className="mt-2 p-2 bg-muted rounded-md">
-                  <p className="font-medium">{selectedUser.email}</p>
-                </div>
+                <span className="mt-2 block p-2 bg-muted rounded-md">
+                  <span className="font-medium">{selectedUser.email}</span>
+                </span>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -666,9 +666,9 @@ export function UserManagementTable({
             <AlertDialogDescription>
               {localization.deleteUserDescription}
               {selectedUser && (
-                <div className="mt-2 p-2 bg-muted rounded-md">
-                  <p className="font-medium">{selectedUser.email}</p>
-                </div>
+                <span className="mt-2 block p-2 bg-muted rounded-md">
+                  <span className="font-medium">{selectedUser.email}</span>
+                </span>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
