@@ -94,7 +94,7 @@ export function MemberCell({
         <>
             <Card
                 className={cn(
-                    "flex-row items-center p-4",
+                    "flex flex-row items-center gap-2 p-4",
                     className,
                     classNames?.cell
                 )}
@@ -115,7 +115,7 @@ export function MemberCell({
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     className={cn(
-                                        "relative ms-auto",
+                                        "relative ms-auto shrink-0",
                                         classNames?.button,
                                         classNames?.outlineButton
                                     )}

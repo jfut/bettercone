@@ -31,13 +31,10 @@ export const mockAuthClient = {
   }),
   
   useActiveOrganization: () => ({
-    data: {
-      organization: mockOrganization,
-      member: mockMembers[0],
-    },
+    data: mockOrganization,
     isPending: false,
     error: undefined,
-    refetch: async () => ({ data: { organization: mockOrganization, member: mockMembers[0] }, error: null }),
+    refetch: async () => ({ data: mockOrganization, error: null }),
   }),
   
   useListOrganizations: () => ({
@@ -252,6 +249,26 @@ export const mockAuthClient = {
   ),
   
   $fetch: async (url: string) => {
+    // Mock organization API endpoints
+    if (url.startsWith("/organization/list-members")) {
+      return {
+        data: {
+          members: mockMembers,
+          total: mockMembers.length,
+        },
+        error: null,
+      };
+    }
+    if (url === "/organization/has-permission") {
+      return {
+        data: {
+          success: true,
+          error: null,
+        },
+        error: null,
+      };
+    }
+
     // Mock wallet API endpoints
     if (url === "/api/auth/wallets") {
       const { mockWalletConnections } = await import("./mock-data");
